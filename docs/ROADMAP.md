@@ -1,9 +1,15 @@
 # Roadmap / discussion notes
 
 Ideas under consideration. Nothing here is committed to yet — this is the
-"things to discuss" list. Grouped into three tracks: sharpening the existing
-analyzer, adding chorale Roman-numeral realization + part-writing, and adding
-optical music recognition.
+"things to discuss" list. Grouped into two tracks: sharpening the existing
+analyzer, and adding chorale Roman-numeral realization + part-writing.
+
+> **OCR / optical music recognition is deferred** (decided). Not a near-term
+> goal; notes kept at the bottom for later.
+>
+> **Near-term direction:** generate a four-part MusicXML hymn from a
+> Roman-numeral progression, reusing partwriter.com's part-writing logic.
+> Detailed plan in [`chorale-generation.md`](chorale-generation.md).
 
 ---
 
@@ -115,7 +121,9 @@ four-part chorale that obeys the rules.
 
 ---
 
-## Track C — Optical Music Recognition (OMR)
+## Track C — Optical Music Recognition (OMR) — DEFERRED
+
+> Deferred by decision — not a near-term goal. Kept for later reference.
 
 Let users upload a **photo or PDF of sheet music** instead of MusicXML/MIDI.
 Cleanly layered: OMR is a preprocessor that produces MusicXML, which then
@@ -155,15 +163,14 @@ dense orchestral scores. State it explicitly, same as the v1 harmony scope.
    second objective metric.
 4. **A3/A4/A5** — modulation, key ensemble, clean labels + per-chord
    confidence — then **A6 (LLM disambiguator)** on the low-confidence slices.
-5. **B2 → B3** — realization, then hybrid generation.
-6. **Track C (OMR)** — largest infra lift; slot in once the analysis core is
-   solid, as a separate service.
+5. **B2 → B3** — realization, then hybrid generation. Near-term, B2 is
+   fast-tracked by reusing partwriter.com (see `chorale-generation.md`).
+6. ~~Track C (OMR)~~ — deferred.
 
 ## Open questions to decide together
 - Does "output choral Roman numerals" mean realize (B2), analyze (current),
   or round-trip both?
-- For generation: deterministic rule-based first, or go straight to the
-  hybrid LLM + realizer?
-- OMR engine: oemer (easy, Python) vs. Audiveris (quality, JVM)?
-- Is a bigger deploy footprint acceptable (OMR/ML weights), or keep the core
-  service lean and split heavy features into their own containers?
+- Reuse partwriter.com by **porting its JS to Python** or **running it as a
+  Node sidecar**? (License/permission to confirm first.)
+- For generation beyond B2: deterministic rule-based only, or add the hybrid
+  LLM + realizer for style/modulation?
