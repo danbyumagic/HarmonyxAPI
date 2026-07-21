@@ -1,6 +1,6 @@
 ================================================================================
 NEXT AGENT — paste-ready prompt (Harmonyx API)
-Saved: 2026-07-21 after Q3a–c + frontend spice UI (pushed)
+Saved: 2026-07-21 after Q3a–c + frontend spice UI + handoff (pushed through 61b023d)
 ================================================================================
 
 Copy everything below the line into a new chat:
@@ -15,7 +15,7 @@ WHAT JUST SHIPPED (do not re-do)
 ================================================================================
 
 Branch: claude/harmonic-analysis-api-loc82f
-Remote: origin (pushed through 12b97fc as of this handoff)
+Remote: origin (pushed through 61b023d as of this handoff)
 
 Q3 richer rule grammar — DONE:
   387c8ae  Q3a: inversions + Cad64 approaches
