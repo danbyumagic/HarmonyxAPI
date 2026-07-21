@@ -341,15 +341,24 @@ Written notes (read these before re-cloning peers):
 | 01 | [`docs/research/01-resonance.md`](research/01-resonance.md) | will825/resonance — L4 architecture twin |
 | 02 | [`docs/research/02-choral-counterpoint.md`](research/02-choral-counterpoint.md) | DashWieland/choral-counterpoint — SATB checker + Bach oracle |
 | 03 | [`docs/research/03-partwise.md`](research/03-partwise.md) | cjohanson64-netizen/PartWise — M4 `/check` UX + evaluate API |
+| 04 | [`docs/research/04-chorale-optimizer.md`](research/04-chorale-optimizer.md) | 604korupt/chorale-optimizer — beam + fixups vs DP realizer |
 
-**Next suggested:** chorale-optimizer (beam search vs DP realizer), then
-choral-llm-workbench / When-in-Rome as needed.
+**Next suggested:** choral-llm-workbench (MusicXML + LLM choral reharm), then
+When-in-Rome as needed.
 
 ### PartWise one-liner (after #03)
 
 Student SATB evaluator: OSMD editor → `POST /api/satb/evaluate` → pass/warn/fail
 checks, issue-weighted %, note colors. **Steal UX/API projection; keep our
 `rules.py` depth; skip TryAngleTree runtime.**
+
+### chorale-optimizer one-liner (after #04)
+
+Soprano MIDI + chord symbols → ATB via **beam (w=40) + ≤6 iterative rule
+fixups**; Tkinter + VexFlow/WebAudio; 81 tests; always emits (best-effort).
+**Steal:** cadence phrase splits, residual flags, N6/Ger/secondary vocab
+checklist, optional best-effort *mode* ideas. **Keep** fail-closed DP + locked
+fixtures as default; do not replace `realize.py` with soft beam+fix.
 
 ---
 
@@ -360,6 +369,7 @@ checks, issue-weighted %, note colors. **Steal UX/API projection; keep our
 | 2026-07-21 | Initial landscape from two GitHub/web research passes (Harmonyx-adjacent + broad arrange/AI-theory). |
 | 2026-07-21 | Deep-dives #01 Resonance, #02 choral-counterpoint → `docs/research/`. |
 | 2026-07-21 | Deep-dive #03 PartWise → `docs/research/03-partwise.md` (M4 UX/API blueprint). |
+| 2026-07-21 | Deep-dive #04 chorale-optimizer → `docs/research/04-chorale-optimizer.md` (beam+fix vs DP). |
 
 When you re-scan, append a changelog row and note new Tier S/A finds at the top
 of §3–§4.

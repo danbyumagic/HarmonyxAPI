@@ -1,48 +1,72 @@
 ================================================================================
 NEXT AGENT — paste-ready prompt (Harmonyx API)
-Saved: 2026-07-21 after Q3a–c + frontend spice UI + handoff (pushed through 61b023d)
+Saved: 2026-07-21 after research deep-dives 01–04 + vision check-in
+Branch tip: see git log on claude/harmonic-analysis-api-loc82f after push
 ================================================================================
 
-Copy everything below the line into a new chat:
+Copy everything below the line into a new Claude Code chat:
 
 --------------------------------------------------------------------------------
 Read docs/START-HERE.md, AGENTS.md, and docs/AGENT-START-HERE.md.
 Then stop and wait for my instructions — do not start implementing anything yet.
 --------------------------------------------------------------------------------
 
+If the session is **research-only**, use docs/NEXT-RESEARCH-PASTE.txt instead
+(default next peer: #05 choral-llm-workbench).
+
 ================================================================================
-WHAT JUST SHIPPED (do not re-do)
+WHAT JUST HAPPENED (this Grok session — do not re-do)
 ================================================================================
 
 Branch: claude/harmonic-analysis-api-loc82f
-Remote: origin (pushed through 61b023d as of this handoff)
+Worktree (if present): /private/tmp/harmonyx-voicing-fix
+  (Developer path may be a separate checkout — always confirm with git status)
 
-Q3 richer rule grammar — DONE:
-  387c8ae  Q3a: inversions + Cad64 approaches
-  f330f0b  Q3b: secondary dominants + spice API (0–3)
-  416ae12  Q3c: style presets student/hymnal/spicy + docs §9b
-  12b97fc  Frontend: spice slider + Student/Hymnal/Spicy/Max pills on Generate
+Research deep-dives completed and documented:
 
-Also already done earlier: core analyze/generate, L1–L3 corpus/validator/fixer,
-OSMD, playback, grand staff. Locked tests: tests/test_partwriting.py (never edit).
+  01  docs/research/01-resonance.md           L4: LLM → RN JSON only; fallback
+  02  docs/research/02-choral-counterpoint.md M4: V/W rules; Bach oracle culture
+  03  docs/research/03-partwise.md            M4: evaluate UX + pass/warn/fail
+  04  docs/research/04-chorale-optimizer.md   Realizer peer: beam+fix vs DP
+
+Also: docs/CLASSICAL-AI-LANDSCAPE.md living map (Tier S–D).
+AI-DIARY entries 15–19 cover landscape + deep-dives.
+
+Human vision (context only, not a license to build everything):
+  Want to be wowed by classical music AI in every realm — multi-product
+  domain ambition; still work in small named chunks (AGENTS.md).
+
+Product code status unchanged this session (research docs only for #04).
+
+Already shipped earlier (do not re-implement):
+  Analyze, generate, progression grammar Q3a–c, spice UI, L1–L3,
+  OSMD, playback, grand staff, locked test_partwriting.py.
 
 Verify (optional):
   .venv/bin/python -m pytest tests/ -q
-  # expect ~155 passed
+  # expect ~155 passed (count may drift)
 
 ================================================================================
 OPEN QUEUE (human picks ONE chunk per session)
 ================================================================================
 
-  Q1  LLM progression L4+     docs/LLM-PROGRESSION-SPEC.md
-  Q2  M4 POST /check          part-writing on uploaded score (rules.py)
+Build candidates:
+  Q1  LLM progression L4+     docs/LLM-PROGRESSION-SPEC.md (+ steal from #01)
+  Q2  M4 POST /check          PartWise #03 UX + rules.py + #02 V/W
   Q4  Analyzer A1/A2/A7       NCT / cadences / RN-agreement eval
-  Q5  Docs / PR polish        PR #1 refresh if needed
+  Q5  Docs / PR polish
 
-Rules: AGENTS.md — ask before big spends; small chunks; commit/push at stops.
+Research default (if human says continue research):
+  #05  asb-42/choral-llm-workbench → docs/research/05-choral-llm-workbench.md
+  Paste: docs/NEXT-RESEARCH-PASTE.txt
 
-Git note: feature work may live in a worktree (e.g. /private/tmp/harmonyx-voicing-fix)
-on branch claude/harmonic-analysis-api-loc82f. Confirm `git status` / `git log` before push.
+Optional later ideas from research (not scheduled):
+  Best-effort generate mode + residual flags (#04)
+  Cadence phrase chunking for long paths (#04)
+  N6 / Ger6 vocabulary when fixtures exist (#04)
+
+Rules: AGENTS.md — ask before big spends; small chunks; never edit
+tests/test_partwriting.py; commit/push at stops.
 
 ================================================================================
 END

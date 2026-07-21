@@ -64,10 +64,14 @@ Priority is a **human choice** each session. Candidates:
 
 | ID | Item | Notes |
 |----|------|--------|
-| Q1 | LLM progression L4+ | L1–L3 done; next is L4 client — `docs/LLM-PROGRESSION-SPEC.md`. |
-| Q2 | **M4 `POST /check`** | Upload score → part-writing violations. Reuses `rules.py`. |
+| Q1 | LLM progression L4+ | L1–L3 done; next is L4 client — `docs/LLM-PROGRESSION-SPEC.md` (+ research #01). |
+| Q2 | **M4 `POST /check`** | Upload score → part-writing violations. Blueprint: research #03 PartWise. |
 | Q4 | Analyzer A1/A2/A7 | NCT filter, fermata cadences, RN-agreement eval. |
 | Q5 | Docs / PR polish | PR #1 may need refresh. |
+
+**Research peers (01–04 done):** notes under `docs/research/`. Default next
+research chunk when asked: **#05 choral-llm-workbench** — paste
+`docs/NEXT-RESEARCH-PASTE.txt`. Research is **not** a build license.
 
 **Do not** re-implement M1–M3, grand staff, OSMD, playback, L1–L3, or Q3
 unless fixing a regression.
@@ -81,6 +85,7 @@ Short version (also in `docs/NEXT-AGENT-PASTE.txt`):
 > anything yet.
 
 If the task is named (e.g. L4), also read that task’s spec before waiting.
+For classical×AI **research** sessions, paste `docs/NEXT-RESEARCH-PASTE.txt`.
 
 ## Optional deeper reading
 
@@ -92,5 +97,7 @@ If the task is named (e.g. L4), also read that task’s spec before waiting.
 - `docs/PARTWRITING-RULES.md` — locked theory for the realizer (§9 / §9b)
 - `docs/CLASSICAL-AI-LANDSCAPE.md` — external classical×AI / arrange landscape
   (GitHub peers, Tier S–D map; research only, not a build queue)
+- `docs/research/01`–`04-*.md` — peer deep-dives (Resonance, choral-counterpoint,
+  PartWise, chorale-optimizer)
 - `docs/NEXT-RESEARCH-PASTE.txt` — paste for next **research** session
 - `docs/AI-DIARY.md` — chronological agent log (newest at bottom)

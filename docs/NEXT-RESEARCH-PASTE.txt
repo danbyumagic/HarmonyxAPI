@@ -11,6 +11,7 @@ Read these, in order, then **stop and wait** for my instructions:
 4. `docs/research/01-resonance.md` (**done** — L4 architecture twin)
 5. `docs/research/02-choral-counterpoint.md` (**done** — SATB checker + Bach oracle)
 6. `docs/research/03-partwise.md` (**done** — M4 `/check` UX + evaluate API)
+7. `docs/research/04-chorale-optimizer.md` (**done** — beam + fixups vs DP realizer)
 
 **Do not start implementing code.** Research / notes only unless I name a build chunk.
 
@@ -21,20 +22,20 @@ Read these, in order, then **stop and wait** for my instructions:
 | 01 | `docs/research/01-resonance.md` | will825/resonance | LLM → RN JSON only; Zod; always-200 fallback; `source`/`reason` for L4 |
 | 02 | `docs/research/02-choral-counterpoint.md` | DashWieland/choral-counterpoint | V vs W rules; Bach false-alarm harness; fermata boundaries for M4 |
 | 03 | `docs/research/03-partwise.md` | cjohanson64-netizen/PartWise | Evaluate API projection; pass/warn/fail + colors + weighted %; skip TAT; keep our deeper `rules.py` |
+| 04 | `docs/research/04-chorale-optimizer.md` | 604korupt/chorale-optimizer | Beam w=40 + iterative fixups; always-emit; cadence splits; keep fail-closed DP |
 
 ## Next research chunk (default)
 
-**04 — chorale-optimizer** (`604korupt/chorale-optimizer`)
-- Why: beam search + iterative rule enforcement vs our DP realizer; VexFlow + play peer
-- Write notes to: `docs/research/04-chorale-optimizer.md`
+**05 — choral-llm-workbench** (`asb-42/choral-llm-workbench`)
+- Why: MusicXML + LLM choral reharm peer (L4 / arrangement-adjacent)
+- Write notes to: `docs/research/05-choral-llm-workbench.md`
 - Update `docs/CLASSICAL-AI-LANDSCAPE.md` §13 and a short `AI-DIARY` entry
-- Then **stop** for check-in (do not auto-continue to #05)
+- Then **stop** for check-in (do not auto-continue to #06)
 
 ## After that (only if I say continue)
 
 | # | Target | Focus |
 |---|--------|--------|
-| 05 | asb-42/choral-llm-workbench | MusicXML + LLM choral reharm |
 | 06 | MarkGotham/When-in-Rome | RN corpus for L1/eval |
 | 07 | billyblu2000/AccoMontage2 + POP909 | Arrangement track (later) |
 

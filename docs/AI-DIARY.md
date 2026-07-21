@@ -386,3 +386,43 @@ Harmonyx `rules.py` already deeper than their V1 checker.
 
 Updated landscape §13 + changelog. Next research chunk when asked:
 **#04 chorale-optimizer**.
+
+## Entry 19 — Research deep-dive #04 chorale-optimizer (2026-07-21)
+
+Read `604korupt/chorale-optimizer` (README + `harmonizer.py` / `main.py` /
+`score_svg.py` / `test_harmony.py`; 81 unittests OK). Notes:
+`docs/research/04-chorale-optimizer.md`.
+
+**Product:** soprano MIDI + chord symbols → ATB; Tkinter table + VexFlow
+browser score with Web Audio play.
+
+**Engine:** phrase-split beam search (width 40, soft costs) then ≤6 iterations
+of 12 sequential fixup passes (coverage, parallels, doubling, 7th/LT, etc.).
+Always returns voicings (best-effort); no fail-closed path.
+
+**Vs Harmonyx:** they require fixed soprano and soft-search; we RN→SATB with
+hard DP prune + `RealizationError`. Vocab table ~80 symbols including
+secondaries, mixture, N6, Ger65 — useful checklist, not a reason to drop
+music21 RN.
+
+**Steal:** cadence chunking idea, residual `(!)` flags, optional best-effort
+mode *concept*, property tests on generate→rules. **Don’t** replace default
+`realize.py` or loosen locked fixtures.
+
+Updated landscape §13 + changelog. Next research when asked:
+**#05 choral-llm-workbench**.
+
+## Entry 20 — Session wrap for Claude Code handoff (2026-07-21)
+
+Human shifting from Grok session → fresh Claude Code. No product code this
+session after #04 research.
+
+**Committed this wrap:** research #04 + landscape/diary updates + refreshed
+handoff pastes (`NEXT-AGENT-PASTE.txt`, `AGENT-START-HERE.md`, `START-HERE.md`,
+`NEXT-RESEARCH-PASTE.txt`).
+
+**Human north star (context):** wants to be wowed by classical music AI across
+realms (analyze, check, generate, reharm, arrange, teach, explain) — multi-year
+domain ambition; still one named chunk per session per AGENTS.md.
+
+**Claude Code: read handoff, stop, wait.** Do not auto-start L4/M4/research #05.
