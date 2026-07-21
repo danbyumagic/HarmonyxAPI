@@ -74,9 +74,10 @@ def candidate_voicings(
     the doubled-leading-tone / doubled-seventh carve-outs (§7).
 
     If ``soprano`` (a MIDI int) is given, only voicings with that exact
-    soprano are returned -- the caller (``realize.check_soprano``) is
-    responsible for first confirming it's a legal chord tone; this function
-    does not silently substitute a different soprano.
+    soprano are returned. The soprano must be a chord tone of ``figure``
+    (pitch class in ``chord_pitch_classes``); otherwise this returns ``[]``,
+    matching any other "no legal voicings" case. Callers that want per-beat
+    diagnostics can still use ``realize.check_soprano`` first.
 
     ``limit`` caps the returned candidate count (voicing space grows quickly
     for seventh chords); pass ``None`` for no cap.
@@ -88,6 +89,10 @@ def candidate_voicings(
     seventh_pc = members["seventh"]
 
     if soprano is not None:
+        # Reject non-chord-tone sopranos early; otherwise A/T/B can still cover
+        # the chord and we'd return a "valid" voicing with a wrong S pitch.
+        if (soprano % 12) not in _chords.chord_pitch_classes(figure, key_like):
+            return []
         soprano_options = [soprano]
     else:
         soprano_options = [p for pc in chord_pcs for p in _pitches_in_range(pc, S_RANGE)]
