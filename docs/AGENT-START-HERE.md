@@ -55,12 +55,13 @@ Branch: `claude/harmonic-analysis-api-loc82f` (confirm `git status` / `git log`)
 | 10 | `docs/research/10-thiri-mcp-and-music21-mcp.md` | Two MCP theory-server architectures |
 | 11 | `docs/research/11-augmentednet.md` | CRNN multi-task neural RNA; produced When-in-Rome's automatic analyses; ~45-52% full-RN accuracy ceiling reference |
 | 12 | `docs/research/12-jjazzlab.md` | Jazz backing-track app; product-completeness study — SPI-separated model/engine/UI, concatenative pattern-retrieval as a 3rd realization-strategy alternative |
+| 13 | `docs/research/13-rnbert-and-mumoe-rnbert.md` | MusicBERT fine-tuned for RNA (~57-62% full-RN composite, beats AugmentedNet/ChordGNN); muMoE extension adds expert-activation interpretability, not accuracy — no neural path scoped for Harmonyx's analyzer |
 
-Landscape map: `docs/CLASSICAL-AI-LANDSCAPE.md`. Research #01–#12 is
-complete; Tier 1, Tier 3 #11, and Tier 2 #5 of `docs/RESEARCH-QUEUE.md` are
-closed. Next default: **rnbert / muMoE-RNBERT** (neural RNA baselines, now
-comparable to AugmentedNet) or **ai-music-theory + MuTheoryEval** — human
-picks.
+Landscape map: `docs/CLASSICAL-AI-LANDSCAPE.md`. Research #01–#13 is
+complete; Tier 1, Tier 3 #11, Tier 2 #5, and Tier 2 #6 of
+`docs/RESEARCH-QUEUE.md` are closed. Next default: **ai-music-theory +
+MuTheoryEval** (theory-knowledge KB / LLM eval hub) or Tier 3 remainder
+(diatone, mcp-score, Humdrum tooling) — human picks.
 
 ### Designed / not started (build)
 

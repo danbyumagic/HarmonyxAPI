@@ -28,23 +28,23 @@ Read these, in order, then **stop and wait** for my instructions:
 | 10 | `docs/research/10-thiri-mcp-and-music21-mcp.md` | BluesPrince/thiri-mcp + SimonsonM/music21-mcp | Two opposite MCP theory-server architectures (hosted-proprietary client vs. local-open wrapper); steal: production-hardening checklist, low-boilerplate `@mcp.tool()` pattern; don't steal: hosted-API-with-quota design (doesn't apply — Harmonyx is the engine) |
 | 11 | `docs/research/11-augmentednet.md` | napulen/AugmentedNet | CRNN, 11-14-task multitask RNA (key/degree/quality/inversion/voice pitches), reconciled at inference via pcset-cosine match, not raw argmax; produced When-in-Rome's (#06) `analysis_automatic.rntxt`; best full-RN accuracy ~45-52% even with synthetic-data augmentation — useful ceiling reference for analyzer eval; don't steal: the network itself or its training strategy |
 | 12 | `docs/research/12-jjazzlab.md` | jjazzboss/JJazzLab | Mature jazz backing-track app (NetBeans RCP, 65-module Maven tree); product-completeness study, not a theory peer; steals: strict model/engine/UI separation behind a public `Rhythm`/`MusicGenerator` SPI, JJSwing's concatenative pattern-retrieval generation (hand-curated MIDI phrase bank scored by chord-sequence+tag, no ML/solver) as a 3rd lightweight realization-strategy alternative next to CP-SAT (#09) and VAE-embedding retrieval (#07); don't steal: NetBeans/desktop-app infra, jazz-specific content |
+| 13 | `docs/research/13-rnbert-and-mumoe-rnbert.md` | malcolmsailor/rnbert + TomusD/muMoE-RNBERT | MusicBERT fine-tuned via token classification for RNA (ISMIR 2024), ~57-62% full-RN composite accuracy on a 1,404-score corpus, beats AugmentedNet (#11) and ChordGNN; muMoE extension swaps in Multilinear-Mixture-of-Experts FFN layers for per-note expert-activation interpretability (heatmaps/bar charts), not higher accuracy; no neural path scoped for Harmonyx's rule-based analyzer |
 
-Research #01–#07 (the originally planned landscape order) is complete. #08–#12
+Research #01–#07 (the originally planned landscape order) is complete. #08–#13
 came from the follow-up `docs/RESEARCH-QUEUE.md` scan (Tier 1–4 candidates +
-a human-flagged repo). **Tier 1, Tier 3 #11, and Tier 2 #5 of the queue are
-now closed.**
+a human-flagged repo). **Tier 1, Tier 3 #11, Tier 2 #5, and Tier 2 #6 of the
+queue are now closed.**
 
 ## Next research chunk (default)
 
 Per `docs/RESEARCH-QUEUE.md`'s suggested order, the next candidate is:
-- **Tier 2 #6 rnbert / muMoE-RNBERT** — neural RNA baselines, now directly
-  comparable to AugmentedNet (#11).
-- Or **Tier 2 #7 ai-music-theory + MuTheoryEval** — theory-knowledge KB /
+- **Tier 2 #7 ai-music-theory + MuTheoryEval** — theory-knowledge KB /
   LLM eval hub.
+- Or Tier 3 remainder (#8 diatone, #9 mcp-score, #10 Humdrum tooling).
 
-See `docs/RESEARCH-QUEUE.md` for the full tiered list (11 repos), what to
+See `docs/RESEARCH-QUEUE.md` for the full tiered list, what to
 actually read in each, and the reasoning. Write notes to
-`docs/research/13-*.md`, update `docs/CLASSICAL-AI-LANDSCAPE.md` §10/§11/§13,
+`docs/research/14-*.md`, update `docs/CLASSICAL-AI-LANDSCAPE.md` §10/§11/§13,
 `docs/RESEARCH-QUEUE.md` (mark the entry done), and a short `AI-DIARY` entry.
 Then **stop** for check-in.
 

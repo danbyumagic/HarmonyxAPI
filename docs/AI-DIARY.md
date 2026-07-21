@@ -832,3 +832,84 @@ Rule 2b: good point for a chat reset before naming the next task — next
 research default is **rnbert / muMoE-RNBERT** (now comparable to both
 AugmentedNet #11 and this chunk's product-completeness framing) or
 **ai-music-theory + MuTheoryEval**; no build chunk implied by any of this.
+
+## Entry 29 — Research deep-dive #13 rnbert + muMoE-RNBERT (2026-07-21)
+
+Human was asked which Tier 2 remainder to do next (`rnbert/muMoE-RNBERT` vs.
+`ai-music-theory + MuTheoryEval`, per the queue's own "human picks" note) and
+chose rnbert/muMoE-RNBERT. Read via `gh api` + `gh repo view` (both repos are
+config/script-heavy fine-tuning pipelines, not deep codebases worth cloning):
+both READMEs in full, `.gitmodules` (4 satellite repos), `data_splits/*.txt`
+(corpus manifest — 1,103/149/146 train/valid/test paths under `ABCData/`,
+i.e. the Annotated Beethoven Corpus family), and — the actual substance —
+the full RNBert ISMIR 2024 camera-ready PDF (fetched and read all 8 pages,
+including Table 4 results and the coherence/decoherence discussion). The
+muMoE thesis PDF is gated behind a Google Drive link and was not fetched;
+its README description (CP-decomposition MoE layers on the last 3 of 12
+MusicBERT layers, 48 experts, "without sacrificing performance") was
+sufficient to characterize it as an interpretability extension, not an
+accuracy improvement. Notes: `docs/research/13-rnbert-and-mumoe-rnbert.md`.
+
+**What it is:** RNBert fine-tunes MusicBERT (BERT-base transformer
+pretrained on 1M+ MIDI files via the OctupleMIDI note encoding) for Roman
+numeral analysis using **token classification** — every note gets a
+predicted key/degree/quality/inversion, simultaneous-note logits are
+averaged after salami-slicing, and overlapping 1000-token analysis windows
+are cross-faded back together. An optional key-conditioning head (RN
+prediction concatenated with a learned key embedding) fixes a decoherence
+failure mode the paper walks through concretely: an unconditioned model can
+independently predict a "plausible" key and a "plausible" degree that don't
+actually cohere into a valid chord in that key. muMoE-RNBERT is the same
+model with Multilinear-Mixture-of-Experts FFN layers swapped in for the
+last 3 layers, purely so per-note expert-activation coefficients can be
+extracted and visualized (piano-roll heatmaps, label-correlation bar
+charts) — an interpretability study, not a new SOTA number.
+
+**Results (Table 4 of the paper):** on the largest RN-labeled corpus
+assembled to date (1,404 scores/~1.29M notes, a superset of When-in-Rome
+#06's ~1,300 analyses), RNBert's composite RN accuracy (**~57-62%
+RN±root**) clearly beats both AugmentedNet (#11, ~46%) and ChordGNN (~52%)
+on the same AugmentedNet-v1 split used by those papers — and the paper's
+own read is that the *margin is largest on the composite label*, not the
+individual degree/quality/inversion/key sub-tasks, implying pretraining
+buys inter-task *coherence* more than raw per-task accuracy. Notably, key
+accuracy on the full corpus (.822) is roughly tied with AugmentedNet's
+(.829) despite RNBert winning everywhere else — because the full corpus
+(via When-in-Rome) includes much more freely-modulating 19th-century
+material than the AugmentedNet-v1 subset, a second independent reminder
+(after #11's ceiling discussion) that these accuracy numbers are only
+comparable across matched corpora/splits.
+
+**Vs Harmonyx:** no architecture overlap — Harmonyx's analyzer stays
+fully rule-based via music21 and no neural path is on the open queue (Q4 is
+NCT filtering, fermata cadences, RN-agreement eval, all heuristic). This is
+purely an external-reference chunk: (1) a second published full-RN-
+composite accuracy bracket (~57-62%, next to AugmentedNet's ~46-52%) to
+cite together if analyzer eval (A7) is ever reported publicly; (2) the
+multitask-decomposition-plus-coherence framing is useful vocabulary for
+describing analogous decoherence bugs in Harmonyx's own rule-based RN
+assembly, even with zero ML involved; (3) muMoE's heatmap-overlay
+explainability pattern is a reusable *UI* idea (not a dependency) if a
+future feature ever needs to visually explain an analyzer decision.
+
+**Steal (ideas only):** dual accuracy-ceiling citation (AugmentedNet +
+RNBert together); "predict sub-components separately, then explicitly
+measure/fix cross-component coherence" as failure-mode vocabulary;
+corpus-mismatch caution when comparing RN accuracy numbers across sources;
+heatmap-overlay-of-a-per-decision-signal as a future explainability UI
+pattern. **Don't steal:** the MusicBERT/fairseq training pipeline or
+checkpoint; the μMoE CP-decomposition layer technique itself (general
+vision-model tool, not music-specific, no natural home in a rule-based
+analyzer).
+
+Updated `docs/CLASSICAL-AI-LANDSCAPE.md` §4.2 (rnbert/muMoE-RNBERT rows
+marked done), §10 (#9 marked done), §11 (two new backlog rows: dual
+accuracy-ceiling citation, heatmap-explainability pattern), §13/§14;
+`docs/RESEARCH-QUEUE.md` (#6 marked done, next-default updated to Tier 2 #7
+ai-music-theory+MuTheoryEval or Tier 3 remainder); `docs/NEXT-RESEARCH-
+PASTE.txt`; `docs/START-HERE.md` and `docs/AGENT-START-HERE.md`'s
+research-status lines. This closes **Tier 2 #6**, leaving Tier 2 #7
+(ai-music-theory + MuTheoryEval) and Tier 3 #8-10 (diatone, mcp-score,
+Humdrum tooling) as the remaining queue. Per AGENTS.md Rule 2b: good point
+for a chat reset before naming the next task — no build chunk implied by
+any of this.

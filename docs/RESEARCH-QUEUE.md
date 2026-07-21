@@ -82,12 +82,14 @@ read (not just "clone it").
    (#07) VAE-embedding retrieval and music-arranger's (#09) CP-SAT solving.
 
 6. **rnbert** (`malcolmsailor/rnbert`) + **muMoE-RNBERT**
-   (`TomusD/muMoE-RNBERT`) — neural Roman-numeral-analysis baselines
-   (ISMIR 2024 / ICASSP 2026). Only worth reading in depth if/when investing
-   in a neural RNA path for the analyzer (current analyzer is fully
-   rule-based via music21). Read together as one chunk: what's the accuracy
-   delta vs. rule-based, and what would integration even look like
-   (replace vs. ensemble vs. eval-only baseline).
+   (`TomusD/muMoE-RNBERT`) — **Done**, see
+   `docs/research/13-rnbert-and-mumoe-rnbert.md`. Neural Roman-numeral-
+   analysis baselines (ISMIR 2024 / ICASSP 2026): RNBert fine-tunes
+   MusicBERT via per-note token classification, ~57-62% full-RN composite
+   accuracy on a 1,404-score corpus (beats AugmentedNet #11 and ChordGNN);
+   muMoE-RNBERT swaps in Multilinear-Mixture-of-Experts FFN layers for
+   per-note expert-activation interpretability (heatmaps/bar charts), not
+   higher accuracy. No neural path is scoped for Harmonyx's analyzer.
 
 7. **`music-comp/ai-music-theory`** + **`thevertexlab/MuTheoryEval`** —
    machine-readable music-theory knowledge base (MCP) and an LLM
@@ -176,9 +178,10 @@ AugmentedNet~~ **Done** (`docs/research/11-augmentednet.md`) → ~~Tier 2 #5
 JJazzLab~~ **Done** (`docs/research/12-jjazzlab.md`) → Tier 2 remainder →
 Tier 3 remainder as time allows.
 
-Next default: Tier 2 #6 **rnbert / muMoE-RNBERT** (neural-RNA baselines, now
-comparable to AugmentedNet #11) or Tier 2 #7 **ai-music-theory +
-MuTheoryEval** (theory-knowledge KB / eval hub). Human picks.
+~~Tier 2 #6 rnbert / muMoE-RNBERT~~ **Done** (`docs/research/
+13-rnbert-and-mumoe-rnbert.md`). Next default: Tier 2 #7 **ai-music-theory +
+MuTheoryEval** (theory-knowledge KB / eval hub) or Tier 3 remainder
+(#8 diatone, #9 mcp-score, #10 Humdrum tooling).
 
 As always: one peer (or one small related cluster, like the two MCP servers)
 per chunk, notes written to `docs/research/0N-*.md`, landscape doc + AI-DIARY
