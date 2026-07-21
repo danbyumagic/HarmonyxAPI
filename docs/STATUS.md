@@ -1,0 +1,107 @@
+# Project status — Harmonyx API
+
+Snapshot for handoff (to Grok or any collaborator). Pairs with
+[`AI-DIARY.md`](AI-DIARY.md) (chronological log), [`ROADMAP.md`](ROADMAP.md),
+and [`chorale-generation.md`](chorale-generation.md).
+
+_Last updated: 2026-07-21._
+
+## One-liner
+Send a MusicXML or MIDI score to `POST /analyze`, get back a chord-by-chord
+Roman-numeral analysis (key, chords, cadences) as structured JSON. Deterministic
+core (music21) + an optional LLM "explainer."
+
+## Where the code lives
+- Repo: `danbyumagic/HarmonyxAPI`
+- Working branch: `claude/harmonic-analysis-api-loc82f`
+- PR: **#1** (draft, open, CI green) — https://github.com/danbyumagic/HarmonyxAPI/pull/1
+- Default branch: `main`
+
+## What's built (all working)
+```
+app/
+  analyzer.py   music21 core + the cleanup pass (parse → key → chordify →
+                romanNumeralFromChord → drop short slices + merge repeats →
+                cadence detection). Accepts a path/string OR a parsed
+                music21 Stream.
+  explainer.py  optional LLM walkthrough. Gated on ANTHROPIC_API_KEY; returns
+                None when absent so the core stays deterministic.
+                Model: claude-opus-4-8, adaptive thinking.
+  models.py     Pydantic response models (drive Swagger /docs).
+  main.py       FastAPI app.
+  static/       redesigned drop-zone frontend (key hero, cadence timeline,
+                per-measure chord cards, light/dark, resolution toggle).
+eval/
+  run_eval.py       key-detection agreement harness (also a CI gate: --min)
+  expected/keys.json ground truth for 20 Bach chorales
+tests/test_analyzer.py   13 tests (cleanup, cadences, degree parsing,
+                         full pipeline, endpoint)
+docs/             ROADMAP.md, chorale-generation.md, STATUS.md, AI-DIARY.md
+Dockerfile, railway.json, fly.toml   container-first deploy
+.github/workflows/ci.yml             runs pytest + the eval gate
+requirements.txt, requirements-dev.txt, .env.example, .gitignore
+README.md
+```
+
+## API surface
+| Route | Method | Notes |
+|---|---|---|
+| `/analyze` | POST | `file` (upload) + query `duration_threshold` (default 0.5), `explain` (default false). Returns `{key, confidence, chords[], cadences[], explanation?}`. |
+| `/health` | GET | `{status: "ok"}` (deploy probe). |
+| `/` | GET | Frontend. |
+| `/docs` | GET | Swagger UI. |
+
+Accepted uploads: `.musicxml`, `.xml`, `.mxl`, `.mid`, `.midi`.
+
+## How to run / verify
+```bash
+pip install -r requirements.txt
+uvicorn app.main:app --reload      # http://localhost:8000  (/ and /docs)
+
+pip install -r requirements-dev.txt
+python -m pytest tests/            # 13 passed
+python -m eval.run_eval            # Agreement: 13/20 = 65%
+```
+
+## Current quality (honest)
+- **Key detection eval: 65% (13/20)** on the Bach chorale set. Most misses are
+  relative major/minor confusion in music21's global key analysis.
+- **Analyzed by hand this session:** BWV 140/7 "Wachet auf" → E♭ major ✓;
+  "Nearer, My God, to Thee" (user upload) → F major ✓.
+
+## Known limitations (these are the next work items)
+1. **Non-chord-tone noise** at fine resolution — passing tones/suspensions get
+   verticalized into fake chords (`V42`, `quartal trichord`, `i5`,
+   `v7 "incomplete dominant-seventh"`). The duration-threshold cleanup helps but
+   doesn't do true NCT analysis.
+2. **Over-eager cadence detection** — fires "half" on every →V, mid-phrase
+   included. No phrase segmentation yet (fermatas would give it for free).
+3. **No modulation/tonicization** — everything forced into one global key;
+   tonicizations show up as chromatic chords (`II` = V/V, etc.).
+4. **Key detection** — relative major/minor confusion (the 65%).
+
+## Decisions made
+- **OCR / optical music recognition: deferred.** Not near-term.
+- **Chorale generation direction confirmed:** `key + RN progression →
+  part-writing engine → SATB → MusicXML four-part hymn`, the clean inverse of
+  the analyzer (they round-trip and validate each other).
+- **Build our own part-writing engine (clean-room).** The rules are standard
+  music theory, not partwriter.com's IP — reimplement in Python from first
+  principles; do NOT copy their code. No license gate, no Node sidecar.
+- **LLM explainer** shipped (low-risk AI angle). The **LLM disambiguator** (the
+  more interesting angle) is planned but not built.
+
+## Open questions (need a human decision)
+1. "Output choral Roman numerals" — does it mean *realize* an RN progression to
+   SATB (the generator), *analyze* SATB to RNs (already done), or round-trip both?
+2. Generator input: **soprano given or free?**
+3. Generation: rule-based only, or add a hybrid LLM (proposes progression) +
+   deterministic realizer + rule-checker for style/modulation?
+
+## Suggested next steps (from ROADMAP phasing)
+1. NCT filtering (A1) + fermata-based cadence detection (A2) — biggest quality
+   jump, no new infra.
+2. RN-agreement eval (A7) — chord-by-chord vs. a labelled RomanText corpus.
+3. Part-writing rule checker (B1) — reuses SATB parsing; music21 `voiceLeading`.
+4. Then the generator (B2): candidate voicings + DP/search minimizing
+   voice-leading cost + rule penalties → emit MusicXML via music21.
