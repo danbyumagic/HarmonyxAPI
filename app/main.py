@@ -15,16 +15,24 @@ from fastapi.staticfiles import StaticFiles
 
 from .analyzer import DEFAULT_DURATION_THRESHOLD, AnalysisError, analyze_score
 from .explainer import explain_progression
+from .generation.grammar import GrammarError, generate_progression
 from .generation.realize import RealizationError, check_soprano, realize
-from .models import AnalysisResponse, GenerateRequest, GenerateResponse
+from .models import (
+    AnalysisResponse,
+    GenerateRequest,
+    GenerateResponse,
+    ProgressionRequest,
+    ProgressionResponse,
+)
 
 app = FastAPI(
     title="Harmonyx API",
     version="1.0.0",
     description=(
         "Two-way harmony tool: **analyze** a score to Roman numerals "
-        "(`POST /analyze`), or **generate** a four-part SATB MusicXML hymn "
-        "from a Roman-numeral progression (`POST /generate`).\n\n"
+        "(`POST /analyze`), **propose** an idiomatic progression "
+        "(`POST /progression`), or **realize** RNs as four-part SATB MusicXML "
+        "(`POST /generate`).\n\n"
         "**v1 scope:** four-part chorale texture in a single major/minor key, "
         "no modulation."
     ),
@@ -86,6 +94,36 @@ async def analyze(
         payload["explanation"] = explain_progression(result)
 
     return AnalysisResponse(**payload)
+
+
+@app.post("/progression", response_model=ProgressionResponse, tags=["generation"])
+async def progression(body: ProgressionRequest) -> ProgressionResponse:
+    """Generate an idiomatic Roman-numeral progression (Layer 1 grammar).
+
+    Honors optional locked slots and forces a PAC or HC ending. Pass the
+    returned ``progression`` to ``POST /generate`` to realize SATB MusicXML.
+    """
+    try:
+        figures = generate_progression(
+            body.key,
+            length=body.length,
+            locked=body.locked,
+            cadence=body.cadence,
+            seed=body.seed,
+        )
+    except GrammarError as exc:
+        raise HTTPException(
+            status_code=422,
+            detail={"error": "grammar_failed", "message": str(exc)},
+        ) from exc
+
+    return ProgressionResponse(
+        key=body.key,
+        length=body.length,
+        cadence=body.cadence.upper(),
+        seed=body.seed,
+        progression=figures,
+    )
 
 
 @app.post("/generate", response_model=GenerateResponse, tags=["generation"])

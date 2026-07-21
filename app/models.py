@@ -137,3 +137,64 @@ class GenerateResponse(BaseModel):
             }
         }
     }
+
+
+class ProgressionRequest(BaseModel):
+    """Body for ``POST /progression``: idiomatic Roman-numeral list (Layer 1)."""
+
+    key: str = Field(..., description="Key, e.g. 'C major' or 'A minor'.", examples=["C major"])
+    length: int = Field(
+        8,
+        ge=1,
+        le=64,
+        description="Number of chords to generate (PAC needs >= 2).",
+    )
+    locked: Optional[dict[int, str]] = Field(
+        None,
+        description=(
+            "Optional map of chord index → Roman figure that must appear "
+            "at that slot (e.g. {\"1\": \"IV\"})."
+        ),
+    )
+    cadence: str = Field(
+        "PAC",
+        description='Cadence type: "PAC" (V|V7→I/i) or "HC" (ends on V).',
+    )
+    seed: Optional[int] = Field(
+        None,
+        description="If set, generation is deterministic for the same inputs.",
+    )
+
+    model_config = {
+        "json_schema_extra": {
+            "example": {
+                "key": "C major",
+                "length": 8,
+                "locked": {"1": "IV"},
+                "cadence": "PAC",
+                "seed": 42,
+            }
+        }
+    }
+
+
+class ProgressionResponse(BaseModel):
+    """Generated Roman-numeral progression."""
+
+    key: str
+    length: int
+    cadence: str
+    seed: Optional[int] = None
+    progression: List[str] = Field(..., description="Roman-numeral figures in order.")
+
+    model_config = {
+        "json_schema_extra": {
+            "example": {
+                "key": "C major",
+                "length": 8,
+                "cadence": "PAC",
+                "seed": 42,
+                "progression": ["I", "IV", "ii6", "V", "I", "vi", "V7", "I"],
+            }
+        }
+    }
