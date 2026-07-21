@@ -4,6 +4,11 @@ Ideas under consideration. Nothing here is committed to yet — this is the
 "things to discuss" list. Grouped into two tracks: sharpening the existing
 analyzer, and adding chorale Roman-numeral realization + part-writing.
 
+> **External classical × AI landscape (2026-07-21):** see
+> [`CLASSICAL-AI-LANDSCAPE.md`](CLASSICAL-AI-LANDSCAPE.md) for GitHub peers
+> (analysis, SATB, arrangement, LLM-theory patterns). Research bookmark only —
+> not a committed build queue.
+
 > **OCR / optical music recognition is deferred** (decided). Not a near-term
 > goal; notes kept at the bottom for later.
 >

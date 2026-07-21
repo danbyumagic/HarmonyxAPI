@@ -321,3 +321,46 @@ Commit `12b97fc` (pushed with Q3a–c).
 Handoff for chat clear: `docs/NEXT-AGENT-PASTE.txt` (paste-ready next-agent
 prompt). Refreshed `AGENT-START-HERE.md` / `START-HERE.md` so Q3 is marked done
 and agents wait for a human-named chunk (L4 / Q2 / Q4 / Q5).
+
+## Entry 15 — Classical × AI landscape research (2026-07-21)
+
+Human asked for recent GitHub peers relevant to Harmonyx, then a **broader**
+scan (arrangement, AI music theory, adjacent), with long-term interest in
+owning classical music × AI.
+
+Documented findings in **`docs/CLASSICAL-AI-LANDSCAPE.md`** (living map):
+
+- **Tier S architecture peers:** Resonance (LLM → RN only → deterministic
+  voice-leading), choral-counterpoint, choral-llm-workbench, thiri-mcp /
+  music21-mcp.
+- **Tier A classical:** PartWise (M4 check UX), chorale-optimizer,
+  ChoraleHarmonizer, When-in-Rome, RNBERT / μMoE-RNBERT, etc.
+- **Tier B arrange/reharm:** AccoMontage2, POP909, JJazzLab, D3EMO, bebop, …
+- **Tier C:** CoComposer, DAW MCP/skills, ai-music-theory KB, MuTheoryEval,
+  smg_metric, PDMX.
+- **Tier D:** audio full-song / chatbot noise (explicitly deprioritized).
+- Deep-dive order, refresh queries (§8), domain expansion backlog (§11).
+
+Also linked from `START-HERE.md` optional reading. **No code changes.**
+Not a build queue — study only unless human names a chunk.
+
+## Entry 16 — Research deep-dives begun (2026-07-21)
+
+Started Tier S deep-dives; notes under `docs/research/`:
+
+1. **`01-resonance.md`** — Next.js + Groq; LLM emits RN JSON only; Zod;
+   always-200 fallback templates; block voice-leading (not SATB). Steal for
+   L4: `source`/`reason`, JSON+retry, force user key, never empty propose.
+2. **`02-choral-counterpoint.md`** — Melody→SATB engine; hard/soft checker
+   calibrated on Bach; outer-voice oracle; fermata phrase boundaries;
+   false-alarm harness. Steal for M4: V vs W tiers, Bach validation culture.
+   **Do not** loosen locked `test_partwriting.py` to match their warnings.
+
+Next research chunk (when human says): PartWise.
+
+
+## Entry 17 — Research docs committed + next-session paste (2026-07-21)
+
+Committed landscape + deep-dives 01–02 on `claude/harmonic-analysis-api-loc82f`.
+Added `docs/NEXT-RESEARCH-PASTE.txt` for a fresh agent to continue with **PartWise**
+(#03) without re-explaining context. Research only; no product code.

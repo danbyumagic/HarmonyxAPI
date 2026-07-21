@@ -90,4 +90,7 @@ If the task is named (e.g. L4), also read that task’s spec before waiting.
 - `docs/IMPLEMENTATION-PLAN.md` — older milestone plan (M0–M5 largely done
   except M4)
 - `docs/PARTWRITING-RULES.md` — locked theory for the realizer (§9 / §9b)
+- `docs/CLASSICAL-AI-LANDSCAPE.md` — external classical×AI / arrange landscape
+  (GitHub peers, Tier S–D map; research only, not a build queue)
+- `docs/NEXT-RESEARCH-PASTE.txt` — paste for next **research** session
 - `docs/AI-DIARY.md` — chronological agent log (newest at bottom)
