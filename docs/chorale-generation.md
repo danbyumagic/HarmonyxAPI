@@ -2,8 +2,9 @@
 
 **Status:** planning / discussion.
 **Decision so far:** OCR is deferred (see ROADMAP). The near-term focus is
-generating a four-part hymn from a Roman-numeral progression, reusing existing
-part-writing logic rather than building a voicing engine from scratch.
+generating a four-part hymn from a Roman-numeral progression. We will build our
+**own** part-writing engine — a clean-room reimplementation of the standard
+rules — rather than copying partwriter.com's code.
 
 ## The idea (confirmed: yes, this makes sense)
 
@@ -13,7 +14,7 @@ This is the clean inverse of the analyzer:
 key + Roman-numeral progression
         │
         ▼
-  part-writing engine  ← reuse partwriter.com's voice-leading logic
+  part-writing engine  ← our own clean-room implementation of the rules
         │  (assign chord tones to S/A/T/B under the rules)
         ▼
   four-part SATB voicing
@@ -27,30 +28,39 @@ The analyzer already goes **score → Roman numerals**. This adds
 hymn from a progression, then analyze it back and confirm it reproduces the
 input RNs (a built-in correctness check + eval signal).
 
-## Why reuse partwriter.com
+## Build our own engine (clean-room)
 
 Part-writing (voicing an RN progression under SATB rules — no parallel
 5ths/8ves, resolve the leading tone and chordal 7th, correct doubling, keep
-common tones, respect vocal ranges, no crossing/overlap, proper spacing) is
-the hard, fiddly core. partwriter.com already implements this in JavaScript,
-so reusing it expedites the whole feature versus writing a constraint
-solver/search from scratch.
+common tones, respect vocal ranges, no crossing/overlap, proper spacing) is the
+hard, fiddly core — but the rules themselves are **standard music theory, not
+anyone's intellectual property.** partwriter.com implements them in JS; we will
+**not** copy its code. Instead:
 
-### Reuse options (to decide)
-1. **Port the JS logic to Python** — keeps the service single-language
-   (FastAPI/Python), no extra runtime; cost is the porting effort and keeping
-   it in sync with any upstream changes.
-2. **Run the JS as-is via a Node sidecar** — call it over a small subprocess
-   or HTTP boundary; keeps the original logic verbatim, adds a Node dependency
-   to the deploy.
+- **Clean-room reimplementation:** implement the rules from first principles
+  (any harmony textbook), in Python, in our own service.
+- **Don't copy** partwriter.com's source, code structure, or distinctive
+  implementation details. Studying observable behavior to understand the rules
+  is fine; the rules are public knowledge. (If poking at the site
+  programmatically, check its Terms of Service — but we don't need to; the
+  rules are well documented.)
+- **Build on music21:** its `voiceLeading` module already detects
+  parallels/hidden intervals, so the checker half is partly done for us.
 
-### Prerequisites / open questions
-- **License & permission:** confirm partwriter.com's code is licensed for
-  reuse (or get the author's permission) before porting or vendoring it.
-- **Input surface:** what exactly does its engine expect (key, RN list,
-  figured-bass details, soprano given or free)? That shapes our request model.
-- **Determinism:** does it return one voicing or several? Do we want the
-  "textbook" realization, or offer alternates?
+This removes the earlier license and port-vs-sidecar questions — it's a
+single-language Python engine, no extra runtime.
+
+### The engine, concretely
+Generate candidate voicings per chord, then choose a path with dynamic
+programming / search that minimizes a cost function:
+voice-leading distance + rule penalties (parallels, unresolved LT/7th, bad
+doubling, spacing, crossing). This is a well-trodden approach and stays
+deterministic and explainable.
+
+### Open questions
+- **Input surface:** key, RN list, time signature — soprano given or free?
+  (A given soprano constrains the search and matches how hymns are often set.)
+- **Output:** one "textbook" realization, or offer a few alternates?
 
 ## Proposed shape in this project
 
@@ -73,8 +83,10 @@ solver/search from scratch.
   violations — an objective quality number, same pattern as the analysis eval.
 
 ## Phasing
-1. Confirm license + inspect partwriter.com's input/output contract.
-2. Decide port-to-Python vs. Node sidecar.
+1. Write down the rule set + cost function (from theory sources), and decide
+   soprano-given vs. free.
+2. Build the Python voicing engine (candidate voicings + DP/search), with
+   music21's `voiceLeading` for parallel/hidden-interval checks.
 3. Wire `POST /generate`: progression → engine → SATB → MusicXML.
 4. Round-trip and rule-violation checks as the eval.
 5. Frontend panel + download.
