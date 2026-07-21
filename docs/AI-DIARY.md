@@ -152,3 +152,17 @@ User confirmed Harmonyx is a **multi-utility tool that does both** — analyze
 designed as inverses that round-trip and validate each other. This closes the
 last open direction question; remaining decisions are implementation details
 (e.g. one realization vs. several alternates). Updated STATUS and ROADMAP.
+
+## Entry 8 — Rules as source of truth (agent-independent correctness)
+User's principle: the part-writing rules must be **truths regardless of the
+agent** — not left to a model's latent music knowledge. Wrote
+`PARTWRITING-RULES.md` as the authoritative spec: hard invariants (ranges,
+spacing, crossing/overlap, parallel & direct 5ths/8ves, LT & 7th resolution)
+defined precisely with **golden fixtures** (voicing pairs + expected result),
+plus soft preferences (doubling, voice-leading cost weights) and the functional
+transition table with weights, RN-normalization rules for the round-trip eval,
+and a music21 gotchas section. The fixtures ARE the spec: an implementation is
+correct when `tests/test_partwriting.py` passes and realized progressions have
+zero hard-invariant violations — so a lower-context (e.g. Sonnet-level) agent
+can build the engine correctly against external truths rather than guessing.
+Linked from IMPLEMENTATION-PLAN and STATUS.

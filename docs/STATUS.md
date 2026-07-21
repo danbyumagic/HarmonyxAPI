@@ -2,9 +2,12 @@
 
 Snapshot for handoff (to Grok or any collaborator). Pairs with
 [`AI-DIARY.md`](AI-DIARY.md) (chronological log), [`ROADMAP.md`](ROADMAP.md),
-[`chorale-generation.md`](chorale-generation.md), and the step-by-step
+[`chorale-generation.md`](chorale-generation.md), the step-by-step
 [`IMPLEMENTATION-PLAN.md`](IMPLEMENTATION-PLAN.md) (modules, signatures, tests,
-milestones).
+milestones), and [`PARTWRITING-RULES.md`](PARTWRITING-RULES.md) — the
+**authoritative rule spec** (hard invariants as fixtures, soft preferences as
+documented weights) that makes the engine correct independent of which agent
+builds it.
 
 _Last updated: 2026-07-21._
 

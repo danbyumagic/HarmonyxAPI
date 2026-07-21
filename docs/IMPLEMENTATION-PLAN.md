@@ -11,6 +11,12 @@ Guiding constraints (carry over from the existing code):
 - Don't regress the 13 tests or the eval gate.
 - New voicing/grammar logic is **clean-room** — implement rules from theory, do
   not copy third-party code.
+- **The rules are a fixed spec, not the agent's judgment.** Implement §0–§11 of
+  [`PARTWRITING-RULES.md`](PARTWRITING-RULES.md) exactly: hard invariants become
+  checker functions + golden fixtures (the fixtures *are* the spec); soft
+  preferences use the documented weights. An implementation is correct when the
+  fixtures pass and the realized test progressions have zero hard-invariant
+  violations — regardless of which agent wrote it.
 
 ---
 
