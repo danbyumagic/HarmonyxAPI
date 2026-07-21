@@ -35,8 +35,9 @@ see `AGENTS.md` at the repo root.
 | **Q3b** | Done | Secondary dominants behind `spice` 0–3. |
 | **Q3c** | Done | `style` presets (`student` / `hymnal` / `spicy`); docs §9b. |
 
-Default propose stays student-safe (`spice=0`). Opt in with `spice` or `style`.
-Spec: `docs/RICH-GRAMMAR-SPEC.md`. No frontend style dropdown yet (backend API only).
+Default propose stays student-safe (`spice=0`). Opt in with `spice` or `style`
+(API and Generate-tab **spice slider / style pills**). Spec:
+`docs/RICH-GRAMMAR-SPEC.md`.
 
 **LLM progression foundation (L1–L3)**
 
@@ -66,17 +67,20 @@ Priority is a **human choice** each session. Candidates:
 | Q1 | LLM progression L4+ | L1–L3 done; next is L4 client — `docs/LLM-PROGRESSION-SPEC.md`. |
 | Q2 | **M4 `POST /check`** | Upload score → part-writing violations. Reuses `rules.py`. |
 | Q4 | Analyzer A1/A2/A7 | NCT filter, fermata cadences, RN-agreement eval. |
-| Q5 | Docs / PR polish | PR #1 may need refresh; push Q3 + L1–L3 if still local-only. |
-| — | Frontend style dropdown | Optional UX on top of Q3c API (`style` / `spice`). |
+| Q5 | Docs / PR polish | PR #1 may need refresh. |
 
 **Do not** re-implement M1–M3, grand staff, OSMD, playback, L1–L3, or Q3
 unless fixing a regression.
 
 ## If you're starting a new chat, paste this in
 
-> Read `docs/START-HERE.md`, `AGENTS.md`, and (if the task names them)
-> `docs/RICH-GRAMMAR-SPEC.md` or `docs/LLM-PROGRESSION-SPEC.md`. Then **stop
-> and wait** for my instructions — do not start implementing anything yet.
+Short version (also in `docs/NEXT-AGENT-PASTE.txt`):
+
+> Read `docs/START-HERE.md`, `AGENTS.md`, and `docs/AGENT-START-HERE.md`.
+> Then **stop and wait** for my instructions — do not start implementing
+> anything yet.
+
+If the task is named (e.g. L4), also read that task’s spec before waiting.
 
 ## Optional deeper reading
 

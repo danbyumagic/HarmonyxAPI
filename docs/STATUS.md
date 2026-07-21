@@ -83,7 +83,8 @@ tests/   analyzer, partwriting (LOCKED), generation_*, generate/progression,
 |-------|--------|
 | Q3a inversions + Cad64 | **Done** |
 | Q3b secondary dominants + `spice` API | **Done** |
-| Q3c style presets + polish | **Done** (backend; no UI dropdown) |
+| Q3c style presets + polish | **Done** |
+| Frontend spice UI | **Done** (Generate tab slider + pills) |
 
 `style` → spice: `student`=0, `hymnal`=1, `spicy`=2. Style wins if both set.
 Default omit → spice 0 (no free-walk secondary dominants). spice=3 is

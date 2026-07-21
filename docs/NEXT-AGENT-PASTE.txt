@@ -1,0 +1,49 @@
+================================================================================
+NEXT AGENT — paste-ready prompt (Harmonyx API)
+Saved: 2026-07-21 after Q3a–c + frontend spice UI (pushed)
+================================================================================
+
+Copy everything below the line into a new chat:
+
+--------------------------------------------------------------------------------
+Read docs/START-HERE.md, AGENTS.md, and docs/AGENT-START-HERE.md.
+Then stop and wait for my instructions — do not start implementing anything yet.
+--------------------------------------------------------------------------------
+
+================================================================================
+WHAT JUST SHIPPED (do not re-do)
+================================================================================
+
+Branch: claude/harmonic-analysis-api-loc82f
+Remote: origin (pushed through 12b97fc as of this handoff)
+
+Q3 richer rule grammar — DONE:
+  387c8ae  Q3a: inversions + Cad64 approaches
+  f330f0b  Q3b: secondary dominants + spice API (0–3)
+  416ae12  Q3c: style presets student/hymnal/spicy + docs §9b
+  12b97fc  Frontend: spice slider + Student/Hymnal/Spicy/Max pills on Generate
+
+Also already done earlier: core analyze/generate, L1–L3 corpus/validator/fixer,
+OSMD, playback, grand staff. Locked tests: tests/test_partwriting.py (never edit).
+
+Verify (optional):
+  .venv/bin/python -m pytest tests/ -q
+  # expect ~155 passed
+
+================================================================================
+OPEN QUEUE (human picks ONE chunk per session)
+================================================================================
+
+  Q1  LLM progression L4+     docs/LLM-PROGRESSION-SPEC.md
+  Q2  M4 POST /check          part-writing on uploaded score (rules.py)
+  Q4  Analyzer A1/A2/A7       NCT / cadences / RN-agreement eval
+  Q5  Docs / PR polish        PR #1 refresh if needed
+
+Rules: AGENTS.md — ask before big spends; small chunks; commit/push at stops.
+
+Git note: feature work may live in a worktree (e.g. /private/tmp/harmonyx-voicing-fix)
+on branch claude/harmonic-analysis-api-loc82f. Confirm `git status` / `git log` before push.
+
+================================================================================
+END
+================================================================================

@@ -311,3 +311,13 @@ this spec marked implemented. **No** frontend dropdown (optional later).
 
 Full suite after Q3c: **~150+ passed**. Open queue now: L4 LLM client, Q2
 `POST /check`, Q4 analyzer, Q5 PR/push polish.
+
+## Entry 14 — Frontend spice UI + handoff file (2026-07-21)
+
+Added Generate-tab **spice slider (0–3)** and **Student / Hymnal / Spicy / Max**
+pills; Propose sends `spice` (+ `style` for 0–2) and status-echoes result.
+Commit `12b97fc` (pushed with Q3a–c).
+
+Handoff for chat clear: `docs/NEXT-AGENT-PASTE.txt` (paste-ready next-agent
+prompt). Refreshed `AGENT-START-HERE.md` / `START-HERE.md` so Q3 is marked done
+and agents wait for a human-named chunk (L4 / Q2 / Q4 / Q5).
