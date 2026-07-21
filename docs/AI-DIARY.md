@@ -108,8 +108,15 @@ AI angle once NCT filtering and modulation detection land.
 
 ### Still open for a human
 - "Output choral Roman numerals" = realize / analyze / round-trip both?
-- Generator: soprano given or free?
 - Generation: rule-based only vs. hybrid LLM + realizer.
+
+## Entry 5 — Generator: soprano decision
+User decided the **soprano is optional**. Free-soprano mode has the engine
+choose all four voices; given-soprano mode voices A/T/B beneath the provided
+line, but only after a **chord-membership compatibility check** — each soprano
+note must be a legal tone of its Roman numeral's chord, else reject with a clear
+per-beat message. Reuses the analyzer's chord-membership logic. Folded into
+`chorale-generation.md`, `ROADMAP.md`, and `STATUS.md`.
 
 ---
 

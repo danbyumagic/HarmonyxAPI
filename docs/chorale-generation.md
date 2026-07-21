@@ -57,17 +57,36 @@ voice-leading distance + rule penalties (parallels, unresolved LT/7th, bad
 doubling, spacing, crossing). This is a well-trodden approach and stays
 deterministic and explainable.
 
+### Input surface (decided)
+- **key, RN list, time signature** — required.
+- **Soprano: optional.**
+  - *Not provided* → the engine chooses all four voices freely, soprano
+    included.
+  - *Provided* → the engine voices alto/tenor/bass beneath the given soprano,
+    but only after a **compatibility check** (below).
+
+### Soprano compatibility check (when a soprano is provided)
+Before voicing, verify each soprano note is a legal tone of the chord its
+Roman numeral implies (root / third / fifth / seventh). Reuses the same
+chord-membership logic the analyzer already relies on.
+- On mismatch, **reject with a clear message** — e.g. `beat 3: soprano G4 is
+  not a chord tone of V (chord tones: B, D, F)` — rather than forcing a bad
+  voicing. (Later we could optionally allow flagged non-chord tones like
+  passing/neighbor notes, but v1 requires chord tones.)
+- Return the check result in the response so the frontend can highlight the
+  offending beat.
+
 ### Open questions
-- **Input surface:** key, RN list, time signature — soprano given or free?
-  (A given soprano constrains the search and matches how hymns are often set.)
 - **Output:** one "textbook" realization, or offer a few alternates?
 
 ## Proposed shape in this project
 
 - **New endpoint** `POST /generate` (or `/harmonize`):
   request = `{ key, progression: ["I", "V6", "vi", ...], time_signature?,
-  soprano? }` → response = MusicXML (four parts) + optionally the same
-  structured chord list the analyzer returns.
+  soprano? }` (soprano optional) → response = MusicXML (four parts) +
+  optionally the same structured chord list the analyzer returns. If a soprano
+  is given and fails the compatibility check, return a 422 with the offending
+  beat(s).
 - **Reuse the part-writing engine** (ported or sidecar) to produce the SATB
   voicing.
 - **Emit MusicXML** via music21 (build a 4-voice `Score`, write to MusicXML) —
@@ -83,10 +102,13 @@ deterministic and explainable.
   violations — an objective quality number, same pattern as the analysis eval.
 
 ## Phasing
-1. Write down the rule set + cost function (from theory sources), and decide
-   soprano-given vs. free.
+1. Write down the rule set + cost function (from theory sources).
 2. Build the Python voicing engine (candidate voicings + DP/search), with
-   music21's `voiceLeading` for parallel/hidden-interval checks.
-3. Wire `POST /generate`: progression → engine → SATB → MusicXML.
-4. Round-trip and rule-violation checks as the eval.
-5. Frontend panel + download.
+   music21's `voiceLeading` for parallel/hidden-interval checks. Support both
+   free-soprano and given-soprano modes.
+3. Add the soprano compatibility check (chord-membership) for given-soprano
+   input.
+4. Wire `POST /generate`: progression (+ optional soprano) → engine → SATB →
+   MusicXML.
+5. Round-trip and rule-violation checks as the eval.
+6. Frontend panel + download.

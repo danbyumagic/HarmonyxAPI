@@ -170,11 +170,13 @@ dense orchestral scores. State it explicitly, same as the v1 harmony scope.
 ## Open questions to decide together
 - Does "output choral Roman numerals" mean realize (B2), analyze (current),
   or round-trip both?
-- For the generator: is the **soprano given** (constrains the search, matches
-  how hymns are set) or free?
 - For generation beyond B2: deterministic rule-based only, or add the hybrid
   LLM + realizer for style/modulation?
 
 > Resolved: reuse question is settled — we build our own clean-room Python
 > part-writing engine (the rules are standard theory, not IP). No license gate,
 > no Node sidecar. See [`chorale-generation.md`](chorale-generation.md).
+>
+> Resolved: the **soprano is optional**. Free-soprano mode voices all four
+> parts; given-soprano mode voices A/T/B beneath it after a chord-membership
+> compatibility check that rejects incompatible notes with a clear message.

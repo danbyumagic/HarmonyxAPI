@@ -91,11 +91,18 @@ python -m eval.run_eval            # Agreement: 13/20 = 65%
 - **LLM explainer** shipped (low-risk AI angle). The **LLM disambiguator** (the
   more interesting angle) is planned but not built.
 
+## Decisions on the generator
+- **Soprano is optional.** No soprano → the engine voices all four parts
+  freely. Soprano provided → the engine voices alto/tenor/bass beneath it,
+  after a **compatibility check**: each soprano note must be a chord tone of the
+  chord its Roman numeral implies; incompatible notes are rejected with a clear
+  per-beat message (e.g. 422 with the offending beat). See
+  [`chorale-generation.md`](chorale-generation.md).
+
 ## Open questions (need a human decision)
 1. "Output choral Roman numerals" — does it mean *realize* an RN progression to
    SATB (the generator), *analyze* SATB to RNs (already done), or round-trip both?
-2. Generator input: **soprano given or free?**
-3. Generation: rule-based only, or add a hybrid LLM (proposes progression) +
+2. Generation: rule-based only, or add a hybrid LLM (proposes progression) +
    deterministic realizer + rule-checker for style/modulation?
 
 ## Suggested next steps (from ROADMAP phasing)
