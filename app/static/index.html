@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Harmonyx — Harmonic Analysis</title>
+  <title>Harmonyx — Analyze &amp; Generate</title>
   <style>
     :root {
       --bg: #f4f2ec;
@@ -68,8 +68,19 @@
     }
     .themebtn:hover { color: var(--fg); }
 
-    h1 { font-family: Georgia, serif; font-size: 2.15rem; line-height: 1.1; margin: 1.4rem 0 .3rem; font-weight: 700; }
-    .lede { color: var(--muted); margin: 0 0 1.5rem; max-width: 46ch; }
+    /* Mode tabs */
+    .modes {
+      display: inline-flex; border: 1px solid var(--border); border-radius: 999px;
+      overflow: hidden; background: var(--card); margin: 1.25rem 0 0;
+    }
+    .modes button {
+      border: 0; background: transparent; color: var(--muted); font: inherit; font-size: .9rem;
+      padding: .45rem 1.1rem; cursor: pointer;
+    }
+    .modes button[aria-selected="true"] { background: var(--accent); color: #fff; font-weight: 600; }
+
+    h1 { font-family: Georgia, serif; font-size: 2.15rem; line-height: 1.1; margin: 1.1rem 0 .3rem; font-weight: 700; }
+    .lede { color: var(--muted); margin: 0 0 1.5rem; max-width: 48ch; }
 
     /* Drop zone */
     #drop {
@@ -99,6 +110,59 @@
     .controls label { display: inline-flex; align-items: center; gap: .4rem; cursor: pointer; }
     .controls .hint { color: var(--faint); }
 
+    /* Forms (generate) */
+    .panel {
+      background: var(--card); border: 1px solid var(--border); border-radius: 16px;
+      box-shadow: var(--shadow); padding: 1.2rem 1.3rem;
+    }
+    .form-row {
+      display: flex; flex-wrap: wrap; gap: .85rem 1.1rem; align-items: flex-end;
+    }
+    .field { display: flex; flex-direction: column; gap: .3rem; min-width: 7rem; }
+    .field label { font-size: .74rem; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); font-weight: 650; }
+    .field input, .field select {
+      font: inherit; color: var(--fg); background: var(--card-2); border: 1px solid var(--border);
+      border-radius: 10px; padding: .45rem .65rem; min-width: 0;
+    }
+    .field input:focus, .field select:focus { outline: 2px solid color-mix(in srgb, var(--accent) 45%, transparent); border-color: var(--accent); }
+    .actions { display: flex; flex-wrap: wrap; gap: .55rem; margin-top: 1rem; }
+    .btn {
+      font: inherit; font-size: .9rem; font-weight: 600; border-radius: 999px; padding: .5rem 1.05rem;
+      cursor: pointer; border: 1px solid var(--border); background: var(--card-2); color: var(--fg);
+    }
+    .btn:hover { border-color: var(--accent); }
+    .btn:disabled { opacity: .5; cursor: not-allowed; }
+    .btn-primary { background: var(--accent); color: #fff; border-color: transparent; }
+    .btn-primary:hover { filter: brightness(1.05); border-color: transparent; }
+    .btn-ghost { background: transparent; }
+
+    .rn-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(88px, 1fr)); gap: .55rem;
+      margin-top: .85rem;
+    }
+    .rn-slot {
+      background: var(--card-2); border: 1px solid var(--border); border-radius: 12px;
+      padding: .45rem .4rem .55rem; text-align: center;
+    }
+    .rn-slot.locked { border-color: var(--accent-2); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent-2) 40%, transparent); }
+    .rn-slot .idx { font-size: .68rem; color: var(--faint); letter-spacing: .04em; margin-bottom: .2rem; }
+    .rn-slot input {
+      width: 100%; text-align: center; font-family: Georgia, serif; font-size: 1.15rem; font-weight: 700;
+      border: 0; background: transparent; color: var(--major); padding: .15rem 0;
+    }
+    .rn-slot input:focus { outline: none; color: var(--accent); }
+    .rn-slot .lock {
+      margin-top: .25rem; border: 0; background: transparent; color: var(--faint);
+      font-size: .72rem; cursor: pointer; padding: .15rem .3rem; border-radius: 6px;
+    }
+    .rn-slot .lock:hover { color: var(--fg); background: var(--card); }
+    .rn-slot.locked .lock { color: var(--accent-2); font-weight: 650; }
+
+    .empty-hint {
+      color: var(--faint); font-size: .9rem; margin-top: .85rem; padding: .9rem 1rem;
+      border: 1px dashed var(--border); border-radius: 12px; text-align: center;
+    }
+
     /* Status */
     .status { margin-top: 1.25rem; color: var(--muted); min-height: 1.2em; display: flex; align-items: center; gap: .55rem; }
     .status.err { color: #c0392b; }
@@ -110,8 +174,8 @@
     @keyframes spin { to { transform: rotate(360deg); } }
 
     /* Results */
-    #results { margin-top: 1.75rem; display: none; }
-    #results.show { display: block; animation: rise .25s ease both; }
+    #results, #genResults { margin-top: 1.75rem; display: none; }
+    #results.show, #genResults.show { display: block; animation: rise .25s ease both; }
     @keyframes rise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 
     .hero {
@@ -131,7 +195,6 @@
     .section-title h2 { font-size: .78rem; letter-spacing: .09em; text-transform: uppercase; color: var(--muted); margin: 0; font-weight: 650; }
     .section-title .count { color: var(--faint); font-size: .78rem; }
 
-    /* Cadence timeline */
     .timeline { display: flex; gap: .4rem; flex-wrap: wrap; }
     .cad {
       display: inline-flex; align-items: center; gap: .35rem; border-radius: 999px;
@@ -145,7 +208,6 @@
     .cad.deceptive .dot { background: #c9922e; }
     .cad.none { color: var(--faint); border-style: dashed; }
 
-    /* Chords grouped by measure */
     .measures { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: .7rem; }
     .measure {
       background: var(--card); border: 1px solid var(--border); border-radius: 14px;
@@ -180,10 +242,21 @@
     .explanation h3 { margin: 0 0 .45rem; font-size: .78rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
     .explanation p { margin: 0; color: var(--fg); }
 
+    .chip-row { display: flex; flex-wrap: wrap; gap: .4rem; }
+    .chip {
+      font-family: Georgia, serif; font-weight: 700; font-size: 1.05rem;
+      padding: .35rem .65rem; border-radius: 10px; background: var(--card);
+      border: 1px solid var(--border); color: var(--major);
+    }
+    .gen-done { margin-top: 1rem; display: flex; flex-wrap: wrap; gap: .55rem; align-items: center; }
+    .ok-msg { color: var(--dim); font-size: .9rem; }
+
     footer { margin-top: 3rem; color: var(--faint); font-size: .82rem; }
     footer a { color: var(--accent); }
     .legend { display: flex; gap: 1rem; flex-wrap: wrap; margin-top: .4rem; font-size: .76rem; color: var(--faint); }
     .legend i { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: .3rem; vertical-align: middle; }
+
+    .panel-hidden { display: none !important; }
   </style>
 </head>
 <body>
@@ -191,39 +264,103 @@
     <header>
       <div class="brand">
         <span class="mark">Harmon<b>yx</b></span>
-        <span class="sub">Harmonic Analysis</span>
+        <span class="sub">Analyze &amp; Generate</span>
       </div>
       <button class="themebtn" id="themebtn" type="button">◐ theme</button>
     </header>
 
-    <h1>Analyze a score</h1>
-    <p class="lede">Drop a MusicXML or MIDI file and get a chord-by-chord Roman numeral
-      analysis — key, harmonies, and cadences.</p>
-
-    <label id="drop" for="fileInput">
-      <span class="icon">🎼</span>
-      <span class="big"><em>Choose a file</em> or drag it here</span>
-      <small>.musicxml · .xml · .mxl · .mid · .midi</small>
-    </label>
-    <input type="file" id="fileInput" accept=".xml,.musicxml,.mxl,.mid,.midi" />
-
-    <div class="controls">
-      <span>Resolution</span>
-      <span class="seg" id="resSeg" role="group" aria-label="Analysis resolution">
-        <button type="button" data-thr="0.25">Detailed</button>
-        <button type="button" data-thr="0.5" aria-pressed="true">Standard</button>
-        <button type="button" data-thr="1.0">Reduced</button>
-      </span>
-      <label><input type="checkbox" id="explain" /> Plain-English walkthrough</label>
-      <span class="hint">(needs an LLM key on the server)</span>
+    <div class="modes" role="tablist" aria-label="Mode">
+      <button type="button" id="tabAnalyze" role="tab" aria-selected="true" data-mode="analyze">Analyze</button>
+      <button type="button" id="tabGenerate" role="tab" aria-selected="false" data-mode="generate">Generate</button>
     </div>
 
-    <div id="status" class="status"></div>
-    <div id="results"></div>
+    <!-- ========== ANALYZE ========== -->
+    <section id="analyzePanel">
+      <h1>Analyze a score</h1>
+      <p class="lede">Drop a MusicXML or MIDI file and get a chord-by-chord Roman numeral
+        analysis — key, harmonies, and cadences.</p>
+
+      <label id="drop" for="fileInput">
+        <span class="icon">🎼</span>
+        <span class="big"><em>Choose a file</em> or drag it here</span>
+        <small>.musicxml · .xml · .mxl · .mid · .midi</small>
+      </label>
+      <input type="file" id="fileInput" accept=".xml,.musicxml,.mxl,.mid,.midi" />
+
+      <div class="controls">
+        <span>Resolution</span>
+        <span class="seg" id="resSeg" role="group" aria-label="Analysis resolution">
+          <button type="button" data-thr="0.25">Detailed</button>
+          <button type="button" data-thr="0.5" aria-pressed="true">Standard</button>
+          <button type="button" data-thr="1.0">Reduced</button>
+        </span>
+        <label><input type="checkbox" id="explain" /> Plain-English walkthrough</label>
+        <span class="hint">(needs an LLM key on the server)</span>
+      </div>
+
+      <div id="status" class="status"></div>
+      <div id="results"></div>
+    </section>
+
+    <!-- ========== GENERATE ========== -->
+    <section id="generatePanel" class="panel-hidden">
+      <h1>Generate a chorale</h1>
+      <p class="lede">Propose an idiomatic Roman-numeral progression, edit or lock chords,
+        then realize a four-part SATB hymn as MusicXML.</p>
+
+      <div class="panel">
+        <div class="form-row">
+          <div class="field">
+            <label for="genKey">Key</label>
+            <select id="genKey">
+              <option>C major</option>
+              <option>G major</option>
+              <option>D major</option>
+              <option>F major</option>
+              <option>B- major</option>
+              <option>A major</option>
+              <option>E- major</option>
+              <option>A minor</option>
+              <option>E minor</option>
+              <option>D minor</option>
+              <option>G minor</option>
+              <option>C minor</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="genLength">Length</label>
+            <input id="genLength" type="number" min="2" max="32" value="8" />
+          </div>
+          <div class="field">
+            <label for="genCadence">Cadence</label>
+            <select id="genCadence">
+              <option value="PAC">PAC (V→I)</option>
+              <option value="HC">Half (…→V)</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="genSeed">Seed <span style="font-weight:400;text-transform:none;letter-spacing:0">(optional)</span></label>
+            <input id="genSeed" type="number" placeholder="random" />
+          </div>
+        </div>
+
+        <div class="actions">
+          <button type="button" class="btn btn-primary" id="btnPropose">Propose progression</button>
+          <button type="button" class="btn" id="btnRegen" disabled>Regenerate unlocked</button>
+          <button type="button" class="btn btn-primary" id="btnRealize" disabled>Realize MusicXML</button>
+        </div>
+
+        <div id="rnEmpty" class="empty-hint">Hit <strong>Propose progression</strong> to get started — or type figures after proposing and lock the ones you want to keep.</div>
+        <div id="rnGrid" class="rn-grid" hidden></div>
+      </div>
+
+      <div id="genStatus" class="status"></div>
+      <div id="genResults"></div>
+    </section>
 
     <footer>
       v1 handles four-part chorale texture in a single major/minor key (no modulation).
-      Deterministic analysis by <a href="https://www.music21.org/">music21</a> ·
+      Deterministic core by <a href="https://www.music21.org/">music21</a> ·
       <a href="/docs">API docs</a>.
       <div class="legend">
         <span><i style="background:var(--major)"></i>authentic</span>
@@ -236,13 +373,8 @@
 
   <script>
     const $ = (id) => document.getElementById(id);
-    const drop = $('drop'), fileInput = $('fileInput'), statusEl = $('status'),
-          resultsEl = $('results'), explainEl = $('explain'), resSeg = $('resSeg');
 
-    let threshold = 0.5;
-    let lastFile = null;
-
-    // Theme toggle (persisted for the session).
+    // ---- Theme ----
     $('themebtn').addEventListener('click', () => {
       const root = document.documentElement;
       const cur = root.getAttribute('data-theme')
@@ -250,7 +382,29 @@
       root.setAttribute('data-theme', cur === 'dark' ? 'light' : 'dark');
     });
 
-    // Resolution segmented control — re-analyzes the current file on change.
+    // ---- Mode tabs ----
+    const analyzePanel = $('analyzePanel');
+    const generatePanel = $('generatePanel');
+    const tabAnalyze = $('tabAnalyze');
+    const tabGenerate = $('tabGenerate');
+
+    function setMode(mode) {
+      const isAnalyze = mode === 'analyze';
+      tabAnalyze.setAttribute('aria-selected', String(isAnalyze));
+      tabGenerate.setAttribute('aria-selected', String(!isAnalyze));
+      analyzePanel.classList.toggle('panel-hidden', !isAnalyze);
+      generatePanel.classList.toggle('panel-hidden', isAnalyze);
+    }
+    tabAnalyze.addEventListener('click', () => setMode('analyze'));
+    tabGenerate.addEventListener('click', () => setMode('generate'));
+
+    // ---- Analyze (existing) ----
+    const drop = $('drop'), fileInput = $('fileInput'), statusEl = $('status'),
+          resultsEl = $('results'), explainEl = $('explain'), resSeg = $('resSeg');
+
+    let threshold = 0.5;
+    let lastFile = null;
+
     resSeg.addEventListener('click', (e) => {
       const btn = e.target.closest('button'); if (!btn) return;
       [...resSeg.children].forEach(b => b.setAttribute('aria-pressed', String(b === btn)));
@@ -258,7 +412,6 @@
       if (lastFile) analyze(lastFile);
     });
 
-    // Drag & drop.
     ['dragenter', 'dragover'].forEach(ev =>
       drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add('hover'); }));
     ['dragleave', 'drop'].forEach(ev =>
@@ -279,8 +432,8 @@
       try {
         const res = await fetch(url, { method: 'POST', body: form });
         const data = await res.json();
-        if (!res.ok) throw new Error(data.detail || `HTTP ${res.status}`);
-        render(data, file.name);
+        if (!res.ok) throw new Error(formatDetail(data.detail) || `HTTP ${res.status}`);
+        renderAnalysis(data, file.name);
         statusEl.textContent = '';
       } catch (err) {
         statusEl.className = 'status err';
@@ -289,17 +442,14 @@
       }
     }
 
-    function render(data, filename) {
+    function renderAnalysis(data, filename) {
       const conf = Math.round((data.confidence || 0) * 100);
-
-      // Cadence timeline.
       const cadHtml = data.cadences.length
         ? data.cadences.map(c =>
             `<span class="cad ${c.type}"><span class="dot"></span>${escapeHtml(c.type)}<span class="m">m${c.measure}</span></span>`
           ).join('')
         : `<span class="cad none">no cadences detected</span>`;
 
-      // Group chords by measure.
       const byMeasure = new Map();
       for (const c of data.chords) {
         if (!byMeasure.has(c.measure)) byMeasure.set(c.measure, []);
@@ -311,7 +461,7 @@
           ${chords.map(c => `
             <div class="chord ${qualityClass(c.quality)}">
               <span class="beat">beat ${c.beat}</span>
-              <div class="rn">${escapeHtml(romanPretty(c.roman))}</div>
+              <div class="rn">${escapeHtml(c.roman)}</div>
               <div class="meta">${escapeHtml(c.quality)}${c.inversion ? ' · inv ' + c.inversion : ''}</div>
               <div class="pitches">${c.pitches.map(p => `<span>${escapeHtml(p)}</span>`).join('')}</div>
             </div>`).join('')}
@@ -330,17 +480,200 @@
           <div class="conf"><div class="num">${conf}%</div><div class="lbl">key confidence</div></div>
           <div class="confbar"><i style="width:${conf}%"></i></div>
         </div>
-
         <div class="section-title"><h2>Cadences</h2><span class="count">${data.cadences.length}</span></div>
         <div class="timeline">${cadHtml}</div>
-
         <div class="section-title"><h2>Chords by measure</h2><span class="count">${data.chords.length} total</span></div>
         <div class="measures">${measuresHtml}</div>
-
         ${explanation}`;
       resultsEl.className = 'show';
     }
 
+    // ---- Generate ----
+    /** @type {{ figure: string, locked: boolean }[]} */
+    let slots = [];
+    let lastMusicXml = null;
+
+    const rnGrid = $('rnGrid');
+    const rnEmpty = $('rnEmpty');
+    const genStatus = $('genStatus');
+    const genResults = $('genResults');
+    const btnPropose = $('btnPropose');
+    const btnRegen = $('btnRegen');
+    const btnRealize = $('btnRealize');
+
+    btnPropose.addEventListener('click', () => proposeProgression(false));
+    btnRegen.addEventListener('click', () => proposeProgression(true));
+    btnRealize.addEventListener('click', realizeProgression);
+
+    function genKey() { return $('genKey').value; }
+    function genLength() { return Math.max(2, Math.min(32, parseInt($('genLength').value, 10) || 8)); }
+    function genCadence() { return $('genCadence').value; }
+    function genSeed() {
+      const v = $('genSeed').value;
+      if (v === '' || v == null) return null;
+      const n = parseInt(v, 10);
+      return Number.isFinite(n) ? n : null;
+    }
+
+    function lockedMapFromSlots() {
+      const locked = {};
+      slots.forEach((s, i) => {
+        if (s.locked && s.figure.trim()) locked[i] = s.figure.trim();
+      });
+      return Object.keys(locked).length ? locked : null;
+    }
+
+    function readSlotsFromDom() {
+      rnGrid.querySelectorAll('.rn-slot').forEach((el) => {
+        const i = parseInt(el.dataset.i, 10);
+        const input = el.querySelector('input');
+        if (slots[i] && input) slots[i].figure = input.value.trim();
+      });
+    }
+
+    function renderSlots() {
+      if (!slots.length) {
+        rnGrid.hidden = true;
+        rnEmpty.hidden = false;
+        btnRegen.disabled = true;
+        btnRealize.disabled = true;
+        return;
+      }
+      rnEmpty.hidden = true;
+      rnGrid.hidden = false;
+      rnGrid.innerHTML = slots.map((s, i) => `
+        <div class="rn-slot ${s.locked ? 'locked' : ''}" data-i="${i}">
+          <div class="idx">#${i + 1}</div>
+          <input type="text" value="${escapeAttr(s.figure)}" aria-label="Chord ${i + 1}" spellcheck="false" />
+          <button type="button" class="lock" data-i="${i}" title="Lock this chord when regenerating">
+            ${s.locked ? '🔒 locked' : '🔓 lock'}
+          </button>
+        </div>`).join('');
+
+      rnGrid.querySelectorAll('.lock').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          readSlotsFromDom();
+          const i = parseInt(btn.dataset.i, 10);
+          slots[i].locked = !slots[i].locked;
+          renderSlots();
+        });
+      });
+      btnRegen.disabled = false;
+      btnRealize.disabled = false;
+    }
+
+    async function proposeProgression(respectLocks) {
+      readSlotsFromDom();
+      const length = genLength();
+      const body = {
+        key: genKey(),
+        length,
+        cadence: genCadence(),
+        seed: genSeed(),
+      };
+      if (respectLocks && slots.length) {
+        // Keep length in sync with current slots when regenerating unlocked.
+        body.length = slots.length;
+        $('genLength').value = String(slots.length);
+        const locked = lockedMapFromSlots();
+        if (locked) body.locked = locked;
+      }
+
+      genResults.className = '';
+      lastMusicXml = null;
+      setGenStatus(`<span class="spinner"></span> Proposing progression…`);
+
+      try {
+        const res = await fetch('/progression', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(formatDetail(data.detail) || `HTTP ${res.status}`);
+
+        const prevLocks = respectLocks
+          ? slots.map((s) => s.locked)
+          : data.progression.map(() => false);
+        slots = data.progression.map((figure, i) => ({
+          figure,
+          locked: Boolean(prevLocks[i]),
+        }));
+        // If we had more locks than new length, ignore extras (length is authoritative).
+        renderSlots();
+        setGenStatus('');
+      } catch (err) {
+        setGenStatus(`Error: ${err.message}`, true);
+      }
+    }
+
+    async function realizeProgression() {
+      readSlotsFromDom();
+      const progression = slots.map((s) => s.figure.trim()).filter(Boolean);
+      if (!progression.length) {
+        setGenStatus('Add at least one Roman numeral first.', true);
+        return;
+      }
+
+      setGenStatus(`<span class="spinner"></span> Realizing four-part hymn…`);
+      genResults.className = '';
+
+      try {
+        const res = await fetch('/generate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            key: genKey(),
+            progression,
+            time_signature: '4/4',
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(formatDetail(data.detail) || `HTTP ${res.status}`);
+
+        lastMusicXml = data.musicxml;
+        const chips = progression.map((f) =>
+          `<span class="chip">${escapeHtml(f)}</span>`).join('');
+
+        genResults.innerHTML = `
+          <div class="hero">
+            <div>
+              <div class="keyname">${escapeHtml(data.key)}</div>
+              <div class="fname">Four-part SATB · ${progression.length} chords · ${escapeHtml(data.time_signature)}</div>
+            </div>
+            <div class="conf"><div class="num">✓</div><div class="lbl">realized</div></div>
+          </div>
+          <div class="section-title"><h2>Progression</h2><span class="count">${progression.length}</span></div>
+          <div class="chip-row">${chips}</div>
+          <div class="gen-done">
+            <button type="button" class="btn btn-primary" id="btnDownload">Download MusicXML</button>
+            <span class="ok-msg">Ready — open in MuseScore, Dorico, or re-upload under Analyze.</span>
+          </div>`;
+        genResults.className = 'show';
+        $('btnDownload').addEventListener('click', downloadMusicXml);
+        setGenStatus('');
+      } catch (err) {
+        setGenStatus(`Error: ${err.message}`, true);
+      }
+    }
+
+    function downloadMusicXml() {
+      if (!lastMusicXml) return;
+      const blob = new Blob([lastMusicXml], { type: 'application/vnd.recordare.musicxml+xml' });
+      const a = document.createElement('a');
+      const keySlug = genKey().replace(/\s+/g, '_');
+      a.href = URL.createObjectURL(blob);
+      a.download = `harmonyx_${keySlug}.musicxml`;
+      a.click();
+      URL.revokeObjectURL(a.href);
+    }
+
+    function setGenStatus(html, isErr) {
+      genStatus.className = isErr ? 'status err' : 'status';
+      genStatus.innerHTML = html || '';
+    }
+
+    // ---- Shared helpers ----
     function qualityClass(q) {
       const s = String(q).toLowerCase();
       if (s.includes('diminish')) return 'diminished';
@@ -350,16 +683,22 @@
       return '';
     }
 
-    // Render figured-bass digits as a small superscript stack for readability.
-    function romanPretty(roman) {
-      const m = roman.match(/^([b#♭♯]*[iIvV]+)(.*)$/);
-      if (!m) return roman;
-      return m[1] + m[2]; // kept plain; browsers render Georgia numerals cleanly
+    function formatDetail(detail) {
+      if (detail == null) return '';
+      if (typeof detail === 'string') return detail;
+      if (detail.message) return detail.message;
+      if (Array.isArray(detail)) {
+        return detail.map((d) => d.msg || JSON.stringify(d)).join('; ');
+      }
+      try { return JSON.stringify(detail); } catch { return String(detail); }
     }
 
     function escapeHtml(s) {
       return String(s).replace(/[&<>"']/g, c =>
         ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    }
+    function escapeAttr(s) {
+      return escapeHtml(s).replace(/`/g, '&#96;');
     }
   </script>
 </body>
