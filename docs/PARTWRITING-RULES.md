@@ -200,13 +200,35 @@ don't fail the primary number on it.
 ## How this maps to code (for the implementer)
 - §0–§6 + the §7 carve-out → `rules.py::rule_violations(prev, cur, ctx)`
   returning a list; each rule has a matching golden fixture in
-  `tests/test_partwriting.py`.
+  `tests/test_partwriting.py` (already written — see below).
 - §7 (soft) + §8 → `rules.py::transition_cost(prev, cur, ctx)`.
 - §9 → `grammar.py` transition table + cadence forcing.
 - §10 → `chords.py::normalize_rn` + the round-trip eval.
 - §11 → applied throughout; keep the realizer free of FastAPI imports.
 
-**The fixtures are the spec.** An implementation is "correct" when
-`tests/test_partwriting.py` (the §0–§6 fixtures) all pass and the realized test
-progressions produce **zero** hard-invariant violations. Weights (§8, §9) are
-tunable but must be *present and documented*, not invented.
+### Fixed contract (the pre-written fixtures depend on this — do not diverge)
+- `voicing.Voicing(s, a, t, b)` — dataclass of four MIDI ints, stored in S/A/T/B
+  order **verbatim** (not reordered; a crossing must be representable).
+- `rules.rule_violations(prev, cur, ctx) -> list[RuleViolation]`:
+  - `prev` is a `Voicing` or **`None`** for the first chord (then run only the
+    static rules on `cur`).
+  - `ctx` is a dict `{"key": str, "prev_roman": str|None, "cur_roman": str}`.
+  - Each `RuleViolation` exposes a `.rule` attribute set to one of the
+    **canonical slugs**:
+    `range`, `spacing`, `crossing`, `overlap`, `parallel_fifths`,
+    `parallel_octaves`, `direct`, `leading_tone`, `seventh`,
+    `doubled_leading_tone`, `doubled_seventh`.
+  - Static rules (apply when `prev is None`): `range`, `spacing`, `crossing`,
+    `doubled_leading_tone`, `doubled_seventh`. Transition rules (need `prev`):
+    `overlap`, `parallel_fifths`, `parallel_octaves`, `direct`, `leading_tone`,
+    `seventh`.
+
+**The fixtures are the spec, and they are already written.**
+`tests/test_partwriting.py` encodes the §0–§7 hard invariants and is
+**pre-committed and locked** — implement the engine to make it pass; do **not**
+edit the fixtures to match an implementation. Today the module `importorskip`s
+(so CI is green) and activates automatically once `app/generation/voicing.py`
+and `app/generation/rules.py` exist. An implementation is "correct" when
+`tests/test_partwriting.py` passes and the realized test progressions produce
+**zero** hard-invariant violations. Weights (§8, §9) are tunable but must be
+*present and documented*, not invented.

@@ -166,3 +166,17 @@ correct when `tests/test_partwriting.py` passes and realized progressions have
 zero hard-invariant violations — so a lower-context (e.g. Sonnet-level) agent
 can build the engine correctly against external truths rather than guessing.
 Linked from IMPLEMENTATION-PLAN and STATUS.
+
+## Entry 9 — Pre-wrote and locked the hard-invariant fixtures
+Before handing off to a Sonnet-level agent, encoded the §0–§7 hard invariants
+from `PARTWRITING-RULES.md` as runnable tests in `tests/test_partwriting.py`
+(18 fixtures: ranges, spacing, crossing/overlap, parallel & direct 5ths/8ves,
+LT & 7th resolution, doubled LT/7th). Each fixture is a concrete SATB voicing
+pair with the expected `.rule` slug. The module `importorskip`s
+`app.generation.voicing`/`rules`, so it **skips cleanly today (CI green:
+13 passed, 1 skipped)** and activates the moment those modules exist. This locks
+the target: the implementing agent builds the engine to satisfy fixtures it
+cannot edit, so musical correctness is external to the model. Pinned the fixed
+contract (Voicing shape, `rule_violations(prev, cur, ctx)` signature, ctx dict
+schema, canonical slug set) in `PARTWRITING-RULES.md` and referenced it from
+`IMPLEMENTATION-PLAN.md`. Handoff-ready for Sonnet.

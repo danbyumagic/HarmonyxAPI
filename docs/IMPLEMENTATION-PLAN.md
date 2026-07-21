@@ -17,6 +17,13 @@ Guiding constraints (carry over from the existing code):
   preferences use the documented weights. An implementation is correct when the
   fixtures pass and the realized test progressions have zero hard-invariant
   violations — regardless of which agent wrote it.
+- **The hard-invariant fixtures are already written and locked:**
+  `tests/test_partwriting.py` (§0–§7) is pre-committed. It currently
+  `importorskip`s (CI green) and activates the moment `app/generation/voicing.py`
+  and `app/generation/rules.py` exist. **Do not edit these fixtures** — build the
+  engine to satisfy them, matching the fixed contract in `PARTWRITING-RULES.md`
+  (the `Voicing` shape, the `rule_violations(prev, cur, ctx)` signature, the
+  `ctx` dict, and the canonical `.rule` slugs).
 
 ---
 
@@ -30,8 +37,11 @@ Guiding constraints (carry over from the existing code):
   - `realize.py` — the DP/search that turns a progression into an SATB score.
   - `grammar.py` — Layer 1 functional-harmony progression generator.
 - Extend `app/models.py`: `GenerateRequest`, `GenerateResponse`,
-  `ProgressionRequest`, `ProgressionResponse`, `RuleViolation`.
-- **Acceptance:** package imports; models validate; `pytest` still green.
+  `ProgressionRequest`, `ProgressionResponse`, `RuleViolation` (must expose a
+  `.rule` string field using the canonical slugs from `PARTWRITING-RULES.md`).
+- **Acceptance:** package imports; models validate; `pytest` still green (the
+  `test_partwriting.py` fixtures stop skipping only once `voicing.py`+`rules.py`
+  land in M1).
 
 ---
 

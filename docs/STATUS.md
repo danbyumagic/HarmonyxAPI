@@ -44,6 +44,8 @@ eval/
   expected/keys.json ground truth for 20 Bach chorales
 tests/test_analyzer.py   13 tests (cleanup, cadences, degree parsing,
                          full pipeline, endpoint)
+tests/test_partwriting.py  18 PRE-WRITTEN, LOCKED fixtures for the SATB engine's
+                         hard invariants (skips until app/generation/ exists)
 docs/             ROADMAP.md, chorale-generation.md, STATUS.md, AI-DIARY.md
 Dockerfile, railway.json, fly.toml   container-first deploy
 .github/workflows/ci.yml             runs pytest + the eval gate
