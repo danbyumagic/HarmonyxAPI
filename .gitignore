@@ -1,0 +1,14 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.venv/
+venv/
+env/
+.env
+*.log
+
+# music21 corpus cache / temp renders
+*.mid
+*.midi
+!tests/**/*.mid

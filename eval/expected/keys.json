@@ -1,0 +1,25 @@
+{
+  "_comment": "Ground-truth keys for the eval set. Derived transparently from each chorale's key signature (mode) plus its final chord root (tonic), so Picardy-third endings are labelled by their true minor key rather than the major final chord. Edit freely to correct or extend.",
+  "chorales": {
+    "bach/bwv66.6": "F# minor",
+    "bach/bwv7.7": "B minor",
+    "bach/bwv26.6": "A minor",
+    "bach/bwv253": "A major",
+    "bach/bwv254": "D major",
+    "bach/bwv255": "C major",
+    "bach/bwv256": "A minor",
+    "bach/bwv257": "A minor",
+    "bach/bwv259": "E minor",
+    "bach/bwv260": "G major",
+    "bach/bwv262": "D major",
+    "bach/bwv263": "G major",
+    "bach/bwv264": "G major",
+    "bach/bwv265": "D major",
+    "bach/bwv267": "G major",
+    "bach/bwv269": "G major",
+    "bach/bwv270": "F# major",
+    "bach/bwv271": "F# major",
+    "bach/bwv272": "D minor",
+    "bach/bwv273": "G minor"
+  }
+}

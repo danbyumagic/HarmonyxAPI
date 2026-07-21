@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Harmonyx — Harmonic Analysis API</title>
+  <style>
+    :root {
+      --bg: #f7f6f3;
+      --fg: #1c1b1a;
+      --muted: #6b6864;
+      --accent: #b4551f;
+      --card: #ffffff;
+      --border: #e4e1db;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #1c1b1a; --fg: #f3f1ec; --muted: #9c9890;
+        --accent: #e08a4f; --card: #262523; --border: #38352f;
+      }
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; padding: 2rem 1rem; background: var(--bg); color: var(--fg);
+      font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    main { max-width: 860px; margin: 0 auto; }
+    h1 { font-size: 1.9rem; margin: 0 0 .25rem; }
+    .tag { color: var(--accent); font-weight: 600; letter-spacing: .04em; text-transform: uppercase; font-size: .72rem; }
+    p.lede { color: var(--muted); margin-top: .25rem; }
+    #drop {
+      margin: 1.5rem 0; padding: 2.5rem 1rem; text-align: center;
+      border: 2px dashed var(--border); border-radius: 12px; background: var(--card);
+      cursor: pointer; transition: border-color .15s, background .15s;
+    }
+    #drop.hover { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 8%, var(--card)); }
+    #drop strong { color: var(--accent); }
+    #drop small { display: block; color: var(--muted); margin-top: .4rem; }
+    input[type=file] { display: none; }
+    .controls { display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; color: var(--muted); font-size: .9rem; }
+    .summary { margin: 1.5rem 0 .5rem; display: flex; gap: 1.5rem; flex-wrap: wrap; align-items: baseline; }
+    .summary .key { font-size: 1.4rem; font-weight: 700; }
+    .summary .conf { color: var(--muted); }
+    .badge { display: inline-block; background: color-mix(in srgb, var(--accent) 15%, var(--card));
+      color: var(--accent); border-radius: 999px; padding: .1rem .6rem; font-size: .8rem; font-weight: 600; }
+    .table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 10px; }
+    table { border-collapse: collapse; width: 100%; font-size: .92rem; }
+    th, td { text-align: left; padding: .5rem .75rem; border-bottom: 1px solid var(--border); white-space: nowrap; }
+    th { background: var(--card); color: var(--muted); font-weight: 600; position: sticky; top: 0; }
+    tr:last-child td { border-bottom: none; }
+    td.roman { font-weight: 700; color: var(--accent); }
+    .explanation { margin-top: 1.25rem; padding: 1rem 1.25rem; background: var(--card);
+      border: 1px solid var(--border); border-radius: 10px; }
+    .explanation h3 { margin: 0 0 .5rem; font-size: .95rem; }
+    .status { margin-top: 1rem; color: var(--muted); }
+    .error { color: #c0392b; }
+    footer { margin-top: 3rem; color: var(--muted); font-size: .82rem; }
+    a { color: var(--accent); }
+  </style>
+</head>
+<body>
+  <main>
+    <span class="tag">Harmonyx API</span>
+    <h1>Harmonic Analysis</h1>
+    <p class="lede">Drop a MusicXML or MIDI score. Get a chord-by-chord Roman numeral analysis.</p>
+
+    <label id="drop" for="fileInput">
+      <strong>Choose a file</strong> or drag it here
+      <small>.musicxml · .xml · .mxl · .mid · .midi</small>
+    </label>
+    <input type="file" id="fileInput" accept=".xml,.musicxml,.mxl,.mid,.midi" />
+
+    <div class="controls">
+      <label><input type="checkbox" id="explain" /> Generate plain-English walkthrough (needs LLM key)</label>
+    </div>
+
+    <div id="status" class="status"></div>
+    <div id="results"></div>
+
+    <footer>
+      v1 handles four-part chorale texture in a single major/minor key (no modulation).
+      Deterministic analysis by <a href="https://www.music21.org/">music21</a>.
+      See <a href="/docs">/docs</a> for the API.
+    </footer>
+  </main>
+
+  <script>
+    const drop = document.getElementById('drop');
+    const fileInput = document.getElementById('fileInput');
+    const statusEl = document.getElementById('status');
+    const resultsEl = document.getElementById('results');
+    const explainEl = document.getElementById('explain');
+
+    ['dragenter', 'dragover'].forEach(ev =>
+      drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add('hover'); }));
+    ['dragleave', 'drop'].forEach(ev =>
+      drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove('hover'); }));
+    drop.addEventListener('drop', e => {
+      if (e.dataTransfer.files.length) analyze(e.dataTransfer.files[0]);
+    });
+    fileInput.addEventListener('change', () => {
+      if (fileInput.files.length) analyze(fileInput.files[0]);
+    });
+
+    async function analyze(file) {
+      resultsEl.innerHTML = '';
+      statusEl.textContent = `Analyzing ${file.name}…`;
+      statusEl.classList.remove('error');
+
+      const form = new FormData();
+      form.append('file', file);
+      const url = `/analyze?explain=${explainEl.checked}`;
+
+      try {
+        const res = await fetch(url, { method: 'POST', body: form });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.detail || `HTTP ${res.status}`);
+        render(data);
+        statusEl.textContent = '';
+      } catch (err) {
+        statusEl.textContent = `Error: ${err.message}`;
+        statusEl.classList.add('error');
+      }
+    }
+
+    function render(data) {
+      const rows = data.chords.map(c => `
+        <tr>
+          <td>${c.measure}</td>
+          <td>${c.beat}</td>
+          <td class="roman">${escapeHtml(c.roman)}</td>
+          <td>${escapeHtml(c.quality)}</td>
+          <td>${c.inversion}</td>
+          <td>${c.pitches.map(escapeHtml).join(' ')}</td>
+        </tr>`).join('');
+
+      const cadences = data.cadences.length
+        ? data.cadences.map(c => `<span class="badge">m${c.measure}: ${escapeHtml(c.type)}</span>`).join(' ')
+        : '<span class="conf">none detected</span>';
+
+      const explanation = data.explanation
+        ? `<div class="explanation"><h3>Walkthrough</h3><p>${escapeHtml(data.explanation)}</p></div>`
+        : '';
+
+      resultsEl.innerHTML = `
+        <div class="summary">
+          <span class="key">${escapeHtml(data.key)}</span>
+          <span class="conf">confidence ${data.confidence}</span>
+        </div>
+        <div class="summary">${cadences}</div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Measure</th><th>Beat</th><th>Roman</th><th>Quality</th><th>Inv.</th><th>Pitches</th></tr></thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </div>
+        ${explanation}`;
+    }
+
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"']/g, c =>
+        ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    }
+  </script>
+</body>
+</html>
