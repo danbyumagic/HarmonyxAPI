@@ -102,6 +102,7 @@ Harmonyx analogue: `POST /progression` (grammar or LLM) → `validate` / `fix`
 | Repo | URL | Overlap | Notes |
 |------|-----|---------|-------|
 | **When-in-Rome** | https://github.com/MarkGotham/When-in-Rome | Meta-corpus ~2k functional analyses + music21 code | ~85★; gold standard for RN data / eval / few-shot |
+| **AugmentedNet** | https://github.com/napulen/AugmentedNet | CRNN multi-task neural RNA (ISMIR 2021 / PhD 2022) | **Done**, see research #11; produced When-in-Rome's `analysis_automatic.rntxt`; 50★, MIT |
 | **rnbert** | https://github.com/malcolmsailor/rnbert | Fine-tuned MLM for RNA (ISMIR 2024) | Neural RNA baseline |
 | **muMoE-RNBERT** | https://github.com/TomusD/muMoE-RNBERT | ICASSP 2026 interpretable MoE RNA on RNBERT | SOTA research direction for analyzer |
 | **ChordGNN** | https://github.com/manoskary/ChordGNN | GNN Roman analysis | Archived; still cited |
@@ -298,6 +299,7 @@ Do **not** implement from this list without an explicit human chunk. Study order
 | 6 | ~~**When-in-Rome**~~ | **Done** — corpus expansion for L1 few-shot + analyzer eval; see `docs/research/06-when-in-rome.md` |
 | 7 | ~~**AccoMontage2 + POP909**~~ | **Done** — pop melody→chords+texture pipeline; see `docs/research/07-accomontage2.md` |
 | 8 | **JJazzLab** | Lead-sheet product completeness (jazz) as product reference |
+| 8.5 | ~~**AugmentedNet**~~ | **Done** — neural multi-task RNA baseline + accuracy ceiling reference; see `docs/research/11-augmentednet.md` |
 | 9 | **rnbert / muMoE-RNBERT** | Only if investing in neural RNA |
 | 10 | **ai-music-theory + MuTheoryEval** | Explainer grounding / LLM trust for theory chat |
 
@@ -356,11 +358,12 @@ Written notes (read these before re-cloning peers):
 | 08 | [`docs/research/08-shimaoka-satb-skillset.md`](research/08-shimaoka-satb-skillset.md) | ShikiSuen/Shimaoka-SATB-SkillSet — LLM-context-only Swing Theory SATB knowledge base; counter-example to "LLM proposes, code enforces"; 2nd source flagging the augmented-sixth notation gap |
 | 09 | [`docs/research/09-music-arranger.md`](research/09-music-arranger.md) | scarrow/music-arranger — Claude tool-call NL extraction + Google OR-Tools CP-SAT SATB solver; "L4 + realizer, one architecture" twin; steals: pre-solve infeasibility diagnostics, soft/hard scale confirmation; don't steal: CP-SAT replacing DP, wide NL→full-arrangement tool schema |
 | 10 | [`docs/research/10-thiri-mcp-and-music21-mcp.md`](research/10-thiri-mcp-and-music21-mcp.md) | BluesPrince/thiri-mcp + SimonsonM/music21-mcp — two opposite answers to "how to expose theory ops as MCP tools" (hosted-proprietary-client vs. local-open-wrapper); steals: production-hardening checklist, low-boilerplate `@mcp.tool()` pattern; don't steal: hosted-API-with-quota architecture (doesn't apply — Harmonyx is the engine) |
+| 11 | [`docs/research/11-augmentednet.md`](research/11-augmentednet.md) | napulen/AugmentedNet — CRNN multi-task neural RNA (11-14 output heads: key/degree/quality/inversion/voice-pitches, reconciled via pcset-cosine match at inference, not raw argmax); produced When-in-Rome's automatic-analysis files; steals: decomposed-task + voted-reconciliation pattern, corpus-registry layout, published accuracy ceiling (~45-52% full-RN even for a trained model) as an analyzer-eval reference point; don't steal: the network itself, synthetic-texturization training strategy |
 
 Research queue #01–#07 (the originally planned order) is complete. Further
 deep-dives now come from `docs/RESEARCH-QUEUE.md` (Tier 1–4 candidates found
 in the 2026-07-21 follow-up scans, plus human-flagged repos) — see that file
-for the live queue and suggested order. #08–#10 are entries from that queue;
+for the live queue and suggested order. #08–#11 are entries from that queue;
 the rest still need an explicit human ask.
 
 ### PartWise one-liner (after #03)
@@ -384,6 +387,7 @@ fixtures as default; do not replace `realize.py` with soft beam+fix.
 | Date | What |
 |------|------|
 | 2026-07-21 | Initial landscape from two GitHub/web research passes (Harmonyx-adjacent + broad arrange/AI-theory). |
+| 2026-07-21 | Research #11 (AugmentedNet) added; §4.2, §10, §13 updated. |
 | 2026-07-21 | Deep-dives #01 Resonance, #02 choral-counterpoint → `docs/research/`. |
 | 2026-07-21 | Deep-dive #03 PartWise → `docs/research/03-partwise.md` (M4 UX/API blueprint). |
 | 2026-07-21 | Deep-dive #04 chorale-optimizer → `docs/research/04-chorale-optimizer.md` (beam+fix vs DP). |

@@ -51,12 +51,15 @@ Branch: `claude/harmonic-analysis-api-loc82f` (confirm `git status` / `git log`)
 | 06 | `docs/research/06-when-in-rome.md` | RN meta-corpus; L1 few-shot expansion + analyzer A7 eval |
 | 07 | `docs/research/07-accomontage2.md` | Pop melody→chords+texture pipeline; Tier B, arrangement-track only |
 | 08 | `docs/research/08-shimaoka-satb-skillset.md` | LLM-context-only SATB knowledge base; counter-example to code-enforced validation; 2nd source on augmented-sixth gap |
+| 09 | `docs/research/09-music-arranger.md` | Claude tool-call NL→params + CP-SAT SATB solver twin |
+| 10 | `docs/research/10-thiri-mcp-and-music21-mcp.md` | Two MCP theory-server architectures |
+| 11 | `docs/research/11-augmentednet.md` | CRNN multi-task neural RNA; produced When-in-Rome's automatic analyses; ~45-52% full-RN accuracy ceiling reference |
 
-Landscape map: `docs/CLASSICAL-AI-LANDSCAPE.md`. Research #01–#07 (originally
-planned order) is complete; further deep-dives come from
-`docs/RESEARCH-QUEUE.md`. Next default: **`git-scarrow/music-arranger`**
-(Codeberg — CP-SAT constraint-solver twin to the realizer) or the
-**thiri-mcp + music21-mcp** pair — human picks.
+Landscape map: `docs/CLASSICAL-AI-LANDSCAPE.md`. Research #01–#11 is
+complete; Tier 1 and Tier 3 #11 of `docs/RESEARCH-QUEUE.md` are closed.
+Next default: **JJazzLab** (product-completeness study) or **rnbert /
+muMoE-RNBERT** (neural RNA baselines, now comparable to AugmentedNet) —
+human picks.
 
 ### Designed / not started (build)
 

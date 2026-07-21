@@ -120,12 +120,16 @@ read (not just "clone it").
    When-in-Rome, research #06) if L1/analyzer-eval corpus expansion is ever
    revisited.
 
-11. **`napulen/AugmentedNet`** (50★, pushed 2026-07-21 — actively maintained)
-    — the actual neural RNA model that produced the `analysis_automatic.rntxt`
-    files inside When-in-Rome's corpus (research #06 referenced its output
-    without covering the tool itself). Worth reading alongside rnbert/μMoE
-    (#6 above) as the third neural-RNA baseline, and specifically because
-    it's the one already embedded in a corpus Harmonyx has already studied.
+11. **`napulen/AugmentedNet`** — **Done**, see
+    `docs/research/11-augmentednet.md`. (50★, MIT; last push actually
+    2024-02-11 — the "pushed 2026-07-21" note above was a stale GitHub-scan
+    artifact, corrected here) — the actual neural RNA model that produced the
+    `analysis_automatic.rntxt` files inside When-in-Rome's corpus (research
+    #06 referenced its output without covering the tool itself). CRNN,
+    11-14-task multitask learning (key/degree/quality/inversion/voice
+    pitches), reconciled at inference via pcset-cosine matching rather than
+    a single argmax. Best full-RN accuracy ~45-52% even with synthetic-data
+    augmentation — useful ceiling reference for Harmonyx's own analyzer eval.
 
 ---
 
@@ -163,13 +167,13 @@ so the candidates aren't lost if that decision ever gets revisited:
 ~~Shimaoka-SATB-SkillSet first~~ **Done** (`docs/research/
 08-shimaoka-satb-skillset.md`) → ~~music-arranger~~ **Done** (`docs/research/
 09-music-arranger.md`) → ~~thiri-mcp + music21-mcp~~ **Done** (`docs/research/
-10-thiri-mcp-and-music21-mcp.md`) — **Tier 1 fully closed** → Tier 3 #11
-AugmentedNet (quick, ties directly to already-read #06) → Tier 2 in listed
-order → Tier 3 remainder as time allows.
+10-thiri-mcp-and-music21-mcp.md`) — **Tier 1 fully closed** → ~~Tier 3 #11
+AugmentedNet~~ **Done** (`docs/research/11-augmentednet.md`) → Tier 2 in
+listed order → Tier 3 remainder as time allows.
 
-Next default: **Tier 3 #11 `napulen/AugmentedNet`** (quick — the neural RNA
-model behind When-in-Rome's `analysis_automatic.rntxt`, #06's own corpus) or
-Tier 2 #5 **JJazzLab** (product-completeness study). Human picks.
+Next default: Tier 2 #5 **JJazzLab** (product-completeness study) or Tier 2
+#6 **rnbert / muMoE-RNBERT** (now that AugmentedNet gives a first neural-RNA
+baseline to compare against). Human picks.
 
 As always: one peer (or one small related cluster, like the two MCP servers)
 per chunk, notes written to `docs/research/0N-*.md`, landscape doc + AI-DIARY

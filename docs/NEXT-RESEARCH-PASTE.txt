@@ -26,22 +26,23 @@ Read these, in order, then **stop and wait** for my instructions:
 | 08 | `docs/research/08-shimaoka-satb-skillset.md` | ShikiSuen/Shimaoka-SATB-SkillSet | LLM-context-only SATB knowledge base (no validator/enforcement code) — counter-example to "LLM proposes, code enforces"; 2nd independent source (after #06) flagging the augmented-sixth notation gap |
 | 09 | `docs/research/09-music-arranger.md` | scarrow/music-arranger (Codeberg) | Claude tool-call NL→params + Google OR-Tools CP-SAT SATB solver — "L4 + realizer, one architecture" twin; steal: pre-solve infeasibility diagnostics (M4 idea); don't steal: CP-SAT replacing DP, wide NL→full-arrangement tool schema |
 | 10 | `docs/research/10-thiri-mcp-and-music21-mcp.md` | BluesPrince/thiri-mcp + SimonsonM/music21-mcp | Two opposite MCP theory-server architectures (hosted-proprietary client vs. local-open wrapper); steal: production-hardening checklist, low-boilerplate `@mcp.tool()` pattern; don't steal: hosted-API-with-quota design (doesn't apply — Harmonyx is the engine) |
+| 11 | `docs/research/11-augmentednet.md` | napulen/AugmentedNet | CRNN, 11-14-task multitask RNA (key/degree/quality/inversion/voice pitches), reconciled at inference via pcset-cosine match, not raw argmax; produced When-in-Rome's (#06) `analysis_automatic.rntxt`; best full-RN accuracy ~45-52% even with synthetic-data augmentation — useful ceiling reference for analyzer eval; don't steal: the network itself or its training strategy |
 
-Research #01–#07 (the originally planned landscape order) is complete. #08–#10
+Research #01–#07 (the originally planned landscape order) is complete. #08–#11
 came from the follow-up `docs/RESEARCH-QUEUE.md` scan (Tier 1–4 candidates +
-a human-flagged repo). **Tier 1 of the queue is now fully closed.**
+a human-flagged repo). **Tier 1 and Tier 3 #11 of the queue are now closed.**
 
 ## Next research chunk (default)
 
 Per `docs/RESEARCH-QUEUE.md`'s suggested order, the next candidate is:
-- **Tier 3 #11 `napulen/AugmentedNet`** — quick read, the neural RNA model
-  behind When-in-Rome's (#06) own corpus annotations.
-- Or Tier 2 #5 **JJazzLab** — product-completeness study (jazz backing-track
+- **Tier 2 #5 JJazzLab** — product-completeness study (jazz backing-track
   arranger, not classical, but the most complete product in the landscape map).
+- Or **Tier 2 #6 rnbert / muMoE-RNBERT** — neural RNA baselines, now directly
+  comparable to AugmentedNet (#11).
 
 See `docs/RESEARCH-QUEUE.md` for the full tiered list (11 repos), what to
 actually read in each, and the reasoning. Write notes to
-`docs/research/09-*.md`, update `docs/CLASSICAL-AI-LANDSCAPE.md` §10/§11/§13,
+`docs/research/12-*.md`, update `docs/CLASSICAL-AI-LANDSCAPE.md` §10/§11/§13,
 `docs/RESEARCH-QUEUE.md` (mark the entry done), and a short `AI-DIARY` entry.
 Then **stop** for check-in.
 

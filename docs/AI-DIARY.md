@@ -700,3 +700,61 @@ next default set to Tier 3 AugmentedNet or Tier 2 JJazzLab),
 default is **Tier 3 `napulen/AugmentedNet`** (quick, ties to #06's own
 corpus) or **Tier 2 JJazzLab** (product-completeness study); no build chunk
 implied by any of this.
+
+## Entry 27 — Research deep-dive #11 AugmentedNet (2026-07-21)
+
+Human picked "Tier 3 research" this chunk — `napulen/AugmentedNet` (the last
+Tier 3 candidate from `docs/RESEARCH-QUEUE.md` besides diatone/mcp-score/
+Humdrum, and the one directly tied to #06's own corpus). Read via `gh api`
+(no local clone needed): repo metadata, full README, `cli.py`, `common.py`,
+`models.py` (both `AugmentedNet` and `Micchi2020` architectures),
+`inference.py` (full), `output_representations.py` (full), part of
+`input_representations.py`, `score_parser.py` (head), `CHANGELOG`, and
+`data/wir.py` to directly confirm the When-in-Rome corpus link. Notes:
+`docs/research/11-augmentednet.md`.
+
+**Corrected a stale queue note:** `RESEARCH-QUEUE.md` said "pushed
+2026-07-21 — actively maintained"; `gh api` shows `pushed_at: 2024-02-11`.
+Fixed in the queue file.
+
+**Product:** the CRNN (Conv1D DenseNet-style blocks + stacked BiGRU) behind
+the ISMIR 2021 paper / 2022 McGill PhD dissertation — the actual tool that
+generated When-in-Rome's `analysis_automatic.rntxt` files (confirmed by
+reading `wir.py`'s corpus-registry mapping directly). Decomposes "Roman
+numeral analysis" into **11-14 simultaneous multi-task output heads** (key,
+tonicized key, raw pitch-class-set, common-RN token, primary/secondary
+scale-degree, four SATB voice pitches, inversion, harmonic rhythm) sharing
+one GRU trunk, then **reconciles them at inference via a pcset-cosine-
+similarity match** against a precomputed chord vocabulary — not a bare
+argmax off the RN head.
+
+**Vs Harmonyx:** not an architecture peer to copy (training a CRNN is out of
+scope for a deterministic-analyzer product), but two ideas worth carrying
+and one useful number. Idea 1: decomposing one hard label into several
+weaker, reconcilable signals and voting them together — relevant framing if
+Harmonyx's analyzer (Q4/A7) ever needs to combine multiple heuristic signals
+instead of one rule cascade. Idea 2: the small per-corpus registry file
+pattern (`data/*.py`) is a clean model if Harmonyx's own eval corpus grows
+past one source. The number: even this trained, augmented, multi-corpus
+model tops out at **~45-52% strict full-RN accuracy** — a useful external
+sanity-check ceiling next time analyzer eval numbers (A7) get reported, since
+Harmonyx's rule-based, no-training analyzer already sits around 65% on its
+own (different) key-only eval metric.
+
+**Steal:** decomposed-task + voted-reconciliation framing (idea only);
+corpus-registry file layout; published accuracy ceiling as an eval reference
+point. **Don't steal:** the network itself, mlflow/TensorFlow training
+infra, synthetic block-chord texturization strategy, RomanText output format
+(Harmonyx already has its own compatible grammar).
+
+Updated `docs/CLASSICAL-AI-LANDSCAPE.md` §4.2 (new AugmentedNet row), §10
+(marked #11 done), §13 (new index row), §14; `docs/RESEARCH-QUEUE.md` (#11
+marked done, stale push-date corrected, next-default updated to JJazzLab or
+rnbert/muMoE-RNBERT); `docs/NEXT-RESEARCH-PASTE.txt`; `docs/START-HERE.md`
+and `docs/AGENT-START-HERE.md`'s research-status lines. This closes **Tier 3
+item #11** and leaves Tier 3 #8-10 (diatone, mcp-score, Humdrum tooling) and
+all of Tier 2 as the remaining queue. Per AGENTS.md Rule 2b: good point for a
+chat reset before naming the next task — next research default is **Tier 2
+JJazzLab** (product-completeness study) or **Tier 2 rnbert/muMoE-RNBERT**
+(now directly comparable to AugmentedNet as a second/third neural-RNA
+baseline); no build chunk implied by any of this.
