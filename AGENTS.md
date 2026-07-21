@@ -28,6 +28,15 @@ thinking through where chunks touch each other ("the seams"), because bugs at
 a seam are invisible to any agent that only ever sees one side of it. Don't
 assume "my piece passed its own tests" means the integration is correct.
 
+## Rule 2b: Suggest chat resets at chunk boundaries
+
+Whenever a research deep-dive, build chunk, or task finishes and its
+findings/output have been written to a file (e.g. `docs/research/0N-*.md`, a
+commit, etc.), explicitly suggest to the user that this is a good point to
+clear/reset the chat to save tokens, before waiting for the next instruction.
+This is a reminder for the human, not an automatic action — the agent should
+never clear the chat itself, only flag that now is a good moment to do so.
+
 ## Rule 3: Read before you write
 
 Before touching code, read (in this order):

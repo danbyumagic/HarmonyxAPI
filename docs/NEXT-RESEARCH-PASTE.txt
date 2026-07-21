@@ -12,6 +12,7 @@ Read these, in order, then **stop and wait** for my instructions:
 5. `docs/research/02-choral-counterpoint.md` (**done** — SATB checker + Bach oracle)
 6. `docs/research/03-partwise.md` (**done** — M4 `/check` UX + evaluate API)
 7. `docs/research/04-chorale-optimizer.md` (**done** — beam + fixups vs DP realizer)
+8. `docs/research/05-choral-llm-workbench.md` (**done** — IKR-light/TLR note-level LLM interface pattern)
 
 **Do not start implementing code.** Research / notes only unless I name a build chunk.
 
@@ -23,20 +24,20 @@ Read these, in order, then **stop and wait** for my instructions:
 | 02 | `docs/research/02-choral-counterpoint.md` | DashWieland/choral-counterpoint | V vs W rules; Bach false-alarm harness; fermata boundaries for M4 |
 | 03 | `docs/research/03-partwise.md` | cjohanson64-netizen/PartWise | Evaluate API projection; pass/warn/fail + colors + weighted %; skip TAT; keep our deeper `rules.py` |
 | 04 | `docs/research/04-chorale-optimizer.md` | 604korupt/chorale-optimizer | Beam w=40 + iterative fixups; always-emit; cadence splits; keep fail-closed DP |
+| 05 | `docs/research/05-choral-llm-workbench.md` | asb-42/choral-llm-workbench | IKR-light + TLR (line-per-event text) as a *future* note-level LLM interface pattern; validated "LLM proposes, code enforces" independently; repo itself is sprawling/unhealthy — don't vendor code |
 
 ## Next research chunk (default)
 
-**05 — choral-llm-workbench** (`asb-42/choral-llm-workbench`)
-- Why: MusicXML + LLM choral reharm peer (L4 / arrangement-adjacent)
-- Write notes to: `docs/research/05-choral-llm-workbench.md`
-- Update `docs/CLASSICAL-AI-LANDSCAPE.md` §13 and a short `AI-DIARY` entry
-- Then **stop** for check-in (do not auto-continue to #06)
+**06 — When-in-Rome** (`MarkGotham/When-in-Rome`)
+- Why: RN corpus for L1 few-shot expansion + analyzer eval
+- Write notes to: `docs/research/06-when-in-rome.md`
+- Update `docs/CLASSICAL-AI-LANDSCAPE.md` §10/§11 and a short `AI-DIARY` entry
+- Then **stop** for check-in (do not auto-continue to #07)
 
 ## After that (only if I say continue)
 
 | # | Target | Focus |
 |---|--------|--------|
-| 06 | MarkGotham/When-in-Rome | RN corpus for L1/eval |
 | 07 | billyblu2000/AccoMontage2 + POP909 | Arrangement track (later) |
 
 ## Harmonyx context (one screen)

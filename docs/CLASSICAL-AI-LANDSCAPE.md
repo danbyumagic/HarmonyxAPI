@@ -293,7 +293,7 @@ Do **not** implement from this list without an explicit human chunk. Study order
 | 2 | **choral-counterpoint** | Compare rule set + Bach oracle to `rules.py` / PARTWRITING-RULES |
 | 3 | **PartWise** | UX + API shape for M4 `/check` |
 | 4 | **chorale-optimizer** | Alternative search/fix vs DP realizer |
-| 5 | **choral-llm-workbench** | MusicXML + LLM reharm for choir product path |
+| 5 | ~~**choral-llm-workbench**~~ | **Done** — MusicXML + LLM reharm; see `docs/research/05-choral-llm-workbench.md` |
 | 6 | **When-in-Rome** | Corpus expansion for L1 few-shot + analyzer eval |
 | 7 | **AccoMontage2 + POP909** | Only if arrangement becomes a milestone |
 | 8 | **JJazzLab** | Lead-sheet product completeness (jazz) as product reference |
@@ -316,6 +316,7 @@ If “king of classical × AI” becomes a multi-product strategy:
 | Counterpoint pedagogy | Fux generators + checkers | New track or mode |
 | Agent-native theory | thiri / music21 MCP | Expose Harmonyx tools |
 | Orchestration / reduction | MIT projective orch, audio→score | Far future |
+| Note-level LLM edit interface | choral-llm-workbench's IKR-light + TLR (line-per-event text) pattern — see research #05 §2 | If a future feature needs an LLM to touch literal note/rest content (reharmonize an existing chorale, explain a passage) rather than only RN symbols. Not needed for current RN-based L4. |
 
 ---
 

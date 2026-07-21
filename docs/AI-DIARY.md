@@ -426,3 +426,46 @@ realms (analyze, check, generate, reharm, arrange, teach, explain) — multi-yea
 domain ambition; still one named chunk per session per AGENTS.md.
 
 **Claude Code: read handoff, stop, wait.** Do not auto-start L4/M4/research #05.
+
+## Entry 21 — Research deep-dive #05 choral-llm-workbench (2026-07-21)
+
+Human reaffirmed the north star explicitly this session: building "the
+ultimate classical music AI tool" — any peer findings not applicable now
+should still be logged as future-useful, not discarded. Landscape doc §1
+("king of classical × AI") and §11 (domain expansion backlog) already existed
+for exactly this; added a new §11 row for note-level LLM interfaces instead of
+starting a separate goals doc.
+
+Read `asb-42/choral-llm-workbench` (README, `USER_MANUAL.md`,
+`SYSTEM_PROMPTS.md`, `ARCHITECTURE-VUE.md`, `KNOWN_ISSUES.md`,
+`docs/system/ROADMAP-v2.md`; full read of `ikr_light.py`, `tlr_converter.py`,
+`transformation_validator.py`, `core/llm/adapter.py`, `core/llm/satb.py`,
+`core/score/reharmonize.py`). Ran `pytest tests/test_functional.py` (4 passed)
+and the full `tests/` dir (11 collection errors — syntax error, missing
+`hypothesis` dep, broken constructor call). Notes:
+`docs/research/05-choral-llm-workbench.md`.
+
+**Product:** MusicXML → IKR-light (canonical dataclass model) → TLR
+(line-per-event plaintext LLM interface) → local Ollama LLM → flag-gated
+`TransformationValidator` → MusicXML back out. Same "LLM proposes, code
+enforces" philosophy as Harmonyx's own L4 plan, arrived at independently.
+
+**Steal (idea only, later):** TLR-style explicit line-per-event text
+serialization + text-diff-as-score-diff, for if Harmonyx ever needs an LLM to
+touch literal note-level score content (not just RN symbols) — e.g. a future
+reharm-an-existing-chorale or explain-a-passage feature. Not needed for
+current RN-based L4; logged in landscape §11, not scheduled.
+
+**Don't steal:** any actual code. Repo is sprawling/self-contradictory — 20+
+near-duplicate `gradio_app_satb_*.py` variants, a Gradio UI the repo's own
+`KNOWN_ISSUES.md` says to "ABANDON" mid-project while also shipping a
+parallel NestJS+Vue stack that hasn't replaced it; CI only runs one of 25
+test files and the full suite doesn't even collect. Harmonization depth is
+thin (one root+quality triad per measure, no voice leading) — Harmonyx's
+`realize.py` is already ahead here.
+
+Updated landscape §10 (marked #5 done) and §11 (new backlog row). Also added
+**AGENTS.md Rule 2b**: suggest a chat reset at chunk boundaries (findings
+written to file) — human-triggered only, never automatic.
+
+Next research when asked: **#06 MarkGotham/When-in-Rome**.
