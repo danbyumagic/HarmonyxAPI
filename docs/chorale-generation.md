@@ -8,13 +8,16 @@ rules — rather than copying partwriter.com's code.
 
 ## The idea (confirmed: yes, this makes sense)
 
-This is the clean inverse of the analyzer:
+This is the clean inverse of the analyzer, and it has **two layers**:
 
 ```
-key + Roman-numeral progression
+(optional) generate an idiomatic progression   ← Layer 1: functional-harmony grammar
+        │        └─ user can edit / lock individual Roman numerals
+        ▼
+key + Roman-numeral progression (+ optional soprano)
         │
         ▼
-  part-writing engine  ← our own clean-room implementation of the rules
+  part-writing engine     ← Layer 2: our clean-room realizer
         │  (assign chord tones to S/A/T/B under the rules)
         ▼
   four-part SATB voicing
@@ -28,7 +31,32 @@ The analyzer already goes **score → Roman numerals**. This adds
 hymn from a progression, then analyze it back and confirm it reproduces the
 input RNs (a built-in correctness check + eval signal).
 
-## Build our own engine (clean-room)
+## Layer 1 — idiomatic progression generation (not random RNs)
+
+Random generation should be **governed by tonal harmony, not uniform chance** —
+not every Roman-numeral combination sounds good, so the generator emits
+*functional* progressions rather than arbitrary sequences.
+
+- **Chords have functions:** Tonic (I, vi, iii) · Predominant/Subdominant
+  (IV, ii, ii⁶) · Dominant (V, V7, viio). Idiomatic flow is **T → PD → D → T**.
+- **Encode the conventions as a weighted transition grammar** (Markov-style
+  transition table seeded from the norms): `ii → V`, `V → I` (or `V → vi`
+  deceptive), cadential ⁶⁴ → V, IV → V or I; down-weight/forbid retrogressions
+  like `V → IV`. Seeded randomness gives variety while staying musical.
+- **Cadence-aware:** aim phrase ends at real cadences (PAC/HC), not wherever
+  the chain lands.
+- The **default generator is this rule-based functional grammar.** An LLM
+  proposer stays an *optional* alternative later (style/modulation), not the
+  core.
+
+### Manual editing / locking
+The generated progression is an **editable list of Roman numerals**:
+- Change any chord by hand, or **lock** specific chords and regenerate the rest
+  around them (constrained generation honoring the locked slots).
+- After an edit, re-realize the voicing (and re-run the soprano compatibility
+  check if a soprano is set).
+
+## Layer 2 — the realizer (build our own engine, clean-room)
 
 Part-writing (voicing an RN progression under SATB rules — no parallel
 5ths/8ves, resolve the leading tone and chordal 7th, correct doubling, keep
@@ -81,12 +109,17 @@ chord-membership logic the analyzer already relies on.
 
 ## Proposed shape in this project
 
-- **New endpoint** `POST /generate` (or `/harmonize`):
-  request = `{ key, progression: ["I", "V6", "vi", ...], time_signature?,
-  soprano? }` (soprano optional) → response = MusicXML (four parts) +
-  optionally the same structured chord list the analyzer returns. If a soprano
-  is given and fails the compatibility check, return a 422 with the offending
-  beat(s).
+- **`POST /progression`** (Layer 1, optional): request =
+  `{ key, length?, locked?: {index: "V", ...}, cadence?: "PAC" }` → response =
+  an idiomatic Roman-numeral list. Locked slots are honored; the rest is
+  generated around them.
+- **`POST /generate`** (Layer 2): request =
+  `{ key, progression: ["I", "V6", "vi", ...], time_signature?, soprano? }`
+  (soprano optional) → response = MusicXML (four parts) + optionally the same
+  structured chord list the analyzer returns. If a soprano is given and fails
+  the compatibility check, return a 422 with the offending beat(s).
+- A caller can chain them (generate a progression, edit it, then realize) or go
+  straight to `/generate` with a hand-written progression.
 - **Reuse the part-writing engine** (ported or sidecar) to produce the SATB
   voicing.
 - **Emit MusicXML** via music21 (build a 4-voice `Score`, write to MusicXML) —
@@ -102,13 +135,15 @@ chord-membership logic the analyzer already relies on.
   violations — an objective quality number, same pattern as the analysis eval.
 
 ## Phasing
-1. Write down the rule set + cost function (from theory sources).
-2. Build the Python voicing engine (candidate voicings + DP/search), with
-   music21's `voiceLeading` for parallel/hidden-interval checks. Support both
-   free-soprano and given-soprano modes.
-3. Add the soprano compatibility check (chord-membership) for given-soprano
-   input.
-4. Wire `POST /generate`: progression (+ optional soprano) → engine → SATB →
-   MusicXML.
-5. Round-trip and rule-violation checks as the eval.
-6. Frontend panel + download.
+1. **Layer 2 first** (it's the reusable core). Write the rule set + cost
+   function, build the Python voicing engine (candidate voicings + DP/search)
+   with music21's `voiceLeading` for parallel/hidden checks. Support free- and
+   given-soprano modes; add the soprano compatibility check. Wire
+   `POST /generate`.
+2. **Layer 1**: the functional-harmony progression grammar (weighted transition
+   table, cadence-aware) + locking/constrained regeneration. Wire
+   `POST /progression`.
+3. Round-trip and rule-violation checks as the eval.
+4. Frontend panel: generate progression → edit/lock chords → realize → render +
+   download.
+5. (Later, optional) LLM progression proposer as an alternative to the grammar.

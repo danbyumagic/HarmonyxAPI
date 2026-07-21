@@ -92,18 +92,26 @@ python -m eval.run_eval            # Agreement: 13/20 = 65%
   more interesting angle) is planned but not built.
 
 ## Decisions on the generator
+- **Two layers.** (1) A **progression generator** driven by a
+  **functional-harmony grammar** (weighted chord-transition table, cadence-aware)
+  — idiomatic RNs, not random. (2) The **realizer** (clean-room part-writing
+  engine) turns the RN progression into SATB → MusicXML.
+- **Progressions are editable.** The user can change or **lock** individual
+  Roman numerals and regenerate the rest around the locked slots, then
+  re-realize.
 - **Soprano is optional.** No soprano → the engine voices all four parts
-  freely. Soprano provided → the engine voices alto/tenor/bass beneath it,
-  after a **compatibility check**: each soprano note must be a chord tone of the
-  chord its Roman numeral implies; incompatible notes are rejected with a clear
-  per-beat message (e.g. 422 with the offending beat). See
-  [`chorale-generation.md`](chorale-generation.md).
+  freely. Soprano provided → it voices alto/tenor/bass beneath it, after a
+  **compatibility check**: each soprano note must be a chord tone of its Roman
+  numeral's chord; incompatible notes are rejected with a clear per-beat message
+  (422 with the offending beat).
+- **Rule-based grammar is the default;** an LLM progression proposer is an
+  optional later alternative.
+- Planned endpoints: `POST /progression` (Layer 1) and `POST /generate`
+  (Layer 2). See [`chorale-generation.md`](chorale-generation.md).
 
 ## Open questions (need a human decision)
 1. "Output choral Roman numerals" — does it mean *realize* an RN progression to
    SATB (the generator), *analyze* SATB to RNs (already done), or round-trip both?
-2. Generation: rule-based only, or add a hybrid LLM (proposes progression) +
-   deterministic realizer + rule-checker for style/modulation?
 
 ## Suggested next steps (from ROADMAP phasing)
 1. NCT filtering (A1) + fermata-based cadence detection (A2) — biggest quality

@@ -170,8 +170,6 @@ dense orchestral scores. State it explicitly, same as the v1 harmony scope.
 ## Open questions to decide together
 - Does "output choral Roman numerals" mean realize (B2), analyze (current),
   or round-trip both?
-- For generation beyond B2: deterministic rule-based only, or add the hybrid
-  LLM + realizer for style/modulation?
 
 > Resolved: reuse question is settled — we build our own clean-room Python
 > part-writing engine (the rules are standard theory, not IP). No license gate,
@@ -180,3 +178,9 @@ dense orchestral scores. State it explicitly, same as the v1 harmony scope.
 > Resolved: the **soprano is optional**. Free-soprano mode voices all four
 > parts; given-soprano mode voices A/T/B beneath it after a chord-membership
 > compatibility check that rejects incompatible notes with a clear message.
+>
+> Resolved: generation is **two layers** — (1) an idiomatic progression from a
+> **functional-harmony grammar** (weighted transitions, cadence-aware; not
+> random RNs), with per-chord **manual edit / lock + constrained regenerate**;
+> (2) the clean-room realizer. Rule-based grammar is the default; an LLM
+> proposer is an optional later alternative.

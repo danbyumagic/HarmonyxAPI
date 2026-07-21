@@ -108,7 +108,6 @@ AI angle once NCT filtering and modulation detection land.
 
 ### Still open for a human
 - "Output choral Roman numerals" = realize / analyze / round-trip both?
-- Generation: rule-based only vs. hybrid LLM + realizer.
 
 ## Entry 5 — Generator: soprano decision
 User decided the **soprano is optional**. Free-soprano mode has the engine
@@ -117,6 +116,23 @@ line, but only after a **chord-membership compatibility check** — each soprano
 note must be a legal tone of its Roman numeral's chord, else reject with a clear
 per-beat message. Reuses the analyzer's chord-membership logic. Folded into
 `chorale-generation.md`, `ROADMAP.md`, and `STATUS.md`.
+
+## Entry 6 — Generation is two layers (functional grammar + editable RNs)
+User clarified that "random" generation should be **governed by tonal harmony**,
+not uniform chance — not every RN combo sounds good. Split generation into two
+layers:
+- **Layer 1 — progression generator:** a functional-harmony grammar (chords
+  grouped by Tonic/Predominant/Dominant function; a weighted transition table
+  encoding norms like `ii→V`, `V→I`/`V→vi`, cadential ⁶⁴→V, and forbidding
+  retrogressions like `V→IV`; cadence-aware). Rule-based grammar is the default;
+  LLM proposer is an optional later alternative. Progressions are an **editable
+  list** — change or **lock** individual RNs and regenerate the rest around the
+  locked slots (constrained generation).
+- **Layer 2 — realizer:** the clean-room part-writing engine from Entry 4/5.
+Planned endpoints `POST /progression` (Layer 1) and `POST /generate` (Layer 2);
+chain them or go straight to `/generate` with a hand-written progression. This
+also resolved the earlier rule-based-vs-hybrid-LLM open question (rule-based
+default, LLM optional). Folded into the three planning docs.
 
 ---
 
