@@ -163,6 +163,30 @@
       border: 1px dashed var(--border); border-radius: 12px; text-align: center;
     }
 
+    .field-wide { grid-column: 1 / -1; }
+    .spice-row {
+      display: flex; flex-wrap: wrap; align-items: center; gap: .75rem 1.1rem;
+      margin-top: .15rem;
+    }
+    .spice-row input[type="range"] {
+      flex: 1 1 180px; min-width: 140px; accent-color: var(--accent);
+    }
+    .spice-meta {
+      font-size: .78rem; color: var(--faint); line-height: 1.35; max-width: 36rem;
+    }
+    .spice-meta strong { color: var(--muted); font-weight: 650; }
+    .spice-pills { display: flex; flex-wrap: wrap; gap: .35rem; }
+    .spice-pills button {
+      font: inherit; font-size: .75rem; font-weight: 600; padding: .28rem .65rem;
+      border-radius: 999px; border: 1px solid var(--border); background: var(--card-2);
+      color: var(--muted); cursor: pointer;
+    }
+    .spice-pills button:hover { border-color: var(--accent); color: var(--fg); }
+    .spice-pills button[aria-pressed="true"] {
+      background: color-mix(in srgb, var(--accent) 18%, var(--card-2));
+      border-color: var(--accent); color: var(--fg);
+    }
+
     /* Status */
     .status { margin-top: 1.25rem; color: var(--muted); min-height: 1.2em; display: flex; align-items: center; gap: .55rem; }
     .status.err { color: #c0392b; }
@@ -354,6 +378,24 @@
             <label for="genSeed">Seed <span style="font-weight:400;text-transform:none;letter-spacing:0">(optional)</span></label>
             <input id="genSeed" type="number" placeholder="random" />
           </div>
+          <div class="field field-wide">
+            <label for="genSpice">Color / spice <span id="genSpiceLabel" style="font-weight:400;text-transform:none;letter-spacing:0">— 0 · student</span></label>
+            <div class="spice-row">
+              <input id="genSpice" type="range" min="0" max="3" step="1" value="0" aria-valuemin="0" aria-valuemax="3" aria-valuenow="0" aria-describedby="genSpiceHelp" />
+              <div class="spice-pills" id="genStylePills" role="group" aria-label="Style presets">
+                <button type="button" data-spice="0" aria-pressed="true">Student</button>
+                <button type="button" data-spice="1" aria-pressed="false">Hymnal</button>
+                <button type="button" data-spice="2" aria-pressed="false">Spicy</button>
+                <button type="button" data-spice="3" aria-pressed="false">Max</button>
+              </div>
+            </div>
+            <p class="spice-meta" id="genSpiceHelp">
+              <strong>0</strong> homework-safe ·
+              <strong>1</strong> hymnal (inversions / Cad64) ·
+              <strong>2</strong> spicy (occasional V/V…) ·
+              <strong>3</strong> max (also V/vi, V/ii). Sent as <code>spice</code> on Propose.
+            </p>
+          </div>
         </div>
 
         <div class="actions">
@@ -362,7 +404,7 @@
           <button type="button" class="btn btn-primary" id="btnRealize" disabled>Realize MusicXML</button>
         </div>
 
-        <div id="rnEmpty" class="empty-hint">Hit <strong>Propose progression</strong> to get started — or type figures after proposing and lock the ones you want to keep.</div>
+        <div id="rnEmpty" class="empty-hint">Hit <strong>Propose progression</strong> to get started — or type figures after proposing and lock the ones you want to keep. Raise spice above if you want secondary dominants.</div>
         <div id="rnGrid" class="rn-grid" hidden></div>
       </div>
 
@@ -523,6 +565,8 @@
     btnRegen.addEventListener('click', () => proposeProgression(true));
     btnRealize.addEventListener('click', realizeProgression);
 
+    const SPICE_NAMES = { 0: 'student', 1: 'hymnal', 2: 'spicy', 3: 'max' };
+
     function genKey() { return $('genKey').value; }
     function genLength() { return Math.max(2, Math.min(32, parseInt($('genLength').value, 10) || 8)); }
     function genCadence() { return $('genCadence').value; }
@@ -532,6 +576,32 @@
       const n = parseInt(v, 10);
       return Number.isFinite(n) ? n : null;
     }
+    function genSpice() {
+      const n = parseInt($('genSpice').value, 10);
+      if (!Number.isFinite(n)) return 0;
+      return Math.max(0, Math.min(3, n));
+    }
+
+    function syncSpiceUi(fromPills) {
+      const spice = genSpice();
+      const name = SPICE_NAMES[spice] || String(spice);
+      $('genSpiceLabel').textContent = `— ${spice} · ${name}`;
+      $('genSpice').setAttribute('aria-valuenow', String(spice));
+      $('genStylePills').querySelectorAll('button').forEach((btn) => {
+        const v = parseInt(btn.dataset.spice, 10);
+        btn.setAttribute('aria-pressed', v === spice ? 'true' : 'false');
+      });
+      if (fromPills) $('genSpice').value = String(spice);
+    }
+
+    $('genSpice').addEventListener('input', () => syncSpiceUi(false));
+    $('genStylePills').addEventListener('click', (ev) => {
+      const btn = ev.target.closest('button[data-spice]');
+      if (!btn) return;
+      $('genSpice').value = btn.dataset.spice;
+      syncSpiceUi(true);
+    });
+    syncSpiceUi(false);
 
     function lockedMapFromSlots() {
       const locked = {};
@@ -583,12 +653,18 @@
     async function proposeProgression(respectLocks) {
       readSlotsFromDom();
       const length = genLength();
+      const spice = genSpice();
       const body = {
         key: genKey(),
         length,
         cadence: genCadence(),
         seed: genSeed(),
+        spice,
       };
+      // Named style for 0–2 (API alias); spice 3 is integer-only.
+      if (spice === 0) body.style = 'student';
+      else if (spice === 1) body.style = 'hymnal';
+      else if (spice === 2) body.style = 'spicy';
       if (respectLocks && slots.length) {
         // Keep length in sync with current slots when regenerating unlocked.
         body.length = slots.length;
@@ -602,7 +678,7 @@
       lastPlayback = null;
       osmdInstance = null;
       stopPlayback();
-      setGenStatus(`<span class="spinner"></span> Proposing progression…`);
+      setGenStatus(`<span class="spinner"></span> Proposing progression (spice ${spice})…`);
 
       try {
         const res = await fetch('/progression', {
@@ -622,7 +698,13 @@
         }));
         // If we had more locks than new length, ignore extras (length is authoritative).
         renderSlots();
-        setGenStatus('');
+        const echoSpice = data.spice != null ? data.spice : spice;
+        const echoStyle = data.style ? ` · style ${data.style}` : '';
+        const hasSecondary = data.progression.some((f) => String(f).includes('/'));
+        setGenStatus(
+          `Proposed · spice ${echoSpice}${echoStyle}` +
+            (hasSecondary ? ' · includes secondary dominant(s)' : ' · no secondary dominants')
+        );
       } catch (err) {
         setGenStatus(`Error: ${err.message}`, true);
       }
