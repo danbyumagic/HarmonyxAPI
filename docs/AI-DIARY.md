@@ -469,3 +469,44 @@ Updated landscape §10 (marked #5 done) and §11 (new backlog row). Also added
 written to file) — human-triggered only, never automatic.
 
 Next research when asked: **#06 MarkGotham/When-in-Rome**.
+
+## Entry 22 — Research deep-dive #06 When-in-Rome (2026-07-21)
+
+Cloned `MarkGotham/When-in-Rome` (README, `syntax.md`, directory scan of
+`Corpus/`/`Anthology/`, structure/docstrings of `Code/romanUmpire.py` and
+`Code/anthology.py`). Not a tool/product — a **meta-corpus**: ~1,300
+RomanText `analysis.txt` files + aligned `score.mxl` covering ~1,500 works
+(DCML corpora, TAVERN, Haydn Op.20, BPS-FH, Tymoczko's TAOM incl. **371 Bach
+chorales**, new WTC-I preludes and OpenScore-Lieder songs), plus thin
+music21-based tooling (`romanUmpire.py` scores RN-analysis-vs-score
+agreement; `anthology.py` mines chord/progression instances). Notes:
+`docs/research/06-when-in-rome.md`.
+
+**Validation, not new work:** `syntax.md`'s RomanText spec matches Harmonyx's
+existing RN vocabulary closely — `Cad64`, secondary-dominant `/V` slashes,
+key-then-continuation header style are all already how `grammar.py`/
+`chords.py` work. Confirms current choices rather than requiring changes.
+Two gaps *not* yet in Harmonyx: augmented-sixth shorthands (`It6`/`Fr43`/
+`Ger65`) and suspension bracket syntax (`V[add4][no3]`) — logged as
+ready-made syntax to adopt if either ever gets scoped, not scheduled now.
+
+**Steal (idea, later):** (1) the 371 aligned Bach chorales as a candidate
+real-corpus source for L1 few-shot expansion beyond today's 40 hand-written
+entries — needs a segmentation/tagging pipeline first, not a file copy, and
+correct CC BY-SA attribution if ever imported; (2) `romanUmpire`'s
+slice-based RN-vs-score matching technique, relevant to analyzer **A7**
+(RN-agreement eval, on the open queue) — reimplement the idea against
+Harmonyx's own data shapes, don't vendor the module (CC BY-SA + coupled to
+WiR's file layout).
+
+**Don't steal:** no code port. Also clarified in the note: WiR's umpire
+(analysis-vs-score matching) is a **different problem** from M4 `/check`
+(part-writing violations in an SATB realization) — relevant to A7, not M4.
+
+Updated landscape §10 (marked #6 done), §11 (new backlog row for A7 +
+real-corpus eval), §13 index, and §14 changelog.
+
+Research chunks #01–06 are now all done. Next default (#07 AccoMontage2 +
+POP909) is arrangement-track-only — per `docs/NEXT-RESEARCH-PASTE.txt`, don't
+continue there without an explicit "continue research" from the human.
+Stopping for check-in as instructed.

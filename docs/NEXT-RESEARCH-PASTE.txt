@@ -13,6 +13,7 @@ Read these, in order, then **stop and wait** for my instructions:
 6. `docs/research/03-partwise.md` (**done** — M4 `/check` UX + evaluate API)
 7. `docs/research/04-chorale-optimizer.md` (**done** — beam + fixups vs DP realizer)
 8. `docs/research/05-choral-llm-workbench.md` (**done** — IKR-light/TLR note-level LLM interface pattern)
+9. `docs/research/06-when-in-rome.md` (**done** — RN meta-corpus for L1 few-shot + analyzer eval)
 
 **Do not start implementing code.** Research / notes only unless I name a build chunk.
 
@@ -25,20 +26,15 @@ Read these, in order, then **stop and wait** for my instructions:
 | 03 | `docs/research/03-partwise.md` | cjohanson64-netizen/PartWise | Evaluate API projection; pass/warn/fail + colors + weighted %; skip TAT; keep our deeper `rules.py` |
 | 04 | `docs/research/04-chorale-optimizer.md` | 604korupt/chorale-optimizer | Beam w=40 + iterative fixups; always-emit; cadence splits; keep fail-closed DP |
 | 05 | `docs/research/05-choral-llm-workbench.md` | asb-42/choral-llm-workbench | IKR-light + TLR (line-per-event text) as a *future* note-level LLM interface pattern; validated "LLM proposes, code enforces" independently; repo itself is sprawling/unhealthy — don't vendor code |
+| 06 | `docs/research/06-when-in-rome.md` | MarkGotham/When-in-Rome | RN meta-corpus (~1,300 analyses incl. 371 Bach chorales); validates existing RN syntax (`Cad64`, `/V`); augmented-6th + suspension bracket syntax ready if scoped; `romanUmpire` slice-matching technique relevant to analyzer A7 (reimplement, don't vendor — CC BY-SA) |
 
 ## Next research chunk (default)
 
-**06 — When-in-Rome** (`MarkGotham/When-in-Rome`)
-- Why: RN corpus for L1 few-shot expansion + analyzer eval
-- Write notes to: `docs/research/06-when-in-rome.md`
+**07 — AccoMontage2 + POP909** (`billyblu2000/AccoMontage2`)
+- Why: arrangement track (later) — only relevant if arrangement becomes a scoped milestone
+- Write notes to: `docs/research/07-accomontage2.md`
 - Update `docs/CLASSICAL-AI-LANDSCAPE.md` §10/§11 and a short `AI-DIARY` entry
-- Then **stop** for check-in (do not auto-continue to #07)
-
-## After that (only if I say continue)
-
-| # | Target | Focus |
-|---|--------|--------|
-| 07 | billyblu2000/AccoMontage2 + POP909 | Arrangement track (later) |
+- Then **stop** for check-in (research #01–07 would complete the current landscape's suggested order)
 
 ## Harmonyx context (one screen)
 

@@ -37,6 +37,17 @@ clear/reset the chat to save tokens, before waiting for the next instruction.
 This is a reminder for the human, not an automatic action — the agent should
 never clear the chat itself, only flag that now is a good moment to do so.
 
+## Rule 2c: "resume" is the orientation keyword
+
+If the human's first message in a session is just **"resume"** (or `/resume`
+in Claude Code, which runs `.claude/commands/resume.md`), treat it as
+shorthand for: confirm git branch/status, read `docs/START-HERE.md` →
+`AGENTS.md` → `docs/AGENT-START-HERE.md` (or `docs/NEXT-RESEARCH-PASTE.txt`
+if the live default in START-HERE.md is a research chunk), summarize current
+state in a few sentences, then **stop and wait**. This is a plain-text
+convention on purpose so it works the same in Claude Code, Codex, or any
+other agent reading this file — don't rely on slash-command syntax alone.
+
 ## Rule 3: Read before you write
 
 Before touching code, read (in this order):

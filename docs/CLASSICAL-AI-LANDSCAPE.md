@@ -294,7 +294,7 @@ Do **not** implement from this list without an explicit human chunk. Study order
 | 3 | **PartWise** | UX + API shape for M4 `/check` |
 | 4 | **chorale-optimizer** | Alternative search/fix vs DP realizer |
 | 5 | ~~**choral-llm-workbench**~~ | **Done** — MusicXML + LLM reharm; see `docs/research/05-choral-llm-workbench.md` |
-| 6 | **When-in-Rome** | Corpus expansion for L1 few-shot + analyzer eval |
+| 6 | ~~**When-in-Rome**~~ | **Done** — corpus expansion for L1 few-shot + analyzer eval; see `docs/research/06-when-in-rome.md` |
 | 7 | **AccoMontage2 + POP909** | Only if arrangement becomes a milestone |
 | 8 | **JJazzLab** | Lead-sheet product completeness (jazz) as product reference |
 | 9 | **rnbert / muMoE-RNBERT** | Only if investing in neural RNA |
@@ -317,6 +317,7 @@ If “king of classical × AI” becomes a multi-product strategy:
 | Agent-native theory | thiri / music21 MCP | Expose Harmonyx tools |
 | Orchestration / reduction | MIT projective orch, audio→score | Far future |
 | Note-level LLM edit interface | choral-llm-workbench's IKR-light + TLR (line-per-event text) pattern — see research #05 §2 | If a future feature needs an LLM to touch literal note/rest content (reharmonize an existing chorale, explain a passage) rather than only RN symbols. Not needed for current RN-based L4. |
+| Analyzer eval against real ground truth | When-in-Rome's 371 Bach chorales + slice-based RN-vs-score agreement scoring — see research #06 §3–4 | Next time analyzer A7 (RN-agreement eval) is scoped; reimplement the matching idea, don't vendor `romanUmpire.py` (CC BY-SA + coupled to WiR's layout). |
 
 ---
 
@@ -343,9 +344,11 @@ Written notes (read these before re-cloning peers):
 | 02 | [`docs/research/02-choral-counterpoint.md`](research/02-choral-counterpoint.md) | DashWieland/choral-counterpoint — SATB checker + Bach oracle |
 | 03 | [`docs/research/03-partwise.md`](research/03-partwise.md) | cjohanson64-netizen/PartWise — M4 `/check` UX + evaluate API |
 | 04 | [`docs/research/04-chorale-optimizer.md`](research/04-chorale-optimizer.md) | 604korupt/chorale-optimizer — beam + fixups vs DP realizer |
+| 05 | [`docs/research/05-choral-llm-workbench.md`](research/05-choral-llm-workbench.md) | asb-42/choral-llm-workbench — IKR-light/TLR note-level LLM interface pattern |
+| 06 | [`docs/research/06-when-in-rome.md`](research/06-when-in-rome.md) | MarkGotham/When-in-Rome — RN meta-corpus for L1 few-shot + analyzer eval |
 
-**Next suggested:** choral-llm-workbench (MusicXML + LLM choral reharm), then
-When-in-Rome as needed.
+**Next suggested:** #07 AccoMontage2 + POP909, only if arrangement becomes a
+scoped milestone (per `docs/NEXT-RESEARCH-PASTE.txt`).
 
 ### PartWise one-liner (after #03)
 
@@ -371,6 +374,8 @@ fixtures as default; do not replace `realize.py` with soft beam+fix.
 | 2026-07-21 | Deep-dives #01 Resonance, #02 choral-counterpoint → `docs/research/`. |
 | 2026-07-21 | Deep-dive #03 PartWise → `docs/research/03-partwise.md` (M4 UX/API blueprint). |
 | 2026-07-21 | Deep-dive #04 chorale-optimizer → `docs/research/04-chorale-optimizer.md` (beam+fix vs DP). |
+| 2026-07-21 | Deep-dive #05 choral-llm-workbench → `docs/research/05-choral-llm-workbench.md` (IKR-light/TLR pattern). |
+| 2026-07-21 | Deep-dive #06 When-in-Rome → `docs/research/06-when-in-rome.md` (RN meta-corpus; L1 few-shot + A7 eval source). |
 
 When you re-scan, append a changelog row and note new Tier S/A finds at the top
 of §3–§4.

@@ -46,9 +46,11 @@ Branch: `claude/harmonic-analysis-api-loc82f` (confirm `git status` / `git log`)
 | 02 | `docs/research/02-choral-counterpoint.md` | **M4** hard/soft tiers, Bach culture |
 | 03 | `docs/research/03-partwise.md` | **M4** evaluate UX + API projection |
 | 04 | `docs/research/04-chorale-optimizer.md` | Realizer alternatives; keep DP default |
+| 05 | `docs/research/05-choral-llm-workbench.md` | Note-level LLM interface pattern (IKR-light/TLR); not needed for RN-based L4 |
+| 06 | `docs/research/06-when-in-rome.md` | RN meta-corpus; L1 few-shot expansion + analyzer A7 eval |
 
-Landscape map: `docs/CLASSICAL-AI-LANDSCAPE.md`. Next research default: **#05
-choral-llm-workbench**.
+Landscape map: `docs/CLASSICAL-AI-LANDSCAPE.md`. Next research default: **#07
+AccoMontage2 + POP909** (arrangement track only).
 
 ### Designed / not started (build)
 
