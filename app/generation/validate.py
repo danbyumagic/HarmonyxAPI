@@ -1,12 +1,12 @@
 """Progression validator (theory house rules + optional engine realizability).
 
-L2 of ``docs/LLM-PROGRESSION-SPEC.md``. Does not invent fixes (that is L3);
-suggestions lists are empty here so callers/UI can still share the issue shape.
+L2 of ``docs/LLM-PROGRESSION-SPEC.md``. Optional L3 suggestions via
+``suggest=True`` (deterministic fixer in ``fix.py``).
 """
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass, replace
 from typing import Any, List, Mapping, Optional, Sequence, Tuple
 
 from . import chords as _chords
@@ -89,12 +89,14 @@ class ValidationResult:
     issues: Tuple[ProgressionIssue, ...] = ()
     key: Optional[str] = None
     cadence: Optional[str] = None
+    suggestions: Tuple[Suggestion, ...] = ()
 
     def as_dict(self) -> dict[str, Any]:
         out: dict[str, Any] = {
             "ok": self.ok,
             "progression": list(self.progression),
             "issues": [i.as_dict() for i in self.issues],
+            "suggestions": [s.as_dict() for s in self.suggestions],
         }
         if self.key is not None:
             out["key"] = self.key
@@ -114,6 +116,8 @@ def validate_progression(
     cadence: Optional[str] = None,
     locked: Optional[Mapping[int, str]] = None,
     check_engine: bool = True,
+    suggest: bool = False,
+    max_suggestions: int = 3,
 ) -> ValidationResult:
     """Validate a Roman-numeral progression against house rules and (optionally) the realizer.
 
@@ -131,6 +135,11 @@ def validate_progression(
     check_engine:
         When True (default), also require per-chord candidate voicings and a
         successful ``realize`` path. Set False for cheap theory-only checks.
+    suggest:
+        When True and validation fails, attach deterministic L3 fix suggestions
+        (also copied onto the first blocking issue).
+    max_suggestions:
+        Cap on L3 suggestions (default 3).
 
     Returns
     -------
@@ -160,6 +169,8 @@ def validate_progression(
             # Still run other checks; do not apply PAC/HC shape rules.
             cadence_norm = None
 
+    cadence_out = cadence_norm if cadence is not None else None
+
     # --- Gate A: theory / house style ------------------------------------
     if not figures or any(not f for f in figures):
         if not figures:
@@ -188,12 +199,20 @@ def validate_progression(
                             ),
                         )
                     )
-        return ValidationResult(
-            ok=False,
-            progression=tuple(figures),
-            issues=tuple(issues),
-            key=key_str,
-            cadence=cadence_norm if cadence is not None else None,
+        return _with_suggestions(
+            ValidationResult(
+                ok=False,
+                progression=tuple(figures),
+                issues=tuple(issues),
+                key=key_str,
+                cadence=cadence_out,
+            ),
+            key_like=key_like,
+            cadence=cadence_norm,
+            locked=locked,
+            check_engine=check_engine,
+            suggest=suggest,
+            max_suggestions=max_suggestions,
         )
 
     locked_map = _normalize_locked(locked, len(figures), issues)
@@ -263,13 +282,58 @@ def validate_progression(
         issues.extend(_engine_issues(figures, key_like))
 
     blocking = [i for i in issues if i.severity == SEVERITY_BLOCK]
-    return ValidationResult(
+    result = ValidationResult(
         ok=len(blocking) == 0,
         progression=tuple(figures),
         issues=tuple(issues),
         key=key_str,
-        cadence=cadence_norm if cadence is not None else None,
+        cadence=cadence_out,
     )
+    return _with_suggestions(
+        result,
+        key_like=key_like,
+        cadence=cadence_norm,
+        locked=locked_map or locked,
+        check_engine=check_engine,
+        suggest=suggest,
+        max_suggestions=max_suggestions,
+    )
+
+
+def _with_suggestions(
+    result: ValidationResult,
+    *,
+    key_like: _chords.KeyLike,
+    cadence: Optional[str],
+    locked: Optional[Mapping[int, str]],
+    check_engine: bool,
+    suggest: bool,
+    max_suggestions: int,
+) -> ValidationResult:
+    if not suggest or result.ok:
+        return result
+    # Lazy import avoids fix ↔ validate cycle at module load.
+    from .fix import suggest_fixes
+
+    suggestions = tuple(
+        suggest_fixes(
+            result.progression,
+            key_like,
+            cadence=cadence,
+            locked=locked,
+            check_engine=check_engine,
+            max_suggestions=max_suggestions,
+        )
+    )
+    if not suggestions:
+        return replace(result, suggestions=())
+
+    issues = list(result.issues)
+    for i, issue in enumerate(issues):
+        if issue.severity == SEVERITY_BLOCK:
+            issues[i] = replace(issue, suggestions=suggestions)
+            break
+    return replace(result, issues=tuple(issues), suggestions=suggestions)
 
 
 def _figure_parseable(figure: str, key_like: _chords.KeyLike) -> bool:
