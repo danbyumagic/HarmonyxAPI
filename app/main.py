@@ -16,11 +16,19 @@ from fastapi.staticfiles import StaticFiles
 from .analyzer import DEFAULT_DURATION_THRESHOLD, AnalysisError, analyze_score
 from .explainer import explain_progression
 from .generation.grammar import GrammarError, generate_progression
-from .generation.realize import RealizationError, check_soprano, realize
+from .generation.realize import (
+    DEFAULT_PLAYBACK_TEMPO_BPM,
+    RealizationError,
+    check_soprano,
+    playback_from_voicings,
+    realize,
+    satb_voicings_from_score,
+)
 from .models import (
     AnalysisResponse,
     GenerateRequest,
     GenerateResponse,
+    PlaybackPayload,
     ProgressionRequest,
     ProgressionResponse,
 )
@@ -174,11 +182,16 @@ async def generate(body: GenerateRequest) -> GenerateResponse:
         ) from exc
 
     musicxml = _score_to_musicxml_text(score)
+    voicings = satb_voicings_from_score(score)
+    playback = PlaybackPayload(
+        **playback_from_voicings(voicings, tempo_bpm=DEFAULT_PLAYBACK_TEMPO_BPM)
+    )
     return GenerateResponse(
         key=body.key,
         progression=body.progression,
         time_signature=body.time_signature,
         musicxml=musicxml,
+        playback=playback,
     )
 
 

@@ -504,6 +504,12 @@
     /** @type {{ figure: string, locked: boolean }[]} */
     let slots = [];
     let lastMusicXml = null;
+    let lastPlayback = null;
+    /** @type {AudioContext | null} */
+    let audioCtx = null;
+    /** @type {OscillatorNode[]} */
+    let activeOscs = [];
+    let playStopTimer = null;
 
     const rnGrid = $('rnGrid');
     const rnEmpty = $('rnEmpty');
@@ -593,7 +599,9 @@
 
       genResults.className = '';
       lastMusicXml = null;
+      lastPlayback = null;
       osmdInstance = null;
+      stopPlayback();
       setGenStatus(`<span class="spinner"></span> Proposing progression…`);
 
       try {
@@ -645,14 +653,16 @@
         if (!res.ok) throw new Error(formatDetail(data.detail) || `HTTP ${res.status}`);
 
         lastMusicXml = data.musicxml;
+        lastPlayback = data.playback || null;
         const chips = progression.map((f) =>
           `<span class="chip">${escapeHtml(f)}</span>`).join('');
+        const tempo = (lastPlayback && lastPlayback.tempo_bpm) || 75;
 
         genResults.innerHTML = `
           <div class="hero">
             <div>
               <div class="keyname">${escapeHtml(data.key)}</div>
-              <div class="fname">Four-part SATB · ${progression.length} chords · ${escapeHtml(data.time_signature)}</div>
+              <div class="fname">Four-part SATB · ${progression.length} chords · ${escapeHtml(data.time_signature)} · ${tempo} BPM</div>
             </div>
             <div class="conf"><div class="num">✓</div><div class="lbl">realized</div></div>
           </div>
@@ -663,11 +673,15 @@
             <div id="osmdContainer"><div class="score-fallback">Loading notation…</div></div>
           </div>
           <div class="gen-done">
-            <button type="button" class="btn btn-primary" id="btnDownload">Download MusicXML</button>
-            <span class="ok-msg">Preview above · download for MuseScore / Dorico · or re-upload under Analyze.</span>
+            <button type="button" class="btn btn-primary" id="btnPlay" ${lastPlayback ? '' : 'disabled'}>Play</button>
+            <button type="button" class="btn" id="btnStop" disabled>Stop</button>
+            <button type="button" class="btn" id="btnDownload">Download MusicXML</button>
+            <span class="ok-msg">Block chords @ ${tempo} BPM · rough Web Audio synth · download for MuseScore.</span>
           </div>`;
         genResults.className = 'show';
         $('btnDownload').addEventListener('click', downloadMusicXml);
+        $('btnPlay').addEventListener('click', () => playPlayback());
+        $('btnStop').addEventListener('click', () => stopPlayback());
         setGenStatus('');
         await renderOsmdPreview(lastMusicXml);
       } catch (err) {
@@ -684,6 +698,80 @@
       a.download = `harmonyx_${keySlug}.musicxml`;
       a.click();
       URL.revokeObjectURL(a.href);
+    }
+
+    function midiToHz(midi) {
+      return 440 * Math.pow(2, (midi - 69) / 12);
+    }
+
+    function setPlayUi(playing) {
+      const playBtn = $('btnPlay');
+      const stopBtn = $('btnStop');
+      if (playBtn) playBtn.disabled = playing || !lastPlayback;
+      if (stopBtn) stopBtn.disabled = !playing;
+    }
+
+    function stopPlayback() {
+      if (playStopTimer != null) {
+        clearTimeout(playStopTimer);
+        playStopTimer = null;
+      }
+      for (const osc of activeOscs) {
+        try { osc.stop(); } catch (_) { /* already stopped */ }
+      }
+      activeOscs = [];
+      setPlayUi(false);
+    }
+
+    async function playPlayback() {
+      if (!lastPlayback || !lastPlayback.events || !lastPlayback.events.length) return;
+      stopPlayback();
+
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) {
+        setGenStatus('Web Audio is not supported in this browser.', true);
+        return;
+      }
+      if (!audioCtx) audioCtx = new AC();
+      if (audioCtx.state === 'suspended') await audioCtx.resume();
+
+      const tempo = lastPlayback.tempo_bpm || 75;
+      const beatSec = 60 / tempo;
+      const t0 = audioCtx.currentTime + 0.05;
+      const master = audioCtx.createGain();
+      master.gain.value = 0.12; // keep four voices from clipping
+      master.connect(audioCtx.destination);
+
+      let maxEnd = 0;
+      for (const ev of lastPlayback.events) {
+        const start = t0 + ev.beat * beatSec;
+        const dur = Math.max(0.05, (ev.duration || 1) * beatSec * 0.92);
+        const end = start + dur;
+        if (end > maxEnd) maxEnd = end;
+
+        const osc = audioCtx.createOscillator();
+        const g = audioCtx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.value = midiToHz(ev.midi);
+        // Soft attack / release to reduce clicks
+        g.gain.setValueAtTime(0, start);
+        g.gain.linearRampToValueAtTime(0.9, start + 0.02);
+        g.gain.setValueAtTime(0.9, end - 0.04);
+        g.gain.linearRampToValueAtTime(0, end);
+        osc.connect(g);
+        g.connect(master);
+        osc.start(start);
+        osc.stop(end + 0.01);
+        activeOscs.push(osc);
+      }
+
+      setPlayUi(true);
+      const ms = Math.ceil((maxEnd - audioCtx.currentTime) * 1000) + 50;
+      playStopTimer = setTimeout(() => {
+        activeOscs = [];
+        setPlayUi(false);
+        playStopTimer = null;
+      }, ms);
     }
 
     /** Phase A: OpenSheetMusicDisplay — view only (no audio). */

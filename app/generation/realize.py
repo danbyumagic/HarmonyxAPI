@@ -117,6 +117,30 @@ def realize(
     return _build_score(voicings, key_like, time_signature)
 
 
+DEFAULT_PLAYBACK_TEMPO_BPM = 75
+
+
+def playback_from_voicings(
+    voicings: List[Voicing],
+    *,
+    tempo_bpm: int = DEFAULT_PLAYBACK_TEMPO_BPM,
+    beat_duration: float = 1.0,
+) -> dict:
+    """Build a simple block-chord playback payload for the web player.
+
+    Each chord is one beat: all four voices sound together (no arpeggiation).
+    ``events`` entries are ``{beat, midi, duration}`` with ``duration`` in beats.
+    """
+    events: List[dict] = []
+    for i, v in enumerate(voicings):
+        beat = float(i)
+        for midi in (v.s, v.a, v.t, v.b):
+            events.append(
+                {"beat": beat, "midi": int(midi), "duration": float(beat_duration)}
+            )
+    return {"tempo_bpm": int(tempo_bpm), "events": events}
+
+
 def _best_path(
     progression: List[str],
     candidate_lists: List[List[Voicing]],

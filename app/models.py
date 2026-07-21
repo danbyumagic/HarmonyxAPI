@@ -119,6 +119,19 @@ class GenerateRequest(BaseModel):
     }
 
 
+class PlaybackEvent(BaseModel):
+    """One note for browser playback (block chords share the same beat)."""
+
+    beat: float = Field(..., description="Onset in quarter-note beats from the start.")
+    midi: int = Field(..., description="MIDI note number.")
+    duration: float = Field(1.0, description="Length in quarter-note beats.")
+
+
+class PlaybackPayload(BaseModel):
+    tempo_bpm: int = Field(75, description="Playback tempo in beats per minute.")
+    events: List[PlaybackEvent]
+
+
 class GenerateResponse(BaseModel):
     """Successful realization: the input progression plus MusicXML text."""
 
@@ -126,6 +139,10 @@ class GenerateResponse(BaseModel):
     progression: List[str]
     time_signature: str
     musicxml: str = Field(..., description="Four-part SATB score as MusicXML text.")
+    playback: PlaybackPayload = Field(
+        ...,
+        description="Block-chord note events for simple Web Audio playback.",
+    )
 
     model_config = {
         "json_schema_extra": {
@@ -134,6 +151,13 @@ class GenerateResponse(BaseModel):
                 "progression": ["I", "IV", "V", "I"],
                 "time_signature": "4/4",
                 "musicxml": "<?xml version='1.0' ...",
+                "playback": {
+                    "tempo_bpm": 75,
+                    "events": [
+                        {"beat": 0, "midi": 72, "duration": 1.0},
+                        {"beat": 0, "midi": 64, "duration": 1.0},
+                    ],
+                },
             }
         }
     }

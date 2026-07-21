@@ -24,6 +24,14 @@ def test_generate_happy_path_returns_musicxml():
     assert data["time_signature"] == "4/4"
     assert isinstance(data["musicxml"], str)
     assert "score-partwise" in data["musicxml"] or "<?xml" in data["musicxml"]
+    playback = data["playback"]
+    assert playback["tempo_bpm"] == 75
+    # 4 chords × 4 voices = 16 block-chord note events
+    assert len(playback["events"]) == 16
+    assert all(e["duration"] == 1.0 for e in playback["events"])
+    # First beat is a simultaneous block of 4 notes
+    beat0 = [e for e in playback["events"] if e["beat"] == 0]
+    assert len(beat0) == 4
 
 
 def test_generate_with_compatible_soprano_returns_200():
