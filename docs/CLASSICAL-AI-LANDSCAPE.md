@@ -190,6 +190,7 @@ tools still win with structured RN/spec + deterministic engines.
 | **ai-music-theory** | https://github.com/music-comp/ai-music-theory | **Done**, see research #14; 14-textbook concept graph + 53 MCP tools; grounding layer, not an RN analyzer — its `analyze_roman_numerals` tool is single-chord, no score/sequence context |
 | **MuTheoryEval** | https://github.com/thevertexlab/MuTheoryEval | **Done**, see research #14; aggregates 6 existing benchmarks + live leaderboard, not a new benchmark; ~42-72% range on MusicTheoryBench across current frontier models |
 | Thin “AI theory trainer” chatbots | many student repos | Low signal — skip unless packaging ideas |
+| **diatone** | https://github.com/owenbush/diatone | **Done**, see research #15; dependency-free real-time-safe C++17 theory engine (RN analysis, weighted next-chord suggestions, nearest-tone voice-leading) — different deployment target, but data-driven scale/chord registries + strategy-interface seams are a reusable design reference |
 
 ### 6.4 Metrics & large score corpora
 
@@ -199,6 +200,7 @@ tools still win with structured RN/spec + deterministic engines.
 | **PDMX** | https://github.com/pnlong/PDMX | Large public-domain MusicXML dataset (~137★) |
 | **When-in-Rome** | (above) | Analyses meta-corpus |
 | **POP909** | (above) | Arrangement pairs |
+| **KernScores.org (via humdrum2musicxml + KernScores-downloader)** | https://github.com/craigsapp/humdrum2musicxml, https://github.com/leihua-dev/KernScores-downloader | **Done**, see research #15; Humdrum-kern↔MusicXML format bridge + bulk `.krn` downloader for 50 composers; viable additional corpus source *in principle*, but downloader's target data is **CC BY-NC 4.0** — non-commercial gate needs explicit clearance before use |
 
 ### 6.5 Notation infrastructure (always relevant)
 
@@ -210,6 +212,7 @@ tools still win with structured RN/spec + deterministic engines.
 | MuseScore | https://github.com/musescore/MuseScore | Full notation suite |
 | music21 | https://github.com/cuthbertLab/music21 | Analysis / conversion backbone |
 | MusicXML spec | https://github.com/w3c-cg/musicxml | Interchange format |
+| **mcp-score** | https://github.com/tskovlund/mcp-score | **Done**, see research #15; MCP server + Claude Code skill + MuseScore QML plugin — generation via music21 skill script, live manipulation via WebSocket bridges to MuseScore/Dorico/Sibelius; documented per-app capability ceiling (Dorico/Sibelius Remote Control APIs can't read score content or set key/tempo/chord symbols — upstream gap, not mcp-score's choice) |
 
 ---
 
@@ -302,6 +305,7 @@ Do **not** implement from this list without an explicit human chunk. Study order
 | 8.5 | ~~**AugmentedNet**~~ | **Done** — neural multi-task RNA baseline + accuracy ceiling reference; see `docs/research/11-augmentednet.md` |
 | 9 | ~~**rnbert / muMoE-RNBERT**~~ | **Done** — neural RNA baseline (~57-62% full-RN composite) + interpretability-layer extension; see `docs/research/13-rnbert-and-mumoe-rnbert.md` |
 | 10 | ~~**ai-music-theory + MuTheoryEval**~~ | **Done** — theory-KB grounding layer (not an analyzer) + benchmark-aggregator eval methodology; see `docs/research/14-ai-music-theory-and-mutheoryeval.md`. Closes Tier 2 in full. |
+| 11 | ~~**diatone + mcp-score + Humdrum/**kern tooling**~~ | **Done** — real-time-safe theory-engine design reference, MCP+live-notation-app bridge architecture, Humdrum-kern corpus/format options (CC BY-NC 4.0 gate flagged); see `docs/research/15-tier3-remainder.md`. Closes Tier 3 in full. |
 
 ---
 
@@ -332,6 +336,8 @@ If “king of classical × AI” becomes a multi-product strategy:
 | Benchmark-aggregator pre-check before trusting an LLM for L4 | MuTheoryEval wraps 6 existing music-theory benchmarks into one weighted, reproducible ("lite" fixed-seed) score rather than inventing a new eval — see research #14 §2 | If L4's chosen LLM (`docs/LLM-PROGRESSION-SPEC.md`) is ever vetted for general theory competence before being trusted to propose RN progressions, this is a template — distinct from Harmonyx's own domain-specific L2 validator, which checks a specific proposal, not general competence. Not scoped. |
 | Third realization-strategy option: pattern-retrieval | JJazzLab's JJSwing engine matches/splices small hand-curated pre-voiced MIDI phrases by chord-sequence + tag, no ML/no solver — see research #12 §2 | If a second, faster/looser generation mode is ever wanted alongside the locked DP realizer, alongside CP-SAT (#09) and VAE-embedding retrieval (#07) as the other two known alternatives. Not scoped; DP + locked fixtures stay default. |
 | Explicit plugin SPI as a product decision | JJazzLab's public `Rhythm`/`MusicGenerator`/`RhythmParameter` interfaces + standalone `JJazzLabToolkit` jar let third parties add style plugins without touching the app — see research #12 §4 | If Harmonyx's generation engine is ever opened to alternate realization strategies or third-party rule sets, design the interface deliberately (like this) rather than discovering the seam via refactor. Not scoped today. |
+| MCP exposure with explicit per-app/per-target capability matrix | mcp-score documents exactly what each live-notation-app bridge (MuseScore/Dorico/Sibelius) can and can't do, framed as "upstream API gap, not our bug" — see research #15 §2 | If Harmonyx ever exposes an MCP surface (alongside #10's thiri-mcp/music21-mcp notes) with any capability that varies by client or integration target, document the ceiling explicitly rather than letting it surface as silent failures. Not scoped today. |
+| Additional real-score corpus source: KernScores.org | Humdrum-kern format via `craigsapp/humdrum2musicxml` (conversion bridge) + `leihua-dev/KernScores-downloader` (bulk fetch) — see research #15 §3 | If analyzer-eval corpus expansion beyond When-in-Rome (#06) is ever revisited, KernScores.org is a candidate — but its downloadable data is **CC BY-NC 4.0**, so get explicit sign-off before any commercial-context use. Not scoped today. |
 
 ---
 
@@ -368,12 +374,14 @@ Written notes (read these before re-cloning peers):
 | 12 | [`docs/research/12-jjazzlab.md`](research/12-jjazzlab.md) | jjazzboss/JJazzLab — mature jazz backing-track app (NetBeans RCP, 65-module Maven tree); product-completeness study, not a theory peer; steals: strict model/engine/UI separation behind a public `Rhythm`/`MusicGenerator` SPI, JJSwing's concatenative pattern-retrieval generation (hand-curated MIDI phrase bank scored by chord-sequence+tag, no ML/solver) as a third lightweight realization-strategy alternative next to CP-SAT (#09) and VAE-embedding retrieval (#07); don't steal: NetBeans/desktop-app infra, jazz-specific content |
 | 13 | [`docs/research/13-rnbert-and-mumoe-rnbert.md`](research/13-rnbert-and-mumoe-rnbert.md) | malcolmsailor/rnbert + TomusD/muMoE-RNBERT — MusicBERT fine-tuned via token classification for RNA (ISMIR 2024), ~57-62% full-RN composite accuracy on a 1,404-score corpus, beats AugmentedNet (#11) and ChordGNN; muMoE extension swaps in Multilinear-Mixture-of-Experts FFN layers for per-note expert-activation interpretability (heatmaps/bar charts), not higher accuracy; steals: multitask-decomposition-plus-coherence framing, dual accuracy-ceiling citation (AugmentedNet + RNBert), heatmap-overlay explainability pattern; don't steal: the MusicBERT/fairseq pipeline itself or the μMoE layer technique — no neural path is scoped for Harmonyx's rule-based analyzer |
 | 14 | [`docs/research/14-ai-music-theory-and-mutheoryeval.md`](research/14-ai-music-theory-and-mutheoryeval.md) | music-comp/ai-music-theory + thevertexlab/MuTheoryEval — 14-textbook concept-graph knowledge base served over MCP (53 tools incl. a self-describing `mt_directory` registry), with a single-chord (not score-sequence) `analyze_roman_numerals` compute tool; MuTheoryEval aggregates 6 existing LLM music-theory benchmarks into a weighted reproducible leaderboard (~42-72% range on MusicTheoryBench across current frontier models); steals: self-describing-tool-registry pattern, benchmark-aggregator-as-competence-precheck template; don't steal: the Rust/Fabryk MCP stack or textbook corpus, MuTheoryEval's specific benchmark roster as a hard dependency — relevant only if/when an LLM explainer/tutor surface or L4 competence pre-check is ever scoped, neither is today |
+| 15 | [`docs/research/15-tier3-remainder.md`](research/15-tier3-remainder.md) | owenbush/diatone + tskovlund/mcp-score + craigsapp/humdrum2musicxml + leihua-dev/KernScores-downloader — dependency-free real-time-safe C++17 theory engine (data-driven registries, strategy-interface seams); MCP server + Claude skill + MuseScore/Dorico/Sibelius live-notation bridges with an explicit per-app capability matrix; Humdrum-kern↔MusicXML conversion bridge + bulk KernScores.org downloader (CC BY-NC 4.0 gate on the data); steals: registry-style data tables, capability-matrix documentation pattern; don't steal: the C++ engine or live-app bridges (no deployment need), KernScores.org as a corpus without clearing the NC license first — closes Tier 3 of `docs/RESEARCH-QUEUE.md` in full |
 
 Research queue #01–#07 (the originally planned order) is complete. Further
 deep-dives now come from `docs/RESEARCH-QUEUE.md` (Tier 1–4 candidates found
 in the 2026-07-21 follow-up scans, plus human-flagged repos) — see that file
-for the live queue and suggested order. #08–#12 are entries from that queue;
-the rest still need an explicit human ask.
+for the live queue and suggested order. #08–#15 are entries from that queue;
+Tier 1–3 are now fully closed, only Tier 4 (parked, OMR) remains logged but
+not picked up.
 
 ### PartWise one-liner (after #03)
 
@@ -406,6 +414,7 @@ fixtures as default; do not replace `realize.py` with soft beam+fix.
 | 2026-07-21 | Deep-dive #07 AccoMontage2 + POP909 → `docs/research/07-accomontage2.md` (pop arrangement pipeline; Tier B, not classical — arrangement-track reference only). Closes the #01–#07 research queue. |
 | 2026-07-21 | New candidates found via follow-up GitHub scans + a human-flagged repo → `docs/RESEARCH-QUEUE.md` (11 repos, tiered). |
 | 2026-07-21 | Deep-dive #08 Shimaoka-SATB-SkillSet → `docs/research/08-shimaoka-satb-skillset.md` (LLM-context-only SATB knowledge base; counter-example to code-enforced validation; 2nd source on augmented-sixth gap). |
+| 2026-07-21 | Deep-dive #15 diatone + mcp-score + Humdrum/**kern tooling → `docs/research/15-tier3-remainder.md`; §6.3, §6.4, §6.5, §10, §11, §13 updated. Closes Tier 3 of `docs/RESEARCH-QUEUE.md` in full. |
 | 2026-07-21 | Deep-dive #09 music-arranger → `docs/research/09-music-arranger.md` (Claude tool-call NL extraction + CP-SAT SATB solver; DP-vs-CP-SAT comparison; pre-solve diagnostics idea for M4). |
 | 2026-07-21 | Deep-dive #10 thiri-mcp + music21-mcp → `docs/research/10-thiri-mcp-and-music21-mcp.md` (hosted-proprietary vs. local-open MCP theory server architectures; hardening checklist + low-boilerplate wrapper template). Closes Tier 1 of `RESEARCH-QUEUE.md`. |
 | 2026-07-21 | Deep-dive #13 rnbert + muMoE-RNBERT → `docs/research/13-rnbert-and-mumoe-rnbert.md` (MusicBERT token-classification RNA, ~57-62% full-RN composite, beats AugmentedNet/ChordGNN; muMoE interpretability extension). Closes Tier 2 #6 of `RESEARCH-QUEUE.md`. |

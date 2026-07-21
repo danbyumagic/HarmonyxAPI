@@ -57,11 +57,12 @@ Branch: `claude/harmonic-analysis-api-loc82f` (confirm `git status` / `git log`)
 | 12 | `docs/research/12-jjazzlab.md` | Jazz backing-track app; product-completeness study — SPI-separated model/engine/UI, concatenative pattern-retrieval as a 3rd realization-strategy alternative |
 | 13 | `docs/research/13-rnbert-and-mumoe-rnbert.md` | MusicBERT fine-tuned for RNA (~57-62% full-RN composite, beats AugmentedNet/ChordGNN); muMoE extension adds expert-activation interpretability, not accuracy — no neural path scoped for Harmonyx's analyzer |
 | 14 | `docs/research/14-ai-music-theory-and-mutheoryeval.md` | 14-textbook MCP knowledge graph (grounding layer, not an RN analyzer — its RN tool is single-chord, no score context); benchmark-aggregator LLM theory eval (~42-72% range across frontier models) — relevant only if an explainer/tutor surface or L4 competence pre-check is ever scoped |
+| 15 | `docs/research/15-tier3-remainder.md` | Real-time-safe C++17 theory engine (diatone) — data-driven registry pattern reference; MCP+live-notation-app bridge (mcp-score) — per-app capability matrix worth imitating, no live-app integration scoped; Humdrum-kern corpus/format tooling — KernScores.org viable in principle but its data is CC BY-NC 4.0, clearance needed before use |
 
-Landscape map: `docs/CLASSICAL-AI-LANDSCAPE.md`. Research #01–#14 is
-complete; Tier 1, Tier 2 (in full), and Tier 3 #11 of
-`docs/RESEARCH-QUEUE.md` are closed. Next default: Tier 3 remainder
-(diatone, mcp-score, Humdrum tooling) — human picks which.
+Landscape map: `docs/CLASSICAL-AI-LANDSCAPE.md`. Research #01–#15 is
+complete; Tier 1, Tier 2, and Tier 3 of `docs/RESEARCH-QUEUE.md` are all
+closed in full. Only Tier 4 (OMR) remains, parked per AI-DIARY Entry 4 — no
+default research chunk queued; human names next candidate or revisits Tier 4.
 
 ### Designed / not started (build)
 

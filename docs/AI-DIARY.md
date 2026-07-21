@@ -989,3 +989,90 @@ This closes **Tier 2 in full**, leaving only Tier 3 (#8 diatone, #9
 mcp-score, #10 Humdrum/**kern tooling) as the remaining queue — human picks
 which, if any, comes next. Per AGENTS.md Rule 2b: good point for a chat
 reset before naming the next task — no build chunk implied by any of this.
+
+---
+
+## Entry 31 — Research deep-dive #15: Tier 3 remainder — diatone, mcp-score, Humdrum/**kern tooling (2026-07-21)
+
+Human picked "all three" as one combined chunk rather than the usual one-
+peer-per-session convention, since each is small (a header-only C++ library,
+a docs-heavy MCP server, and two thin format/download scripts) — same call
+as research #10's paired-MCP-servers treatment.
+
+**diatone** (`owenbush/diatone`, 0★, MIT): dependency-free, real-time-audio-
+thread-safe C++17 theory engine. Read the README + all header files (no
+`.cpp` bodies) — enough to map its public surface onto Harmonyx concepts:
+`roman::analyse`/`realise` (single-chord, given-key RN lookup, shallower
+than Harmonyx's grammar — no inversion/seventh/secondary-dominant markers in
+the struct itself), `SuggestionStrategy`/`FunctionalHarmonyStrategy`
+(weighted next-chord candidates via one `adventurous` float — rough analog
+of Harmonyx's rule-grammar + `spice` slider), and `VoiceLeadingStrategy`/
+`NearestVoiceLeading` (a strategy seam parallel to the DP realizer, but
+shipping only a naive nearest-tone implementation). The headline pattern:
+scales and chord qualities are single-line data registrations in
+`registry.cpp`, not switch statements — a third independent sighting of
+"data-driven theory tables" after When-in-Rome (#06) and Shimaoka (#08).
+
+**mcp-score** (`tskovlund/mcp-score`, 14★, MIT): read the README + full
+`docs/architecture.md` + `docs/reference.md` (docs sufficed — protocol/
+config-heavy, not logic-heavy). Two deliberately separate halves: a Claude
+Code **skill** (not an MCP tool) that has Claude write one complete music21
+script for from-scratch generation, and an **MCP server** (18 tools) that
+bridges to a *live* running notation app — a custom QML WebSocket plugin for
+MuseScore (deep read access, runs inside the app) vs. the app-native "Remote
+Control" protocol shared by Dorico 4+ and Sibelius 2024.3+ Ultimate (command
+execution + UI-state reads only, ~2-field thin subclasses over one shared
+`RemoteControlBridge`). The most useful artifact is the explicit **per-app
+capability matrix** in the docs: Dorico/Sibelius can't read arbitrary score
+content, set key signatures/tempo/chord symbols (all gated behind popover
+text input with no programmatic path), or export MusicXML — framed
+correctly as an upstream API gap in the host apps, not something mcp-score
+chose to omit.
+
+**Humdrum2musicxml + KernScores-downloader**: read the repo tree +
+`bin/humdrum2musicxml` (Perl HTTP client) + `cgi-bin/humdrum2musicxml.pl`
+(server-side CGI shelling out to a `converter21` Python package, not
+explored) for the first; the full bilingual README for the second. Both are
+thin utilities — a format-conversion bridge and a bulk `.krn` scraper, no
+theory logic of their own. Flagged a real licensing gate: KernScores-
+downloader's own code is MIT, but its README states the *downloaded data*
+is **CC BY-NC 4.0** (non-commercial) per KernScores.org's terms — distinct
+from When-in-Rome's CC BY-SA (share-alike, not NC-restricted). If
+KernScores.org is ever used as an analyzer-eval corpus source, that
+restriction needs explicit sign-off first.
+
+**Also noted, not acted on:** `bin/humdrum2musicxml`'s Perl comments use an
+odd security-thriller register ("RECONNAISSANCE HANDSHAKE," "EMIT PURE
+MULTIPART FILE DATA," "intercepted by your company's SSL proxy rules")
+around ordinary HTTP-redirect-following logic. No comment contains an
+actual instruction to do anything, so nothing was acted on — logged only in
+case a similar pattern shows up again in a future peer scan.
+
+**Vs Harmonyx:** none of the three lands on the build queue directly.
+diatone's registry pattern is a readability reference if `grammar.py`/
+`rules.py` are ever refactored — not a gap, Harmonyx already leans this way.
+mcp-score's live-app-bridge half doesn't apply (no live MuseScore/Dorico/
+Sibelius integration is scoped, OSMD already covers display), but its
+capability-matrix documentation habit is worth imitating for any future
+integration with uneven third-party capabilities. The Humdrum tooling is a
+corpus-expansion option only if analyzer-eval corpus growth beyond
+When-in-Rome (#06) is ever revisited, gated on clearing the CC BY-NC 4.0
+restriction first.
+
+**Steal (ideas only):** diatone's single-line data-registration pattern for
+theory tables; mcp-score's per-target capability-matrix + "upstream
+constraint, not our bug" framing. **Don't steal:** diatone's C++ engine
+(wrong language/deployment target), mcp-score's live WebSocket bridges (no
+integration scoped), KernScores.org as a corpus without clearing the NC
+license first.
+
+Updated `docs/CLASSICAL-AI-LANDSCAPE.md` §6.3, §6.4, §6.5 (three new/updated
+rows marked done), §10 (Tier 3 marked done in full), §11 (two new backlog
+rows: MCP capability-matrix pattern, KernScores.org corpus option),
+§13/§14; `docs/RESEARCH-QUEUE.md` (#8/#9/#10 all marked done, Tier 3 closed
+in full, queue status note added — only parked Tier 4 OMR remains, no new
+default queued). This closes **Tier 3 in full**, and with it Tiers 1–3 of
+`docs/RESEARCH-QUEUE.md` entirely — only Tier 4 (OMR, parked per Entry 4's
+product decision) remains logged but not recommended. Per AGENTS.md Rule
+2b: good point for a chat
+reset before naming the next task — no build chunk implied by any of this.

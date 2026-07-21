@@ -30,25 +30,27 @@ Read these, in order, then **stop and wait** for my instructions:
 | 12 | `docs/research/12-jjazzlab.md` | jjazzboss/JJazzLab | Mature jazz backing-track app (NetBeans RCP, 65-module Maven tree); product-completeness study, not a theory peer; steals: strict model/engine/UI separation behind a public `Rhythm`/`MusicGenerator` SPI, JJSwing's concatenative pattern-retrieval generation (hand-curated MIDI phrase bank scored by chord-sequence+tag, no ML/solver) as a 3rd lightweight realization-strategy alternative next to CP-SAT (#09) and VAE-embedding retrieval (#07); don't steal: NetBeans/desktop-app infra, jazz-specific content |
 | 13 | `docs/research/13-rnbert-and-mumoe-rnbert.md` | malcolmsailor/rnbert + TomusD/muMoE-RNBERT | MusicBERT fine-tuned via token classification for RNA (ISMIR 2024), ~57-62% full-RN composite accuracy on a 1,404-score corpus, beats AugmentedNet (#11) and ChordGNN; muMoE extension swaps in Multilinear-Mixture-of-Experts FFN layers for per-note expert-activation interpretability (heatmaps/bar charts), not higher accuracy; no neural path scoped for Harmonyx's rule-based analyzer |
 | 14 | `docs/research/14-ai-music-theory-and-mutheoryeval.md` | music-comp/ai-music-theory + thevertexlab/MuTheoryEval | 14-textbook concept-graph knowledge base over MCP (53 tools incl. self-describing `mt_directory` registry), with a single-chord (not score-sequence) `analyze_roman_numerals` compute tool; MuTheoryEval aggregates 6 existing LLM music-theory benchmarks into a weighted leaderboard (~42-72% range across current frontier models); relevant only if an LLM explainer/tutor surface or L4 competence pre-check is ever scoped |
+| 15 | `docs/research/15-tier3-remainder.md` | owenbush/diatone + tskovlund/mcp-score + craigsapp/humdrum2musicxml + leihua-dev/KernScores-downloader | Real-time-safe C++17 theory engine (data-driven registries, strategy-interface seams); MCP server + Claude skill + live MuseScore/Dorico/Sibelius notation bridges with an explicit per-app capability matrix; Humdrum-kern↔MusicXML bridge + bulk KernScores.org downloader (data is CC BY-NC 4.0 — clearance needed before use as a corpus) |
 
-Research #01–#07 (the originally planned landscape order) is complete. #08–#14
+Research #01–#07 (the originally planned landscape order) is complete. #08–#15
 came from the follow-up `docs/RESEARCH-QUEUE.md` scan (Tier 1–4 candidates +
-a human-flagged repo). **Tier 1, Tier 2 (in full), and Tier 3 #11 of the
-queue are now closed.**
+a human-flagged repo). **Tier 1, Tier 2, and Tier 3 of the queue are all now
+closed in full.**
 
 ## Next research chunk (default)
 
-Per `docs/RESEARCH-QUEUE.md`'s suggested order, the next candidate is Tier 3
-remainder: **#8 `owenbush/diatone`** (real-time-safe C++17 theory engine),
-**#9 `tskovlund/mcp-score`** (MCP + live MuseScore notation editing), or
-**#10 Humdrum/**kern corpus tooling** (`craigsapp/humdrum2musicxml` +
-`leihua-dev/KernScores-downloader`). Human picks.
+None queued by default — Tiers 1–3 of `docs/RESEARCH-QUEUE.md` are fully
+closed. Only **Tier 4** (OMR: `Audiveris/audiveris`, `liebharc/homr`) remains
+logged, and it stays **parked** per `docs/AI-DIARY.md` Entry 4's product
+decision (OMR is "adjacent, not core moat") — not recommended for a dedicated
+chunk unless that decision is explicitly revisited by the human. If research
+continues, it needs either a new candidate the human names, or an explicit
+"yes, revisit Tier 4" decision.
 
-See `docs/RESEARCH-QUEUE.md` for the full tiered list, what to
-actually read in each, and the reasoning. Write notes to
-`docs/research/15-*.md`, update `docs/CLASSICAL-AI-LANDSCAPE.md` §10/§11/§13,
-`docs/RESEARCH-QUEUE.md` (mark the entry done), and a short `AI-DIARY` entry.
-Then **stop** for check-in.
+See `docs/RESEARCH-QUEUE.md` for the full tiered list and reasoning. When a
+new chunk is named: write notes to `docs/research/16-*.md`, update
+`docs/CLASSICAL-AI-LANDSCAPE.md` §10/§11/§13, `docs/RESEARCH-QUEUE.md` (mark
+the entry done), and a short `AI-DIARY` entry. Then **stop** for check-in.
 
 ## Harmonyx context (one screen)
 

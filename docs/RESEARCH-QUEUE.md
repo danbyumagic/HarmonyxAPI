@@ -107,29 +107,29 @@ read (not just "clone it").
 
 ## Tier 3 — new candidates from the 2026-07-21 follow-up scans
 
-8. **`owenbush/diatone`** — dependency-free C++17 music-theory library
-   (notes/scales/chords/RN analysis/voice-leading), explicitly designed to be
-   **safe to call from a real-time audio thread**. Different deployment
-   target than Harmonyx (embedded/real-time vs. web API) but worth a read for
-   how they structure a theory engine for a completely different performance
-   envelope — could surface API-design ideas even if the tech stack is
-   irrelevant.
+8. **`owenbush/diatone`** — **Done**, see
+   `docs/research/15-tier3-remainder.md`. Dependency-free C++17 music-theory
+   library (notes/scales/chords/RN analysis/voice-leading), explicitly
+   designed to be **safe to call from a real-time audio thread**. Different
+   deployment target than Harmonyx (embedded/real-time vs. web API); read for
+   the data-driven registry + strategy-interface design pattern rather than
+   any usable code.
 
-9. **`tskovlund/mcp-score`** — MCP server for AI-driven score generation:
-   natural language → notation via MusicXML + **live MuseScore integration**
-   (14★, very fresh). Different from thiri-mcp/music21-mcp in that it
-   targets *notation editing* via a live MuseScore connection rather than
-   pure analysis — worth comparing the "live app integration" pattern vs.
-   Harmonyx's own OSMD-in-browser approach.
+9. **`tskovlund/mcp-score`** — **Done**, see
+   `docs/research/15-tier3-remainder.md`. MCP server for AI-driven score
+   generation: natural language → notation via MusicXML + **live MuseScore/
+   Dorico/Sibelius integration** (14★, very fresh). Compared the "live app
+   integration" pattern (with its documented per-app capability ceiling) vs.
+   Harmonyx's own OSMD-in-browser approach — no live-app bridge is scoped for
+   Harmonyx.
 
-10. **Humdrum/**kern** corpus tooling** — `craigsapp/humdrum2musicxml`
+10. **Humdrum/**kern** corpus tooling** — **Done**, see
+   `docs/research/15-tier3-remainder.md`. `craigsapp/humdrum2musicxml`
    (Humdrum-to-MusicXML web service) and `leihua-dev/KernScores-downloader`
-   (bulk `.krn` downloader for KernScores.org). Humdrum/**kern is a major
-   classical-score corpus format alongside MusicXML/RomanText that hadn't
-   surfaced before this scan — worth a short read purely to scope whether
-   KernScores.org is a viable *additional* real-corpus source (parallel to
-   When-in-Rome, research #06) if L1/analyzer-eval corpus expansion is ever
-   revisited.
+   (bulk `.krn` downloader for KernScores.org). Confirmed KernScores.org is a
+   viable *additional* real-corpus source in principle (parallel to
+   When-in-Rome, research #06) — but flagged that the downloader's target
+   data is **CC BY-NC 4.0** (non-commercial), a real gate if it's ever used.
 
 11. **`napulen/AugmentedNet`** — **Done**, see
     `docs/research/11-augmentednet.md`. (50★, MIT; last push actually
@@ -186,8 +186,16 @@ Tier 3 remainder as time allows.
 ~~Tier 2 #6 rnbert / muMoE-RNBERT~~ **Done** (`docs/research/
 13-rnbert-and-mumoe-rnbert.md`). ~~Tier 2 #7 ai-music-theory + MuTheoryEval~~
 **Done** (`docs/research/14-ai-music-theory-and-mutheoryeval.md`) — **Tier 2
-fully closed**. Next default: Tier 3 remainder (#8 diatone, #9 mcp-score,
-#10 Humdrum tooling), human picks which.
+fully closed**. ~~Tier 3 #8 diatone, #9 mcp-score, #10 Humdrum tooling~~
+**Done**, all three as one chunk (`docs/research/15-tier3-remainder.md`) —
+**Tier 3 fully closed**.
+
+**Queue status: Tier 1, 2, and 3 are all closed.** Only Tier 4 (OMR:
+Audiveris, homr) remains, and it stays parked per `docs/AI-DIARY.md` Entry
+4's product decision — not recommended for a dedicated chunk unless that
+decision is revisited. No further default research chunk is queued; next
+research work needs a new candidate or a re-opened Tier 4 decision from the
+human.
 
 As always: one peer (or one small related cluster, like the two MCP servers)
 per chunk, notes written to `docs/research/0N-*.md`, landscape doc + AI-DIARY
