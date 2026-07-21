@@ -548,3 +548,50 @@ originally-planned research queue #01–#07** — remaining candidates (JJazzLab
 rnbert/μMoE-RNBERT, ai-music-theory/MuTheoryEval) need an explicit human ask,
 not a default "next chunk." Per AGENTS.md Rule 2b: good point for a chat reset
 before naming the next task (a build chunk, or a new research target).
+
+## Entry 24 — Research deep-dive #08 Shimaoka-SATB-SkillSet (2026-07-21)
+
+Resumed via `/resume`, human said "continue research." Noted
+`docs/START-HERE.md`'s "#07 default next" line was stale — #07 was already
+done (`edde19f`) — and switched to the live source of truth,
+`docs/RESEARCH-QUEUE.md`, whose suggested order puts
+`ShikiSuen/Shimaoka-SATB-SkillSet` first (Tier 1 #1, human-flagged, all
+markdown). Cloned the repo; read `README_EN.md`, `SKILL.md` (full),
+`references/voice-leading.md`, `d-chords.md`, `notation-syntax.md`,
+`rules.md` (full each), the repo's own `AGENTS.md`, and one `VALUEADD/`
+review. Notes: `docs/research/08-shimaoka-satb-skillset.md`.
+
+**Product:** not a tool — a pure LLM-context knowledge base packaging Tokyo
+University of the Arts' Shimaoka Yuzuru four-part-harmony textbook ("Swing
+Theory": chords oscillate rest↔displacement) so an LLM can do SATB
+part-writing directly from prompt context, with **no validator, no
+enforcement code**. Explicit counter-example to Harmonyx's "LLM proposes,
+code enforces" bet (already independently validated by research #05).
+
+**Vs Harmonyx:** the T/D₁–D₆/S "functional distance" model is interesting but
+internally inconsistent (Ⅳ is both S and D6, per an included Sonnet5 review)
+— not adopted. The A–G rules compilation independently confirms Harmonyx's
+existing hard-rule set (`PARTWRITING-RULES.md` §0–7) is complete and
+standard; one narrow new item (`rⅤ7 → Ⅰ2` chordal-7th ascending exception)
+noted for future M4 violation-report nuance. Biggest concrete finding: **a
+second independent peer flags the augmented-sixth gap** (research #06
+already did via When-in-Rome's `It6`/`Fr43`/`Ger65` notation) — this repo
+adds the "when to use French vs Italian vs German 6th" theory side. Also
+surfaces a checklist of named-but-unmodeled features (Neapolitan 6th,
+borrowed/modal-mixture chords, Picardy third, pedal point) worth keeping as a
+reference list if the grammar ever grows past Q3c.
+
+**Steal:** augmented-sixth usage theory + the unmodeled-feature checklist
+(ideas only). **Don't steal:** the functional-distance reframing (self-
+inconsistent); the repo's own `AGENTS.md` working philosophy (directly
+opposite of Harmonyx's small-chunks/ask-first discipline — noted, not
+imported); "LLM enforces via context alone" as an alternative to L2/L3
+(no validator here to even compare against).
+
+Updated `docs/CLASSICAL-AI-LANDSCAPE.md` §11 (two new backlog rows) and §13/
+§14, `docs/RESEARCH-QUEUE.md` (#1 marked done, suggested-order note), and
+`docs/START-HERE.md`'s stale "#07 default" pointer (now points at
+`RESEARCH-QUEUE.md`). Per AGENTS.md Rule 2b: good point for a chat reset
+before naming the next task — next research default (human picks) is
+`git-scarrow/music-arranger` (CP-SAT twin to the realizer) or the
+thiri-mcp/music21-mcp MCP pair.

@@ -15,7 +15,8 @@ read (not just "clone it").
 
 ## Tier 1 — closest architecture/product overlap (read first)
 
-1. **`ShikiSuen/Shimaoka-SATB-SkillSet`**
+1. **`ShikiSuen/Shimaoka-SATB-SkillSet`** — **Done**, see
+   `docs/research/08-shimaoka-satb-skillset.md`.
    (github.com/ShikiSuen/Shimaoka-SATB-SkillSet) — Pure knowledge-base-as-
    LLM-context repo (no code engine): packages the Tokyo University of the
    Arts' Shimaoka Yuzuru four-part-harmony textbook ("Swing Theory" —
@@ -161,11 +162,15 @@ so the candidates aren't lost if that decision ever gets revisited:
 
 ## Suggested order
 
-Shimaoka-SATB-SkillSet first (all-markdown, fastest read, and a human-flagged
-find) → rest of Tier 1 (thiri-mcp + music21-mcp together — short and closely
-related, MCP theory exposure pattern) → Tier 3 #11 AugmentedNet (quick, ties
-directly to already-read #06) → Tier 2 in listed order → Tier 3 remainder as
-time allows.
+~~Shimaoka-SATB-SkillSet first~~ **Done** (`docs/research/
+08-shimaoka-satb-skillset.md`) → rest of Tier 1 (thiri-mcp + music21-mcp
+together — short and closely related, MCP theory exposure pattern) →
+Tier 3 #11 AugmentedNet (quick, ties directly to already-read #06) →
+Tier 2 in listed order → Tier 3 remainder as time allows.
+
+Next default: **`git-scarrow/music-arranger`** (Tier 1 #2 — CP-SAT
+constraint-solver twin to the realizer) or the **thiri-mcp + music21-mcp**
+pair (Tier 1 #3–4 — short, closely related). Human picks.
 
 As always: one peer (or one small related cluster, like the two MCP servers)
 per chunk, notes written to `docs/research/0N-*.md`, landscape doc + AI-DIARY

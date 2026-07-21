@@ -318,6 +318,8 @@ If “king of classical × AI” becomes a multi-product strategy:
 | Orchestration / reduction | MIT projective orch, audio→score | Far future |
 | Note-level LLM edit interface | choral-llm-workbench's IKR-light + TLR (line-per-event text) pattern — see research #05 §2 | If a future feature needs an LLM to touch literal note/rest content (reharmonize an existing chorale, explain a passage) rather than only RN symbols. Not needed for current RN-based L4. |
 | Analyzer eval against real ground truth | When-in-Rome's 371 Bach chorales + slice-based RN-vs-score agreement scoring — see research #06 §3–4 | Next time analyzer A7 (RN-agreement eval) is scoped; reimplement the matching idea, don't vendor `romanUmpire.py` (CC BY-SA + coupled to WiR's layout). |
+| Richer grammar features (Neapolitan 6th, borrowed/modal-mixture chords, Picardy third, pedal point/sustained bass) | Shimaoka-SATB-SkillSet's prefix-degree-suffix notation names each as a distinct feature Harmonyx doesn't model — see research #08 §3 | If the rule grammar is ever extended past Q3c; not urgent, just a named checklist so the gap isn't re-discovered from scratch. |
+| Augmented-sixth chords | Two independent peers now flag this gap: When-in-Rome's `It6`/`Fr43`/`Ger65` notation (#06 §2) + Shimaoka's usage rules (only at D₂, ⟨2nd⟩ disposition default) (#08 §3) | If/when scoped: use WiR's wire syntax, Shimaoka's "when to use which form" theory. |
 
 ---
 
@@ -347,10 +349,13 @@ Written notes (read these before re-cloning peers):
 | 05 | [`docs/research/05-choral-llm-workbench.md`](research/05-choral-llm-workbench.md) | asb-42/choral-llm-workbench — IKR-light/TLR note-level LLM interface pattern |
 | 06 | [`docs/research/06-when-in-rome.md`](research/06-when-in-rome.md) | MarkGotham/When-in-Rome — RN meta-corpus for L1 few-shot + analyzer eval |
 | 07 | [`docs/research/07-accomontage2.md`](research/07-accomontage2.md) | billyblu2000/AccoMontage2 + music-x-lab/POP909-Dataset — pop melody→chords+texture arrangement pipeline |
+| 08 | [`docs/research/08-shimaoka-satb-skillset.md`](research/08-shimaoka-satb-skillset.md) | ShikiSuen/Shimaoka-SATB-SkillSet — LLM-context-only Swing Theory SATB knowledge base; counter-example to "LLM proposes, code enforces"; 2nd source flagging the augmented-sixth notation gap |
 
-Research queue #01–#07 (the currently planned order) is now complete. Any
-further deep-dive (JJazzLab, rnbert/μMoE-RNBERT, ai-music-theory/MuTheoryEval)
-needs an explicit human ask.
+Research queue #01–#07 (the originally planned order) is complete. Further
+deep-dives now come from `docs/RESEARCH-QUEUE.md` (Tier 1–4 candidates found
+in the 2026-07-21 follow-up scans, plus human-flagged repos) — see that file
+for the live queue and suggested order. #08 (Shimaoka-SATB-SkillSet) is the
+first entry from that queue; the rest still need an explicit human ask.
 
 ### PartWise one-liner (after #03)
 
@@ -379,6 +384,8 @@ fixtures as default; do not replace `realize.py` with soft beam+fix.
 | 2026-07-21 | Deep-dive #05 choral-llm-workbench → `docs/research/05-choral-llm-workbench.md` (IKR-light/TLR pattern). |
 | 2026-07-21 | Deep-dive #06 When-in-Rome → `docs/research/06-when-in-rome.md` (RN meta-corpus; L1 few-shot + A7 eval source). |
 | 2026-07-21 | Deep-dive #07 AccoMontage2 + POP909 → `docs/research/07-accomontage2.md` (pop arrangement pipeline; Tier B, not classical — arrangement-track reference only). Closes the #01–#07 research queue. |
+| 2026-07-21 | New candidates found via follow-up GitHub scans + a human-flagged repo → `docs/RESEARCH-QUEUE.md` (11 repos, tiered). |
+| 2026-07-21 | Deep-dive #08 Shimaoka-SATB-SkillSet → `docs/research/08-shimaoka-satb-skillset.md` (LLM-context-only SATB knowledge base; counter-example to code-enforced validation; 2nd source on augmented-sixth gap). |
 
 When you re-scan, append a changelog row and note new Tier S/A finds at the top
 of §3–§4.

@@ -69,10 +69,11 @@ Priority is a **human choice** each session. Candidates:
 | Q4 | Analyzer A1/A2/A7 | NCT filter, fermata cadences, RN-agreement eval. |
 | Q5 | Docs / PR polish | PR #1 may need refresh. |
 
-**Research peers (01–06 done):** notes under `docs/research/`. Default next
-research chunk when asked: **#07 AccoMontage2 + POP909** (arrangement track
-only) — paste `docs/NEXT-RESEARCH-PASTE.txt`. Research is **not** a build
-license.
+**Research peers (01–08 done):** notes under `docs/research/`. Further
+deep-dives now come from `docs/RESEARCH-QUEUE.md` (Tier 1–4 candidates);
+default next is **`git-scarrow/music-arranger`** or the **thiri-mcp /
+music21-mcp** pair (human picks) — see that file for the live queue.
+Research is **not** a build license.
 
 **Do not** re-implement M1–M3, grand staff, OSMD, playback, L1–L3, or Q3
 unless fixing a regression.
