@@ -89,3 +89,63 @@ def test_pac_requires_length_at_least_2():
 def test_locked_index_out_of_range_raises():
     with pytest.raises(GrammarError):
         generate_progression(KEY, length=4, locked={9: "V"}, seed=0)
+
+
+# --- Q3a: richer inversion / Cad64 traffic (no applied chords, no API) ---
+
+_MAJOR_INVERSIONS = frozenset({"I6", "ii6", "IV6", "V6"})
+_MINOR_INVERSIONS = frozenset({"i6", "iv6", "V6"})
+
+
+def test_q3a_pac_length6_often_uses_inversion_or_cad64():
+    """Modest share of seeds should show inversions and/or Cad64 (Q3a)."""
+    n_seeds = 20
+    hits = 0
+    for seed in range(n_seeds):
+        prog = generate_progression(KEY, length=6, cadence="PAC", seed=seed)
+        has_inv = bool(set(prog) & _MAJOR_INVERSIONS)
+        has_cad = "Cad64" in prog
+        if has_inv or has_cad:
+            hits += 1
+        # Still student-safe: no secondary dominants in the figure set.
+        assert not any("/" in fig for fig in prog), prog
+        assert prog[-2] in ("V", "V7") and prog[-1] == "I"
+    # Spec target ~30%; table is tuned higher — keep floor modest for stability.
+    assert hits >= 6, f"expected >= 30% inversion/Cad64, got {hits}/{n_seeds}"
+
+
+def test_q3a_pac_length8_can_emit_cad64():
+    """With room before PAC, some seeds should approach via Cad64."""
+    n_seeds = 20
+    with_cad = 0
+    for seed in range(n_seeds):
+        prog = generate_progression(KEY, length=8, cadence="PAC", seed=seed)
+        if "Cad64" in prog:
+            with_cad += 1
+            # Cad64 must resolve to V or V7 (table edge).
+            for i, fig in enumerate(prog[:-1]):
+                if fig == "Cad64":
+                    assert prog[i + 1] in ("V", "V7"), prog
+        for a, b in zip(prog, prog[1:]):
+            assert not is_forbidden_transition(a, b), (a, b, prog)
+    assert with_cad >= 1, f"expected at least one Cad64 in {n_seeds} seeds"
+
+
+def test_q3a_minor_also_uses_inversions():
+    n_seeds = 20
+    hits = 0
+    for seed in range(n_seeds):
+        prog = generate_progression(MINOR, length=6, cadence="PAC", seed=seed)
+        if set(prog) & _MINOR_INVERSIONS or "Cad64" in prog:
+            hits += 1
+        assert prog[-1] == "i"
+        assert not any("/" in fig for fig in prog), prog
+    assert hits >= 6, f"expected >= 30% inversion/Cad64 in minor, got {hits}/{n_seeds}"
+
+
+def test_q3a_hc_still_ends_on_dominant():
+    for seed in range(20):
+        prog = generate_progression(KEY, length=6, cadence="HC", seed=seed)
+        assert prog[-1] in ("V", "V7"), prog
+        for a, b in zip(prog, prog[1:]):
+            assert not is_forbidden_transition(a, b), (a, b, prog)
