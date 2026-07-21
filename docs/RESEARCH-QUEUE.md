@@ -92,11 +92,16 @@ read (not just "clone it").
    higher accuracy. No neural path is scoped for Harmonyx's analyzer.
 
 7. **`music-comp/ai-music-theory`** + **`thevertexlab/MuTheoryEval`** —
-   machine-readable music-theory knowledge base (MCP) and an LLM
-   music-theory-knowledge eval hub, respectively. Relevant only if/when
-   Harmonyx adds an explainer/tutor chat surface that needs grounding or
-   needs to be benchmarked for theory correctness — not urgent, but worth
-   knowing what already exists before building a bespoke eval.
+   **Done**, see `docs/research/14-ai-music-theory-and-mutheoryeval.md`.
+   Machine-readable music-theory knowledge base (14-textbook concept graph,
+   53 MCP tools incl. a self-describing `mt_directory` registry; its
+   `analyze_roman_numerals` tool is single-chord, not score-sequence — no
+   overlap with Harmonyx's analyzer) and an LLM music-theory-knowledge eval
+   hub (aggregates 6 existing benchmarks into a weighted leaderboard,
+   ~42-72% range across current frontier models on MusicTheoryBench).
+   Relevant only if/when Harmonyx adds an explainer/tutor chat surface or
+   needs a competence pre-check for L4's LLM — not urgent, no such surface
+   is scoped today.
 
 ---
 
@@ -179,9 +184,10 @@ JJazzLab~~ **Done** (`docs/research/12-jjazzlab.md`) → Tier 2 remainder →
 Tier 3 remainder as time allows.
 
 ~~Tier 2 #6 rnbert / muMoE-RNBERT~~ **Done** (`docs/research/
-13-rnbert-and-mumoe-rnbert.md`). Next default: Tier 2 #7 **ai-music-theory +
-MuTheoryEval** (theory-knowledge KB / eval hub) or Tier 3 remainder
-(#8 diatone, #9 mcp-score, #10 Humdrum tooling).
+13-rnbert-and-mumoe-rnbert.md`). ~~Tier 2 #7 ai-music-theory + MuTheoryEval~~
+**Done** (`docs/research/14-ai-music-theory-and-mutheoryeval.md`) — **Tier 2
+fully closed**. Next default: Tier 3 remainder (#8 diatone, #9 mcp-score,
+#10 Humdrum tooling), human picks which.
 
 As always: one peer (or one small related cluster, like the two MCP servers)
 per chunk, notes written to `docs/research/0N-*.md`, landscape doc + AI-DIARY

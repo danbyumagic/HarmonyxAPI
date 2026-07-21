@@ -913,3 +913,79 @@ research-status lines. This closes **Tier 2 #6**, leaving Tier 2 #7
 Humdrum tooling) as the remaining queue. Per AGENTS.md Rule 2b: good point
 for a chat reset before naming the next task — no build chunk implied by
 any of this.
+
+## Entry 30 — Research deep-dive #14 ai-music-theory + MuTheoryEval (2026-07-21)
+
+Human picked Tier 2 #7 to close out Tier 2 in full. Read via `gh api`: both
+READMEs in full; `ai-music-theory`'s repo tree (`INDEX.md`, `SCOPE.md`,
+`SOURCES.md` listing, `mcp-server/crates` layout) and its `music-comp-mt`
+dependency, traced to its own repo `music-comp/mt-rs` (a fork of
+`ozankasikci/rust-music-theory`, now a standalone crates.io library+CLI) to
+confirm what the 9 "computation" MCP tools actually do under the hood;
+MuTheoryEval's live leaderboard `docs/data.json` (60 result cells across 15
+models), pulled and aggregated locally with a small Python script rather
+than trusting the (JS-rendered, not fetchable) static page. Notes:
+`docs/research/14-ai-music-theory-and-mutheoryeval.md`.
+
+**ai-music-theory:** a grounding knowledge base, not a competing analyzer —
+14 canonical music-theory textbooks (Tymoczko, Lewin, Cohn, Caplin, Straus,
+Schoenberg, Persichetti, Laitz, and others) converted into 4,315 atomic
+"concept cards," synthesized into a typed graph (3,742 nodes, 18,618 typed
+edges: prerequisite/relates_to/extends/contrasts_with), served over MCP with
+three retrieval modes (Tantivy FTS, rkyv-cached graph traversal, LanceDB
+semantic search) — 53 tools total, including a `mt_directory` tool that
+returns a live self-describing "call this first" manifest. The
+`analyze_roman_numerals` compute tool (one of 9 delegated to the
+`music-comp-mt` crate) turned out on inspection to be a **single-chord,
+given-a-key lookup** — same shape as `Chord::identify` — with no score
+ingestion, no key-finding, no sequential context. That's a materially
+different (much simpler) problem than what Harmonyx's `/analyze` does
+(MusicXML/MIDI → key + RN progression over a whole piece), so this doesn't
+add a fourth accuracy-ceiling reference alongside AugmentedNet (#11) and
+RNBert (#13) the way I initially expected going in — it's a calculator, not
+an analyzer.
+
+**MuTheoryEval:** a benchmark-aggregator + leaderboard runner, not a novel
+benchmark — wraps 6 existing benchmarks (MusicTheoryBench/ChatMusician,
+ZIQI-Eval, SSMR-Bench, WildScore, MuChoMusic, CMI-Bench) across text/ABC/
+image/audio modalities, running ~20 current commercial models in a
+reproducible fixed-seed "lite" mode with cost estimation before running.
+Pulled the live `docs/data.json` and aggregated it locally: MusicTheoryBench
+scores range from ~42% (deepseek-reasoner, a clear outlier low) to ~72%
+(gemini-3.1-flash variants), with Claude Sonnet/Opus 4.6 in the 62-71%
+band. No thinking-vs-non-thinking variant of the same base model showed a
+dramatic gap. No RN/harmonic-analysis-specific benchmark is included —
+coverage is general theory knowledge (scales, chords, intervals, ABC-
+notation reasoning), not functional-harmony specific.
+
+**Vs Harmonyx:** neither repo touches current code. Both are relevant only
+as future-conditional references: ai-music-theory if Harmonyx ever adds an
+LLM explainer/tutor surface needing grounding (not on the open queue — Q1
+LLM L4+ is about RN-progression *generation*, not theory Q&A); MuTheoryEval
+if L4's chosen LLM is ever vetted for general theory competence as a
+prerequisite check before being trusted with RN proposals, distinct from
+the domain-specific L2 validator (`app/generation/validate.py`) which checks
+a specific proposed progression, not general competence.
+
+**Steal (ideas only):** the `mt_directory` self-describing-tool-registry
+pattern (a single MCP tool listing every other tool with use-when guidance)
+— worth remembering alongside research #10's MCP notes if Harmonyx tools
+are ever exposed over MCP; MuTheoryEval's wrap-existing-benchmarks-with-a-
+weighted-reproducible-score design as a template for an L4 competence
+pre-check, cheaper than inventing a bespoke eval. **Don't steal:** the Rust/
+Fabryk MCP stack, the 14-textbook corpus, or the Open Tone Harmony
+mathematical system (an original, non-classical-tradition research project
+bolted onto the same infra) — no product need for a general multi-tradition
+theory KB; MuTheoryEval's specific benchmark roster as a hard dependency —
+useful as a template only.
+
+Updated `docs/CLASSICAL-AI-LANDSCAPE.md` §6.3 (both rows marked done), §10
+(#10 marked done — closes Tier 2 in full), §11 (two new backlog rows:
+self-describing tool registry, benchmark-aggregator precheck), §13/§14;
+`docs/RESEARCH-QUEUE.md` (#7 marked done, Tier 2 closed in full,
+next-default set to Tier 3 remainder); `docs/NEXT-RESEARCH-PASTE.txt`;
+`docs/START-HERE.md` and `docs/AGENT-START-HERE.md`'s research-status lines.
+This closes **Tier 2 in full**, leaving only Tier 3 (#8 diatone, #9
+mcp-score, #10 Humdrum/**kern tooling) as the remaining queue — human picks
+which, if any, comes next. Per AGENTS.md Rule 2b: good point for a chat
+reset before naming the next task — no build chunk implied by any of this.
