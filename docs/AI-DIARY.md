@@ -180,3 +180,60 @@ cannot edit, so musical correctness is external to the model. Pinned the fixed
 contract (Voicing shape, `rule_violations(prev, cur, ctx)` signature, ctx dict
 schema, canonical slug set) in `PARTWRITING-RULES.md` and referenced it from
 `IMPLEMENTATION-PLAN.md`. Handoff-ready for Sonnet.
+
+## Entry 10 — M1 realizer built end-to-end; a real bug found; session-cost lesson
+
+Built most of Milestone 1 in one continuous run:
+- `chords.py`, `voicing.py`, `rules.py` — all 18 locked `test_partwriting.py`
+  fixtures pass on the first real attempt.
+- `realize.py` (the DP/Viterbi search) — manually verified against several
+  progressions, including the exact M1 acceptance case (`I-IV-V-I` in
+  C major): produced a genuinely idiomatic, zero-violation voicing (common-
+  tone retention, correct leading-tone resolution) on the very first real
+  end-to-end run.
+- Wrote `tests/test_generation_chords.py`, `tests/test_generation_voicing.py`,
+  `tests/test_generation_realize.py`.
+
+**A real bug surfaced:** `voicing.candidate_voicings` does not verify that an
+explicitly-given soprano note is actually a chord tone before building the
+other three voices around it. If alto/tenor/bass can still cover the chord's
+other tones, it returns a "valid" voicing with a wrong note sitting in the
+soprano -- `rule_violations` has no check for "is this voice a chord tone at
+all," so nothing catches it. This is a seam bug: `voicing.py` and
+`realize.py` were each individually correct against their own narrow tests,
+but the assumption `realize.py`'s docstring made ("an incompatible soprano
+always yields zero candidates") was never actually enforced by `voicing.py`.
+Caught by `test_realize_incompatible_soprano_raises_realization_error`
+failing (1 failed, 62 passed). **Not fixed yet -- deferred to the next
+chunk**, on purpose, per the session-cost decision below.
+
+**Session-cost lesson (drove real decisions):** this all happened as one
+long, continuous session, plus a lot of interactive debugging (~15-20
+separate script runs while chasing a DP dead-end investigation -- which
+turned out to be correct behavior, not a bug, but took real back-and-forth to
+confirm). The user flagged the cost, and we agreed on:
+
+1. Break future work into small, narrowly-scoped chunks with explicit stop
+   points -- not "implement Milestone 1," but "implement exactly this
+   function against exactly this test."
+2. Adopt a compartmentalized / need-to-know model for future implementer
+   agents (the user's analogy: like Apple engineers, each only sees their own
+   narrow piece), with an orchestrator role (full context) explicitly owning
+   the *seams* between chunks -- because seam bugs (like the one above) are
+   exactly what a narrowly-scoped agent structurally cannot catch on its own.
+3. Added `AGENTS.md` at the repo root: any agent working here must ask for
+   confirmation before a large continuous task, work in small chunks, and
+   read the orientation docs first.
+4. Added `docs/START-HERE.md`: a plain-language, human-readable status doc,
+   separate from the more technical `STATUS.md` / `AI-DIARY.md`.
+5. Learned this session's environment is **ephemeral** -- uncommitted work
+   can be lost if the session ends. Commit discipline needs to happen at
+   natural checkpoints, not only at the end.
+
+**State at end of this entry:** `app/generation/` (chords.py, voicing.py,
+rules.py, realize.py) + 3 new test files, committed and pushed as-is (bug
+included, documented, not fixed). No further implementation work started
+past this point -- the next session should pick up with a single narrow task,
+not "continue the plan" broadly. The finer chunk breakdown discussed this
+session still needs to be formalized into `IMPLEMENTATION-PLAN.md` in a
+future, separate step.
