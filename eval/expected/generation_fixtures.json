@@ -1,0 +1,36 @@
+{
+  "description": "Curated progressions for the generation eval (M2). Realize each, count hard rule violations, round-trip through analyze, compare RNs with rn_agreement (primary = degree+quality).",
+  "fixtures": [
+    {
+      "name": "simple_I_IV_V_I",
+      "key": "C major",
+      "progression": ["I", "IV", "V", "I"]
+    },
+    {
+      "name": "ii6_prep",
+      "key": "C major",
+      "progression": ["I", "ii6", "V", "I"]
+    },
+    {
+      "name": "with_V7",
+      "key": "C major",
+      "progression": ["I", "IV", "V7", "I"]
+    },
+    {
+      "name": "longer_phrase",
+      "key": "C major",
+      "progression": ["I", "IV", "I", "V", "I", "vi", "IV", "V", "I"]
+    },
+    {
+      "name": "a_minor_i_V_i",
+      "key": "A minor",
+      "progression": ["i", "V", "i"]
+    },
+    {
+      "name": "given_soprano_I_V_I",
+      "key": "C major",
+      "progression": ["I", "V", "I"],
+      "soprano": [72, 71, 72]
+    }
+  ]
+}
