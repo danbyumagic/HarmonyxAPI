@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from fastapi.testclient import TestClient
-from music21 import chord, corpus, meter, stream
+from music21 import chord, corpus, meter, note, stream
 
 from app.analyzer import (
     ChordAnalysis,
@@ -11,6 +11,9 @@ from app.analyzer import (
     detect_cadences,
     _clean_slices,
     _degree,
+    _is_passing_or_neighbor_tone,
+    _neutralize_non_chord_tones,
+    _slice_chords,
 )
 from app.main import app
 
@@ -65,6 +68,56 @@ def test_merge_ignores_octave_changes():
     ]
     cleaned = _clean_slices(slices, duration_threshold=0.5)
     assert len(cleaned) == 1
+
+
+# --- non-chord-tone classification (A1) ------------------------------------
+
+def test_passing_tone_detected_on_weak_beat():
+    # C4 -> D4 -> E4, stepwise same direction, weak beat.
+    assert _is_passing_or_neighbor_tone(60, 62, 64, beat_strength=0.25) is True
+
+
+def test_neighbor_tone_detected_on_weak_beat():
+    # C4 -> D4 -> C4, steps away and back, weak beat.
+    assert _is_passing_or_neighbor_tone(60, 62, 60, beat_strength=0.25) is True
+
+
+def test_passing_shape_on_strong_beat_is_not_nct():
+    assert _is_passing_or_neighbor_tone(60, 62, 64, beat_strength=1.0) is False
+
+
+def test_leap_is_not_nct():
+    # C4 -> G4 -> E4: not stepwise, so not a passing/neighbor tone.
+    assert _is_passing_or_neighbor_tone(60, 67, 64, beat_strength=0.25) is False
+
+
+def test_boundary_note_is_not_nct():
+    # No previous note (start of phrase) -- can't classify.
+    assert _is_passing_or_neighbor_tone(None, 62, 64, beat_strength=0.25) is False
+
+
+def test_neutralize_replaces_passing_tone_with_previous_pitch():
+    s = stream.Stream()
+    s.append(meter.TimeSignature("4/4"))
+    for name in ("C4", "D4", "E4", "C4"):
+        s.append(note.Note(name, quarterLength=1.0))
+    part = stream.Part()
+    part.append(s.flatten())
+    score = stream.Score()
+    score.append(part)
+
+    cleaned = _neutralize_non_chord_tones(score)
+    pitches = [n.pitch.nameWithOctave for n in cleaned.parts[0].flatten().notes]
+    assert pitches == ["C4", "C4", "E4", "C4"]
+
+
+def test_neutralize_reduces_spurious_slices_on_chorale():
+    score = corpus.parse("bach/bwv140.7")
+    analyzed_key = score.analyze("key")
+    raw_before = _slice_chords(score, analyzed_key)
+    cleaned_score = _neutralize_non_chord_tones(score)
+    raw_after = _slice_chords(cleaned_score, analyzed_key)
+    assert len(raw_after) <= len(raw_before)
 
 
 # --- cadence detection -----------------------------------------------------

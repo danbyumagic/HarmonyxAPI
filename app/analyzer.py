@@ -18,10 +18,17 @@ not handle.
 
 from __future__ import annotations
 
+import copy
 from dataclasses import dataclass, field
 from typing import List, Optional
 
-from music21 import chord, converter, key as m21key, roman, stream
+from music21 import chord, converter, key as m21key, pitch, roman, stream
+
+
+# A note counts as metrically weak (and thus eligible to be a non-chord tone)
+# below this beatStrength. 0.5 keeps downbeats and strong sub-beats (e.g. beat
+# 3 of 4/4) as real harmony while catching upbeats and offbeats.
+NCT_BEAT_STRENGTH_THRESHOLD = 0.5
 
 
 # A slice shorter than this (in quarter lengths) is treated as passing motion
@@ -97,7 +104,8 @@ def analyze_score(
     score = _parse(source, fmt)
     analyzed_key = score.analyze("key")
 
-    raw = _slice_chords(score, analyzed_key)
+    neutralized = _neutralize_non_chord_tones(score)
+    raw = _slice_chords(neutralized, analyzed_key)
     cleaned = _clean_slices(raw, duration_threshold)
 
     return AnalysisResult(
@@ -121,6 +129,68 @@ def _parse(source, fmt: Optional[str]) -> stream.Score:
     except Exception as exc:  # music21 raises a variety of parse errors
         raise AnalysisError(f"Could not parse score: {exc}") from exc
     return parsed
+
+
+def _is_passing_or_neighbor_tone(
+    prev_ps: Optional[float],
+    cur_ps: float,
+    next_ps: Optional[float],
+    beat_strength: float,
+    strength_threshold: float = NCT_BEAT_STRENGTH_THRESHOLD,
+) -> bool:
+    """Classify a note as a passing or neighbor tone from melodic + metric shape.
+
+    A passing tone steps continuously between two other pitches in the same
+    direction (e.g. C-D-E); a neighbor tone steps away from and back to the
+    same pitch (e.g. C-D-C). Both patterns only count as a non-chord tone on
+    a metrically weak beat -- the same shape landing on a strong beat is a
+    real (if momentarily dissonant-sounding) harmony, not ornamentation.
+    """
+    if prev_ps is None or next_ps is None:
+        return False
+    if beat_strength >= strength_threshold:
+        return False
+
+    step_in = cur_ps - prev_ps
+    step_out = next_ps - cur_ps
+    if not (0 < abs(step_in) <= 2 and 0 < abs(step_out) <= 2):
+        return False
+
+    if prev_ps == next_ps:
+        return True  # neighbor tone
+    return (step_in > 0) == (step_out > 0)  # passing tone: continues direction
+
+
+def _neutralize_non_chord_tones(score: stream.Score) -> stream.Score:
+    """Replace melodic passing/neighbor tones with the pitch they decorate.
+
+    Operates per-part (chordify has already flattened voices together and
+    lost this context) on a deep copy, so the original score is untouched.
+    Each part's note stream is snapshotted before any mutation, so a note's
+    classification is always based on its original neighbors, not ones
+    already rewritten earlier in the pass.
+    """
+    cleaned = copy.deepcopy(score)
+
+    parts = cleaned.getElementsByClass(stream.Part)
+    if not parts:
+        # Not a multi-part Score (e.g. a single flat Stream of block chords
+        # in tests) -- there is no per-voice melodic line to neutralize.
+        parts = [cleaned]
+
+    for part in parts:
+        notes = [n for n in part.flatten().notes if not n.isChord]
+        original_ps = [n.pitch.ps for n in notes]
+
+        for i, this_note in enumerate(notes):
+            prev_ps = original_ps[i - 1] if i > 0 else None
+            next_ps = original_ps[i + 1] if i < len(notes) - 1 else None
+            if _is_passing_or_neighbor_tone(
+                prev_ps, original_ps[i], next_ps, this_note.beatStrength
+            ):
+                this_note.pitch = pitch.Pitch(notes[i - 1].pitch.nameWithOctave)
+
+    return cleaned
 
 
 def _slice_chords(score: stream.Score, analyzed_key: m21key.Key) -> List[ChordAnalysis]:
