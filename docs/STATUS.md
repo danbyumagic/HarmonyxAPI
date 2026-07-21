@@ -6,7 +6,7 @@ Snapshot for handoff. Pairs with [`START-HERE.md`](START-HERE.md) (plain languag
 [`IMPLEMENTATION-PLAN.md`](IMPLEMENTATION-PLAN.md), [`PARTWRITING-RULES.md`](PARTWRITING-RULES.md),
 [`chorale-generation.md`](chorale-generation.md), [`ROADMAP.md`](ROADMAP.md).
 
-_Last updated: 2026-07-21 (after L1–L3 code + Q3 design handoff)._
+_Last updated: 2026-07-21 (Q3a–c richer grammar implemented)._
 
 ## One-liner
 
@@ -15,7 +15,8 @@ Two-way harmony tool. **Analyze:** MusicXML/MIDI → Roman numerals JSON.
 Deterministic core (music21 + clean-room part-writing). Optional LLM explainer
 on analyze. **LLM progression path:** corpus + validator + fixer **implemented**
 (L1–L3); LLM API client **not** built (L4+). **Richer rule grammar (Q3):**
-designed only — see `RICH-GRAMMAR-SPEC.md`.
+Q3a–c **implemented** — inversions/Cad64, `spice` 0–3, `style` presets
+(`student` / `hymnal` / `spicy`); see `RICH-GRAMMAR-SPEC.md` + PARTWRITING-RULES §9b.
 
 ## Where the code lives
 
@@ -36,7 +37,7 @@ app/
     voicing.py     candidate_voicings (rejects non-chord-tone soprano)
     rules.py       rule_violations + transition_cost
     realize.py     DP realize; grand-staff score; playback_from_voicings
-    grammar.py     weighted functional-harmony generate_progression (vanilla)
+    grammar.py     weighted generate_progression (Q3 spice/style + applied)
     corpus.py      L1 progression corpus loader
     validate.py    L2 validate_progression (theory + engine gates)
     fix.py         L3 suggest_fixes (minimal-edit suggestions)
@@ -80,16 +81,20 @@ tests/   analyzer, partwriting (LOCKED), generation_*, generate/progression,
 
 | Chunk | Status |
 |-------|--------|
-| Q3a inversions + Cad64 | **Not started** (design ready) |
-| Q3b secondary dominants + `spice` API | **Not started** |
-| Q3c style presets + polish | **Not started** |
+| Q3a inversions + Cad64 | **Done** |
+| Q3b secondary dominants + `spice` API | **Done** |
+| Q3c style presets + polish | **Done** (backend; no UI dropdown) |
+
+`style` → spice: `student`=0, `hymnal`=1, `spicy`=2. Style wins if both set.
+Default omit → spice 0 (no free-walk secondary dominants). spice=3 is
+integer-only (max color: also `V/vi` / `V/ii`).
 
 ## API surface
 
 | Route | Method | Notes |
 |-------|--------|--------|
 | `/analyze` | POST | file upload; `duration_threshold`, `explain` |
-| `/progression` | POST | `{key, length?, locked?, cadence?, seed?}` → RN list (no spice yet) |
+| `/progression` | POST | `{key, length?, locked?, cadence?, seed?, spice?, style?}` → RN list (+ echoes spice/style) |
 | `/generate` | POST | `{key, progression, time_signature?, soprano?}` → `{musicxml, playback}` |
 | `/health` | GET | liveness |
 | `/` | GET | frontend |
@@ -110,7 +115,7 @@ python -m venv .venv && .venv/bin/pip install -r requirements-dev.txt
 # music21 10.x needs Python ≥ 3.11
 .venv/bin/uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
 
-.venv/bin/python -m pytest tests/ -q          # expect ~133 passed (after L1–L3)
+.venv/bin/python -m pytest tests/ -q          # expect ~150+ passed (after Q3)
 .venv/bin/python -m eval.run_eval --min 0.6
 .venv/bin/python -m eval.run_generation_eval --min-roundtrip 1.0 --max-violations 0
 ```

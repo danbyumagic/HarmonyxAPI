@@ -128,3 +128,54 @@ def test_progression_spice_out_of_range_422():
         json={"key": "C major", "length": 4, "spice": 9},
     )
     assert resp.status_code == 422, resp.text
+
+
+def test_progression_style_student_echoes_and_is_safe():
+    resp = client.post(
+        "/progression",
+        json={
+            "key": "C major",
+            "length": 6,
+            "seed": 2,
+            "style": "student",
+            "spice": 3,  # style wins
+        },
+    )
+    assert resp.status_code == 200, resp.text
+    data = resp.json()
+    assert data["style"] == "student"
+    assert data["spice"] == 0
+    assert not any("/" in f for f in data["progression"])
+
+
+def test_progression_style_hymnal_echoes():
+    resp = client.post(
+        "/progression",
+        json={"key": "C major", "length": 8, "seed": 4, "style": "hymnal"},
+    )
+    assert resp.status_code == 200, resp.text
+    data = resp.json()
+    assert data["style"] == "hymnal"
+    assert data["spice"] == 1
+    assert data["progression"][-1] == "I"
+    assert not any("/" in f for f in data["progression"])
+
+
+def test_progression_style_spicy_echoes():
+    resp = client.post(
+        "/progression",
+        json={"key": "C major", "length": 8, "seed": 5, "style": "spicy"},
+    )
+    assert resp.status_code == 200, resp.text
+    data = resp.json()
+    assert data["style"] == "spicy"
+    assert data["spice"] == 2
+
+
+def test_progression_unknown_style_422():
+    resp = client.post(
+        "/progression",
+        json={"key": "C major", "length": 4, "style": "bebop"},
+    )
+    assert resp.status_code == 422, resp.text
+    assert resp.json()["detail"]["error"] == "grammar_failed"

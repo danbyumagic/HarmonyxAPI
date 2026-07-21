@@ -8,9 +8,11 @@ from app.generation.grammar import (
     GrammarError,
     FORBIDDEN_TRANSITIONS,
     SECONDARY_DOMINANTS,
+    STYLE_PRESETS,
     generate_progression,
     is_forbidden_transition,
     is_secondary_dominant,
+    resolve_spice_and_style,
     tonic_figure,
 )
 
@@ -235,3 +237,46 @@ def test_q3b_spicy_sample_passes_l2_theory_gate():
         found, KEY, cadence="PAC", check_engine=False, suggest=False
     )
     assert result.ok, (found, [i.message for i in result.issues])
+
+
+# --- Q3c: style presets (aliases → spice weight packs) --------------------
+
+
+def test_q3c_style_preset_mapping():
+    assert STYLE_PRESETS == {"student": 0, "hymnal": 1, "spicy": 2}
+    assert resolve_spice_and_style(spice=3, style=None) == (3, None)
+    assert resolve_spice_and_style(spice=0, style="student") == (0, "student")
+    assert resolve_spice_and_style(spice=0, style="HYMNAL") == (1, "hymnal")
+    assert resolve_spice_and_style(spice=0, style="spicy") == (2, "spicy")
+    # Style wins over conflicting spice.
+    assert resolve_spice_and_style(spice=3, style="student") == (0, "student")
+
+
+def test_q3c_style_student_matches_spice0():
+    for seed in range(10):
+        a = generate_progression(KEY, length=8, seed=seed, spice=0)
+        b = generate_progression(KEY, length=8, seed=seed, style="student")
+        assert a == b
+        assert not any(is_secondary_dominant(f) for f in b)
+
+
+def test_q3c_style_hymnal_no_secondary_dominants():
+    """hymnal → spice 1: inversions/Cad64 OK, no applied chords."""
+    for seed in range(20):
+        prog = generate_progression(
+            KEY, length=8, cadence="PAC", seed=seed, style="hymnal"
+        )
+        assert not any(is_secondary_dominant(f) for f in prog), prog
+        assert prog[-2] in ("V", "V7") and prog[-1] == "I"
+
+
+def test_q3c_style_spicy_matches_spice2():
+    for seed in range(10):
+        a = generate_progression(KEY, length=8, seed=seed, spice=2)
+        b = generate_progression(KEY, length=8, seed=seed, style="spicy")
+        assert a == b
+
+
+def test_q3c_unknown_style_raises():
+    with pytest.raises(GrammarError, match="style"):
+        generate_progression(KEY, length=4, style="jazz", seed=0)

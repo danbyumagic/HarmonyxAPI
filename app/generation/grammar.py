@@ -1,8 +1,9 @@
 """Layer 1: functional-harmony progression grammar.
 
 Weighted Markov walk over the transition table in
-``docs/PARTWRITING-RULES.md`` §9. Cadence-aware and lock-aware. Q3b adds
-opt-in secondary dominants behind the ``spice`` knob (0–3).
+``docs/PARTWRITING-RULES.md`` §9 (+ §9b extended figures). Cadence-aware and
+lock-aware. Q3b/Q3c: opt-in color via ``spice`` (0–3) and named ``style``
+presets (``student`` / ``hymnal`` / ``spicy``).
 """
 
 from __future__ import annotations
@@ -44,6 +45,15 @@ SECONDARY_DOMINANTS = frozenset(_SPICE_REQUIRED)
 
 _MIN_SPICE = 0
 _MAX_SPICE = 3
+
+# Q3c named presets → spice (weight packs, not separate engines).
+# ``spicy`` maps to spice=2 (V/V family). spice=3 is integer-only (max color).
+STYLE_PRESETS: Dict[str, int] = {
+    "student": 0,
+    "hymnal": 1,
+    "spicy": 2,
+}
+SUPPORTED_STYLES = frozenset(STYLE_PRESETS)
 
 # Relative weights from PARTWRITING-RULES §9 (major); minor is analogous.
 # Q3a: higher inversion traffic + approach edges into Cad64 (still no applied chords).
@@ -310,6 +320,29 @@ def _normalize_spice(spice: int) -> int:
     return spice
 
 
+def resolve_spice_and_style(
+    *,
+    spice: int = 0,
+    style: Optional[str] = None,
+) -> Tuple[int, Optional[str]]:
+    """Resolve effective spice and normalized style name.
+
+    If ``style`` is set, it wins over ``spice`` (preset maps to an integer).
+    Returns ``(effective_spice, normalized_style_or_None)``.
+    """
+    if style is None or (isinstance(style, str) and not style.strip()):
+        return _normalize_spice(spice), None
+    if not isinstance(style, str):
+        raise GrammarError(f"style must be a string, got {style!r}")
+    key = style.strip().lower()
+    if key not in STYLE_PRESETS:
+        raise GrammarError(
+            f"unsupported style {style!r}; expected one of "
+            f"{sorted(SUPPORTED_STYLES)}"
+        )
+    return STYLE_PRESETS[key], key
+
+
 def is_forbidden_transition(prev: str, cur: str) -> bool:
     if (prev, cur) in FORBIDDEN_TRANSITIONS:
         return True
@@ -486,6 +519,7 @@ def generate_progression(
     cadence: str = _CADENCE_PAC,
     seed: Optional[int] = None,
     spice: int = 0,
+    style: Optional[str] = None,
 ) -> List[str]:
     """Generate an idiomatic Roman-numeral progression.
 
@@ -501,15 +535,18 @@ def generate_progression(
         ``"PAC"`` → ends ``V|V7 → I/i``; ``"HC"`` → ends on ``V`` (or locked V7).
     seed:
         If set, the walk is deterministic for the same arguments
-        (including ``spice``).
+        (including effective ``spice`` / ``style``).
     spice:
         0–3 color knob. ``0`` (default) is student-safe: no secondary
         dominants in free walk. ``2+`` enables ``V/V`` family; ``3`` also
         ``V/vi`` / ``V/ii`` (major) or minor analogues.
+    style:
+        Optional preset alias: ``student`` (0), ``hymnal`` (1), ``spicy`` (2).
+        When set, **style wins** over ``spice``.
     """
     if length < 1:
         raise GrammarError("length must be >= 1")
-    spice = _normalize_spice(spice)
+    spice, _ = resolve_spice_and_style(spice=spice, style=style)
     cadence = cadence.upper()
     if cadence not in _SUPPORTED_CADENCES:
         raise GrammarError(

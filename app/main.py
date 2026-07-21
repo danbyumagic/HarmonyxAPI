@@ -15,7 +15,11 @@ from fastapi.staticfiles import StaticFiles
 
 from .analyzer import DEFAULT_DURATION_THRESHOLD, AnalysisError, analyze_score
 from .explainer import explain_progression
-from .generation.grammar import GrammarError, generate_progression
+from .generation.grammar import (
+    GrammarError,
+    generate_progression,
+    resolve_spice_and_style,
+)
 from .generation.realize import (
     DEFAULT_PLAYBACK_TEMPO_BPM,
     RealizationError,
@@ -112,13 +116,16 @@ async def progression(body: ProgressionRequest) -> ProgressionResponse:
     returned ``progression`` to ``POST /generate`` to realize SATB MusicXML.
     """
     try:
+        effective_spice, norm_style = resolve_spice_and_style(
+            spice=body.spice, style=body.style
+        )
         figures = generate_progression(
             body.key,
             length=body.length,
             locked=body.locked,
             cadence=body.cadence,
             seed=body.seed,
-            spice=body.spice,
+            spice=effective_spice,
         )
     except GrammarError as exc:
         raise HTTPException(
@@ -131,7 +138,8 @@ async def progression(body: ProgressionRequest) -> ProgressionResponse:
         length=body.length,
         cadence=body.cadence.upper(),
         seed=body.seed,
-        spice=body.spice,
+        spice=effective_spice,
+        style=norm_style,
         progression=figures,
     )
 

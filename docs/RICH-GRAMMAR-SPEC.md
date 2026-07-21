@@ -1,9 +1,8 @@
 # Spec: Richer rule grammar (Q3)
 
-**Status:** design / not implemented.  
-**Date:** 2026-07-21.  
-**Do not implement this entire doc in one session.** Work one named chunk
-(Q3a / Q3b / Q3c) only, after the user approves.
+**Status:** implemented (Q3a + Q3b + Q3c) on branch
+`claude/harmonic-analysis-api-loc82f` (2026-07-21).  
+**Frontend style dropdown:** optional follow-up; API `style` / `spice` ship without UI.
 
 Related:
 

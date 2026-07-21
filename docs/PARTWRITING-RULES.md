@@ -155,6 +155,22 @@ but `I`, `V→I6` at a cadence (want root position for a PAC).
 real cadence — PAC = `V(7)→I` both root position with soprano on scale-degree 1;
 HC = `…→V`. Deceptive = `V(7)→vi` only mid-phrase, never as the final cadence.
 
+### §9b Extended figures (Q3 — code is source of truth)
+
+The table above is the **historical §9 baseline**. Runtime weights and edges live
+in `app/generation/grammar.py` and have been extended (do not “fix” the
+generator by rewriting it to match this static table alone):
+
+| Extension | What |
+|-----------|------|
+| **Q3a** | Higher traffic into `I6`/`ii6`/`IV6`/`V6`; approach edges into `Cad64` → `V`\|`V7`. |
+| **Q3b** | Secondary dominants behind `spice`: `V/V`, `V7/V`, `V6/V` at spice ≥ 2; `V/vi`, `V/ii` (major) / `V/III`, `V/iv` (minor) at spice 3. Resolutions only to their local tonics. |
+| **Q3c** | Named `style` presets map to spice: `student`→0, `hymnal`→1, `spicy`→2. **Style wins** if both `style` and `spice` are set. Default spice/style omit → 0 (student-safe, no free-walk applied chords). |
+
+Forbidden retrogressions and the PAC/HC cadence hard rules are unchanged.
+Locked part-writing fixtures (`tests/test_partwriting.py`) are **not** relaxed
+by Q3.
+
 ---
 
 ## 10. Roman-numeral normalization (for the round-trip eval)

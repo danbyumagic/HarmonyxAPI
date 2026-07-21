@@ -293,3 +293,21 @@ stop, and wait for “implement Q3a only” (or another single chunk).
 
 Open queue order (human still chooses): **Q3a recommended**, else L4, Q2
 `/check`, Q4 analyzer.
+
+## Entry 13 — Q3a–c richer rule grammar (2026-07-21)
+
+Implemented the full Q3 offline grammar epic in three commits on
+`claude/harmonic-analysis-api-loc82f` (push if still local-only):
+
+| Chunk | What landed |
+|-------|-------------|
+| **Q3a** | Higher inversion traffic (`I6`/`ii6`/`IV6`/`V6`); Cad64 approaches → V\|V7. |
+| **Q3b** | `spice` 0–3; free walk emits `V/V` family at ≥2, `V/vi`/`V/ii` at 3; default 0. |
+| **Q3c** | `style` presets `student`/`hymnal`/`spicy` → spice 0/1/2 (style wins); docs §9b. |
+
+Code: `app/generation/grammar.py`, `app/models.py`, `app/main.py`, grammar +
+progression tests. Docs: `START-HERE`, `STATUS`, `PARTWRITING-RULES` §9b,
+this spec marked implemented. **No** frontend dropdown (optional later).
+
+Full suite after Q3c: **~150+ passed**. Open queue now: L4 LLM client, Q2
+`POST /check`, Q4 analyzer, Q5 PR/push polish.

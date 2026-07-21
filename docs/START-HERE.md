@@ -22,12 +22,23 @@ see `AGENTS.md` at the repo root.
   `tests/test_partwriting.py` (**do not edit** those tests).
 - Soprano chord-tone check bug fixed.
 - **`POST /generate`** — RN list → MusicXML JSON (+ playback note list).
-- **`POST /progression`** — rule-based functional-harmony grammar (vanilla).
+- **`POST /progression`** — rule-based functional-harmony grammar.
 - **M2 generation eval** — round-trip + zero hard violations on fixtures; CI wired.
 - **Frontend Generate tab** — propose, edit/lock RNs, realize, download.
 - **OSMD** score preview; **grand staff** export; **Play / Stop** @ 75 BPM.
 
-**LLM progression foundation (L1–L3, code on branch — push if not yet remote)**
+**Richer rule grammar (Q3 — done)**
+
+| Chunk | Status | What |
+|-------|--------|------|
+| **Q3a** | Done | More inversions + Cad64 approaches (default path). |
+| **Q3b** | Done | Secondary dominants behind `spice` 0–3. |
+| **Q3c** | Done | `style` presets (`student` / `hymnal` / `spicy`); docs §9b. |
+
+Default propose stays student-safe (`spice=0`). Opt in with `spice` or `style`.
+Spec: `docs/RICH-GRAMMAR-SPEC.md`. No frontend style dropdown yet (backend API only).
+
+**LLM progression foundation (L1–L3)**
 
 | Phase | Status | Where |
 |-------|--------|--------|
@@ -37,16 +48,12 @@ see `AGENTS.md` at the repo root.
 | **L3** deterministic fixer | Done | `app/generation/fix.py` |
 | **L4–L7** LLM client / API / UI | **Not started** | see LLM spec |
 
-Commits (local feature branch family includes): `f0ae8ab` (L1), `154155f` (L2),
-`78eb0d7` (L3), plus earlier playback/grand-staff/OSMD work. Confirm
-`git log` / `git status` before assuming push state.
+Confirm `git log` / `git status` before assuming push state.
 
 ### Not broken — but known limits
 
-- Rule grammar progressions still feel **Theory I vanilla** (few inversions,
-  no secondary dominants in the *generator*). **Q3 is designed, not built** —
-  see `docs/RICH-GRAMMAR-SPEC.md`.
-- L1–L3 enable validating/fixing spicy RNs but do **not** change Propose yet.
+- Grammar is richer when opted in; **default** is still homework-safe.
+- L1–L3 validate/fix spicy RNs; Propose uses the rule grammar (not LLM yet).
 - Analyzer still has NCT noise, eager cadences, ~65% key eval (unchanged).
 - Playback is intentionally low-fi (not SoundFont / no score cursor).
 
@@ -56,35 +63,27 @@ Priority is a **human choice** each session. Candidates:
 
 | ID | Item | Notes |
 |----|------|--------|
-| **Q3** | **Richer rule grammar** | **Next recommended offline win.** Spec: `docs/RICH-GRAMMAR-SPEC.md`. Chunks Q3a → Q3b → Q3c. |
 | Q1 | LLM progression L4+ | L1–L3 done; next is L4 client — `docs/LLM-PROGRESSION-SPEC.md`. |
 | Q2 | **M4 `POST /check`** | Upload score → part-writing violations. Reuses `rules.py`. |
 | Q4 | Analyzer A1/A2/A7 | NCT filter, fermata cadences, RN-agreement eval. |
-| Q5 | Docs / PR polish | PR #1 may need refresh; push L1–L3 if still local-only. |
+| Q5 | Docs / PR polish | PR #1 may need refresh; push Q3 + L1–L3 if still local-only. |
+| — | Frontend style dropdown | Optional UX on top of Q3c API (`style` / `spice`). |
 
-**Do not** re-implement M1–M3, grand staff, OSMD, playback, or L1–L3 unless
-fixing a regression.
+**Do not** re-implement M1–M3, grand staff, OSMD, playback, L1–L3, or Q3
+unless fixing a regression.
 
 ## If you're starting a new chat, paste this in
-
-**General / wait for task:**
 
 > Read `docs/START-HERE.md`, `AGENTS.md`, and (if the task names them)
 > `docs/RICH-GRAMMAR-SPEC.md` or `docs/LLM-PROGRESSION-SPEC.md`. Then **stop
 > and wait** for my instructions — do not start implementing anything yet.
 
-**Q3 work specifically:**
-
-> Read `docs/START-HERE.md`, `AGENTS.md`, and `docs/RICH-GRAMMAR-SPEC.md`.
-> Then **stop and wait**. When I say go, implement **only** the named chunk
-> (Q3a, Q3b, or Q3c).
-
 ## Optional deeper reading
 
 - `docs/STATUS.md` — technical snapshot
-- `docs/RICH-GRAMMAR-SPEC.md` — **Q3** richer rule grammar (design)
+- `docs/RICH-GRAMMAR-SPEC.md` — **Q3** richer rule grammar (implemented Q3a–c)
 - `docs/LLM-PROGRESSION-SPEC.md` — LLM path (L1–L3 implemented; L4+ not)
 - `docs/IMPLEMENTATION-PLAN.md` — older milestone plan (M0–M5 largely done
   except M4)
-- `docs/PARTWRITING-RULES.md` — locked theory for the realizer
+- `docs/PARTWRITING-RULES.md` — locked theory for the realizer (§9 / §9b)
 - `docs/AI-DIARY.md` — chronological agent log (newest at bottom)
