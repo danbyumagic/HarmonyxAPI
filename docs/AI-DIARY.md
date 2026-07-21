@@ -237,3 +237,26 @@ past this point -- the next session should pick up with a single narrow task,
 not "continue the plan" broadly. The finer chunk breakdown discussed this
 session still needs to be formalized into `IMPLEMENTATION-PLAN.md` in a
 future, separate step.
+
+## Entry 11 — Post-M1–M5 feature burst + handoff docs (2026-07-21)
+
+Later the same calendar day (and a long Grok session), the deferred soprano
+bug was fixed and the plan was driven much further than Entry 10 expected:
+
+- M2 generation eval + CI
+- `POST /generate`, `POST /progression` (grammar)
+- Frontend Generate tab; OSMD preview; grand-staff MusicXML; Play @ 75 BPM
+- Commits through `c1cc643` on `claude/harmonic-analysis-api-loc82f`
+
+User feedback: rule-grammar progressions feel Theory-I vanilla. Brainstormed
+optional **LLM progression proposer**: no train-from-scratch; API key; curated
+corpus few-shot; validator + visible closest-fix; grammar remains default.
+Captured as `docs/LLM-PROGRESSION-SPEC.md` (design only — not implemented).
+
+**Handoff (token discipline):** refreshed `docs/START-HERE.md`, `docs/STATUS.md`,
+`docs/AGENT-START-HERE.md` so the next session does not re-read this chat and
+does not re-open fixed bugs. Open queue: LLM phases L1+, M4 `/check`, richer
+grammar, analyzer A1/A2/A7.
+
+Next human action: start a **fresh** chat; paste the START-HERE blurb; name
+one chunk only.

@@ -1,72 +1,67 @@
 # Start here (read this first)
 
-You're picking this project back up. This file exists because the AI works
-fast and it's easy to lose track of where things stand. No jargon, no code —
-just the facts, kept short on purpose.
+Plain-language status for humans and agents. Keep it short. For agent rules,
+see `AGENTS.md` at the repo root.
 
 ## What is this project?
 
-**Harmonyx API** — a tool that does two things:
-1. **Analyze** — feed it sheet music, it tells you the chords / Roman numerals.
-2. **Generate** *(being built now)* — feed it a chord progression, it writes
-   an actual four-part hymn (like a Bach chorale) that follows the real rules
-   of harmony.
+**Harmonyx API** — a two-way harmony tool:
 
-## Where things stand right now
+1. **Analyze** — score (MusicXML/MIDI) → Roman numerals, key, cadences.
+2. **Generate** — Roman-numeral progression → four-part SATB hymn (MusicXML),
+   with optional propose / edit / lock / play in the browser.
 
-- **Part 1 (analyze) is done and deployed.** Working API, tests passing, a
-  live pull request (#1) open on GitHub, CI green.
-- **Part 2 (generate) is in progress, NOT done.** We're building the
-  "part-writing engine" — the piece that turns a chord progression into real
-  four-voice music that obeys the actual rules (no parallel fifths, the
-  leading tone resolves correctly, etc.).
+## Where things stand (2026-07-21, end of handoff session)
 
-## What got built this session
+### Done and pushed (`claude/harmonic-analysis-api-loc82f`)
 
-- The real rules of good four-part writing were turned into a **locked,
-  do-not-edit test file** (`tests/test_partwriting.py`) — think of it as an
-  answer key. Any code has to match it; nothing (AI or human) gets to cut
-  corners on the music theory.
-- Code that spells out chords, builds valid four-voice arrangements, checks
-  the rules, and generates a working four-part piece — **and it works.** A
-  live test produced a genuinely good-sounding I–IV–V–I progression with
-  zero rule violations, on its own, without hand-tuning.
-- This is now **committed and pushed to GitHub** (that just happened, as a
-  safety step, since this working environment can disappear between
-  sessions).
+- **Analyze** API + frontend drop-zone (as before).
+- **Part-writing realizer** (`app/generation/`) + locked fixtures in
+  `tests/test_partwriting.py` (do not edit those tests).
+- Soprano chord-tone check bug **fixed**.
+- **`POST /generate`** — RN list → MusicXML JSON (+ playback note list).
+- **`POST /progression`** — rule-based functional-harmony grammar.
+- **M2 generation eval** — round-trip + zero hard violations on fixtures; CI wired.
+- **Frontend Generate tab** — propose, edit/lock RNs, realize, download.
+- **OSMD** score preview (view).
+- **Grand staff** export: SA on treble (stems up/down), TB on bass (stems up/down).
+- **Play / Stop** — block chords @ **75 BPM**, rough Web Audio triangle synth.
 
-## What's broken / not done
+Latest feature commit family includes through:
+`c1cc643` (playback), `4f864dd` (grand staff), `cd8d305` (OSMD), etc.
 
-- **One known, small bug:** when you hand the generator a specific top
-  melody note, it doesn't always check that note actually belongs to the
-  chord. It's isolated and already understood — just not fixed yet.
-- Nothing else is broken. Everything else that was tested, passed.
+### Not broken — but known limits
 
-## Why this session burned so much budget
+- Rule grammar progressions feel **Theory I vanilla** (few inversions, no
+  modulation). Expected; design for a richer / LLM path is written, not built.
+- Analyzer still has NCT noise, eager cadences, ~65% key eval (unchanged).
+- Playback is intentionally low-fi (not SoundFont / no score cursor).
 
-Building this in one long, continuous sitting made the conversation very
-long — and long conversations get expensive to keep talking in, because
-every new message re-reads the *entire* history so far. That's the main
-lesson, and it's why things changed for what happens next.
+## Open queue (do not forget)
 
-## What happens next
+Priority is a **human choice** each session. Candidates:
 
-1. This chat **stops here** — no more new work in this conversation.
-2. The next session should start **fresh**, with a **short, specific task**
-   handed to it — not "continue the whole plan."
-3. There's now a rule file, `AGENTS.md`, at the repo root that requires any
-   AI working on this project to check in with you before doing a large
-   chunk of work — specifically to stop this from happening again.
+| ID | Item | Notes |
+|----|------|--------|
+| Q1 | **LLM progression proposer** | Spec only — see `docs/LLM-PROGRESSION-SPEC.md`. No training from scratch; API key + corpus few-shot + validator. |
+| Q2 | **M4 `POST /check`** | Upload score → part-writing violations. Reuses `rules.py`. |
+| Q3 | **Richer rule grammar** | More inversions, secondary dominants, style presets (no LLM). |
+| Q4 | **Analyzer A1/A2/A7** | NCT filter, fermata cadences, RN-agreement eval. |
+| Q5 | Docs / PR polish | Keep STATUS in sync; PR #1 may need refresh. |
+
+**Do not** re-implement M1–M3, grand staff, OSMD, or playback unless fixing a regression.
 
 ## If you're starting a new chat, paste this in
 
-> Read `docs/START-HERE.md`, `AGENTS.md`, and the most recent entry in
-> `docs/AI-DIARY.md` first. Then stop and wait for my instructions — do not
-> start implementing anything yet.
+> Read `docs/START-HERE.md`, `AGENTS.md`, and (if working on AI progressions)
+> `docs/LLM-PROGRESSION-SPEC.md`. Then **stop and wait** for my instructions —
+> do not start implementing anything yet.
 
-## Where to look for more detail (optional, not required reading)
+## Optional deeper reading
 
-- `docs/STATUS.md` — technical snapshot of the whole project
-- `docs/IMPLEMENTATION-PLAN.md` — the build plan, milestone by milestone
-- `docs/PARTWRITING-RULES.md` — the locked rule spec for the generator
-- `docs/AI-DIARY.md` — full chronological log, written by/for AI assistants
+- `docs/STATUS.md` — technical snapshot
+- `docs/LLM-PROGRESSION-SPEC.md` — LLM + corpus + validator design
+- `docs/IMPLEMENTATION-PLAN.md` — older milestone plan (M0–M5 largely done
+  except M4; LLM is new relative to that file)
+- `docs/PARTWRITING-RULES.md` — locked theory for the realizer
+- `docs/AI-DIARY.md` — chronological agent log (newest at bottom)
