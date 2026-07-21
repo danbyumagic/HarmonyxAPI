@@ -2,7 +2,9 @@
 
 Snapshot for handoff (to Grok or any collaborator). Pairs with
 [`AI-DIARY.md`](AI-DIARY.md) (chronological log), [`ROADMAP.md`](ROADMAP.md),
-and [`chorale-generation.md`](chorale-generation.md).
+[`chorale-generation.md`](chorale-generation.md), and the step-by-step
+[`IMPLEMENTATION-PLAN.md`](IMPLEMENTATION-PLAN.md) (modules, signatures, tests,
+milestones).
 
 _Last updated: 2026-07-21._
 
@@ -118,10 +120,13 @@ that does both** — analyze (score → RNs) and generate (RNs → score) — de
 as inverses that round-trip. Remaining decisions are implementation details
 covered in `chorale-generation.md` (e.g. one realization vs. alternates).
 
-## Suggested next steps (from ROADMAP phasing)
-1. NCT filtering (A1) + fermata-based cadence detection (A2) — biggest quality
-   jump, no new infra.
-2. RN-agreement eval (A7) — chord-by-chord vs. a labelled RomanText corpus.
-3. Part-writing rule checker (B1) — reuses SATB parsing; music21 `voiceLeading`.
-4. Then the generator (B2): candidate voicings + DP/search minimizing
-   voice-leading cost + rule penalties → emit MusicXML via music21.
+## Suggested next steps
+See [`IMPLEMENTATION-PLAN.md`](IMPLEMENTATION-PLAN.md) for the concrete,
+milestone-by-milestone build plan. Summary order:
+- **M0–M1:** realizer core (`app/generation/`) + `POST /generate` — build first.
+- **M2:** round-trip + rule-violation eval (measurable quality).
+- **M3:** functional-harmony progression grammar + `POST /progression`.
+- **M4:** part-writing checker (`POST /check`).
+- **M5:** frontend generation panel.
+- **Parallel analyzer track:** NCT filtering (A1), fermata cadences (A2),
+  RN-agreement eval (A7).
