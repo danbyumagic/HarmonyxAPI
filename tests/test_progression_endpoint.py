@@ -85,3 +85,46 @@ def test_progression_then_generate_chain():
     xml = data["musicxml"]
     assert isinstance(xml, str)
     assert "<?xml" in xml or "score-partwise" in xml
+
+
+def test_progression_echoes_spice_default_zero():
+    resp = client.post(
+        "/progression",
+        json={"key": "C major", "length": 6, "seed": 1},
+    )
+    assert resp.status_code == 200, resp.text
+    data = resp.json()
+    assert data["spice"] == 0
+    assert not any("/" in f for f in data["progression"])
+
+
+def test_progression_accepts_spice_and_can_emit_secondary():
+    """spice=2 is accepted; over a few seeds we should see V/V family at least once."""
+    seen_secondary = False
+    for seed in range(20):
+        resp = client.post(
+            "/progression",
+            json={
+                "key": "C major",
+                "length": 8,
+                "cadence": "PAC",
+                "seed": seed,
+                "spice": 2,
+            },
+        )
+        assert resp.status_code == 200, resp.text
+        data = resp.json()
+        assert data["spice"] == 2
+        prog = data["progression"]
+        assert prog[-2] in ("V", "V7") and prog[-1] == "I"
+        if any(f in ("V/V", "V7/V", "V6/V") for f in prog):
+            seen_secondary = True
+    assert seen_secondary
+
+
+def test_progression_spice_out_of_range_422():
+    resp = client.post(
+        "/progression",
+        json={"key": "C major", "length": 4, "spice": 9},
+    )
+    assert resp.status_code == 422, resp.text

@@ -7,8 +7,10 @@ import pytest
 from app.generation.grammar import (
     GrammarError,
     FORBIDDEN_TRANSITIONS,
+    SECONDARY_DOMINANTS,
     generate_progression,
     is_forbidden_transition,
+    is_secondary_dominant,
     tonic_figure,
 )
 
@@ -149,3 +151,87 @@ def test_q3a_hc_still_ends_on_dominant():
         assert prog[-1] in ("V", "V7"), prog
         for a, b in zip(prog, prog[1:]):
             assert not is_forbidden_transition(a, b), (a, b, prog)
+
+
+# --- Q3b: secondary dominants + spice knob ---------------------------------
+
+_V_OF_V = frozenset({"V/V", "V7/V", "V6/V"})
+
+
+def test_q3b_spice0_never_emits_secondary_dominants():
+    for seed in range(30):
+        prog = generate_progression(KEY, length=8, cadence="PAC", seed=seed, spice=0)
+        assert not any(is_secondary_dominant(f) for f in prog), prog
+        # Default spice is 0
+        prog_default = generate_progression(KEY, length=8, cadence="PAC", seed=seed)
+        assert prog == prog_default
+
+
+def test_q3b_spice2_sometimes_emits_v_of_v():
+    n_seeds = 20
+    hits = 0
+    for seed in range(n_seeds):
+        prog = generate_progression(KEY, length=8, cadence="PAC", seed=seed, spice=2)
+        if set(prog) & _V_OF_V:
+            hits += 1
+        # Resolve only to V|V7; never final; PAC penultimate stays V|V7.
+        for i, fig in enumerate(prog):
+            if fig in _V_OF_V:
+                assert i < len(prog) - 1, prog
+                assert prog[i + 1] in ("V", "V7"), prog
+        assert prog[-2] in ("V", "V7") and prog[-1] == "I"
+        for a, b in zip(prog, prog[1:]):
+            assert not is_forbidden_transition(a, b), (a, b, prog)
+        # spice=2 must not emit spice=3-only figures
+        assert "V/vi" not in prog and "V/ii" not in prog, prog
+    assert hits >= 1, f"expected some V/V family in {n_seeds} seeds, got {hits}"
+
+
+def test_q3b_spice3_can_emit_v_of_vi_or_ii():
+    n_seeds = 40
+    targets = frozenset({"V/vi", "V/ii"})
+    hits = 0
+    for seed in range(n_seeds):
+        prog = generate_progression(KEY, length=8, cadence="PAC", seed=seed, spice=3)
+        if set(prog) & targets:
+            hits += 1
+        for i, fig in enumerate(prog):
+            if fig == "V/vi":
+                assert prog[i + 1] == "vi", prog
+            if fig == "V/ii":
+                assert prog[i + 1] in ("ii", "ii6"), prog
+    assert hits >= 1, f"expected V/vi or V/ii in {n_seeds} seeds at spice=3"
+
+
+def test_q3b_spice_out_of_range_raises():
+    with pytest.raises(GrammarError, match="spice"):
+        generate_progression(KEY, length=4, spice=4, seed=0)
+    with pytest.raises(GrammarError, match="spice"):
+        generate_progression(KEY, length=4, spice=-1, seed=0)
+
+
+def test_q3b_spice_in_seed_identity():
+    a = generate_progression(KEY, length=8, seed=5, spice=0)
+    b = generate_progression(KEY, length=8, seed=5, spice=0)
+    c = generate_progression(KEY, length=8, seed=5, spice=2)
+    assert a == b
+    # Same seed + different spice is still deterministic per spice, and may differ.
+    d = generate_progression(KEY, length=8, seed=5, spice=2)
+    assert c == d
+
+
+def test_q3b_spicy_sample_passes_l2_theory_gate():
+    from app.generation.validate import validate_progression
+
+    # Prefer a seed that actually emits applied harmony when possible.
+    found = None
+    for seed in range(40):
+        prog = generate_progression(KEY, length=8, cadence="PAC", seed=seed, spice=2)
+        if set(prog) & SECONDARY_DOMINANTS:
+            found = prog
+            break
+    assert found is not None, "could not sample a spicy progression"
+    result = validate_progression(
+        found, KEY, cadence="PAC", check_engine=False, suggest=False
+    )
+    assert result.ok, (found, [i.message for i in result.issues])

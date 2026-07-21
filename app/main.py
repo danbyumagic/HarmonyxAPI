@@ -118,6 +118,7 @@ async def progression(body: ProgressionRequest) -> ProgressionResponse:
             locked=body.locked,
             cadence=body.cadence,
             seed=body.seed,
+            spice=body.spice,
         )
     except GrammarError as exc:
         raise HTTPException(
@@ -130,6 +131,7 @@ async def progression(body: ProgressionRequest) -> ProgressionResponse:
         length=body.length,
         cadence=body.cadence.upper(),
         seed=body.seed,
+        spice=body.spice,
         progression=figures,
     )
 

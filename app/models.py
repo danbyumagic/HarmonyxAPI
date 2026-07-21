@@ -188,6 +188,15 @@ class ProgressionRequest(BaseModel):
         None,
         description="If set, generation is deterministic for the same inputs.",
     )
+    spice: int = Field(
+        0,
+        ge=0,
+        le=3,
+        description=(
+            "Color knob 0–3 (default 0 = student-safe, no secondary dominants). "
+            "2+ allows V/V, V7/V, V6/V; 3 also V/vi and V/ii (major) or minor analogues."
+        ),
+    )
 
     model_config = {
         "json_schema_extra": {
@@ -197,6 +206,7 @@ class ProgressionRequest(BaseModel):
                 "locked": {"1": "IV"},
                 "cadence": "PAC",
                 "seed": 42,
+                "spice": 0,
             }
         }
     }
@@ -209,6 +219,7 @@ class ProgressionResponse(BaseModel):
     length: int
     cadence: str
     seed: Optional[int] = None
+    spice: int = 0
     progression: List[str] = Field(..., description="Roman-numeral figures in order.")
 
     model_config = {
@@ -218,6 +229,7 @@ class ProgressionResponse(BaseModel):
                 "length": 8,
                 "cadence": "PAC",
                 "seed": 42,
+                "spice": 0,
                 "progression": ["I", "IV", "ii6", "V", "I", "vi", "V7", "I"],
             }
         }
