@@ -2,9 +2,10 @@
 
 Working list of what's left to study before doing more build work. Not a
 build queue — research only, per `AGENTS.md`. Pulls together the remaining
-rows from `docs/CLASSICAL-AI-LANDSCAPE.md` §10 plus new candidates found in
-the 2026-07-21 follow-up GitHub scans (SATB/arrangement/AI-tools/score-DB
-sweep + a focused OMR sweep). One peer per research chunk, same convention as
+rows from `docs/CLASSICAL-AI-LANDSCAPE.md` §10, new candidates found in the
+2026-07-21 follow-up GitHub scans (SATB/arrangement/AI-tools/score-DB sweep +
+a focused OMR sweep), and a directly-linked repo the human pointed at
+(`Shimaoka-SATB-SkillSet`). One peer per research chunk, same convention as
 `docs/research/01`–`07`.
 
 Format per entry: **repo** — why it's worth a full read, and what to actually
@@ -14,7 +15,30 @@ read (not just "clone it").
 
 ## Tier 1 — closest architecture/product overlap (read first)
 
-1. **`git-scarrow/music-arranger`** (moved to Codeberg:
+1. **`ShikiSuen/Shimaoka-SATB-SkillSet`**
+   (github.com/ShikiSuen/Shimaoka-SATB-SkillSet) — Pure knowledge-base-as-
+   LLM-context repo (no code engine): packages the Tokyo University of the
+   Arts' Shimaoka Yuzuru four-part-harmony textbook ("Swing Theory" —
+   rest/displacement oscillation) into structured markdown meant to be
+   handed to an LLM as system-prompt context so it can do SATB part-writing
+   directly, with **no validator, no enforcement code** — the opposite of
+   Harmonyx's "LLM proposes, code enforces" philosophy, and worth citing as
+   the explicit counter-example. Already skimmed `README_EN.md`: an 8-step
+   writing procedure (key/cadence layout → cadential-unit skeleton → cadence
+   formula → bass fill → soprano → inner voices → rules check →
+   ornamentation), a compact prefix-degree-suffix chord notation richer than
+   current Harmonyx RN grammar (rootless/quasi-borrowed/Neapolitan/forced-
+   major-minor/tonicizing-to/sustained-bass markers), and full **augmented
+   sixth chord** (French/Italian/German) coverage — a second independent
+   source for the same gap research #06 (When-in-Rome) already flagged,
+   raising its priority if augmented sixths ever get scoped. All markdown
+   (`SKILL.md` + 14 `references/*.md` + amalgamated file), no code to trace
+   — should be a fast chunk relative to the codebase deep-dives. Read the
+   full `SKILL.md`/`_SKILL-Amalgamated.md`, `references/voice-leading.md`,
+   `references/d-chords.md` (augmented 6ths), and `references/notation-
+   syntax.md`; skim the `VALUEADD/` LLM reviews for outside critique.
+
+2. **`git-scarrow/music-arranger`** (moved to Codeberg:
    `codeberg.org/scarrow/music-arranger`) — Natural-language → SATB via
    Claude tool-call extraction + **Google OR-Tools CP-SAT constraint solver**.
    Already skimmed `music_arranger.py` (Claude tool schema) and
@@ -29,7 +53,7 @@ read (not just "clone it").
    global constraints vs. sequential DP scoring). Closest thing yet to an
    "L4 + realizer, one architecture" twin.
 
-2. **`BluesPrince/thiri-mcp`** — Deterministic music-theory MCP server (RN
+3. **`BluesPrince/thiri-mcp`** — Deterministic music-theory MCP server (RN
    analysis, voicing, reharmonization) for Claude/Cursor, hosted at
    `mcp.thiri.ai`. Already flagged Tier S in the landscape doc but **never
    actually deep-dived** — confirmed still active (pushed 2026-07-19). Read:
@@ -37,7 +61,7 @@ read (not just "clone it").
    "computed not hallucinated" tool contract has ideas for how Harmonyx would
    expose `/analyze` + `/generate` + (future) `/check` as agent-facing tools.
 
-3. **`SimonsonM/music21-mcp`** — music21 exposed as 7 MCP tools (key
+4. **`SimonsonM/music21-mcp`** — music21 exposed as 7 MCP tools (key
    detection, RNA, cadence/counterpoint generation, melody harmonization,
    MIDI/MusicXML parsing). Same "agent-native theory" question as thiri-mcp,
    different design choice (wrap music21 directly vs. a custom deterministic
@@ -47,14 +71,14 @@ read (not just "clone it").
 
 ## Tier 2 — carried over from `CLASSICAL-AI-LANDSCAPE.md` §10 (not yet started)
 
-4. **JJazzLab** (`jjazzboss/JJazzLab`, ~574★) — mature, actively developed
+5. **JJazzLab** (`jjazzboss/JJazzLab`, ~574★) — mature, actively developed
    open-source **jazz backing-track arranger app** (Java/NetBeans RCP). Not
    classical, but the most complete *product* in the whole landscape map —
    worth studying purely for "what does a finished, polished desktop music
    app look like feature-complete" product-completeness lessons, independent
    of the jazz domain.
 
-5. **rnbert** (`malcolmsailor/rnbert`) + **muMoE-RNBERT**
+6. **rnbert** (`malcolmsailor/rnbert`) + **muMoE-RNBERT**
    (`TomusD/muMoE-RNBERT`) — neural Roman-numeral-analysis baselines
    (ISMIR 2024 / ICASSP 2026). Only worth reading in depth if/when investing
    in a neural RNA path for the analyzer (current analyzer is fully
@@ -62,7 +86,7 @@ read (not just "clone it").
    delta vs. rule-based, and what would integration even look like
    (replace vs. ensemble vs. eval-only baseline).
 
-6. **`music-comp/ai-music-theory`** + **`thevertexlab/MuTheoryEval`** —
+7. **`music-comp/ai-music-theory`** + **`thevertexlab/MuTheoryEval`** —
    machine-readable music-theory knowledge base (MCP) and an LLM
    music-theory-knowledge eval hub, respectively. Relevant only if/when
    Harmonyx adds an explainer/tutor chat surface that needs grounding or
@@ -73,7 +97,7 @@ read (not just "clone it").
 
 ## Tier 3 — new candidates from the 2026-07-21 follow-up scans
 
-7. **`owenbush/diatone`** — dependency-free C++17 music-theory library
+8. **`owenbush/diatone`** — dependency-free C++17 music-theory library
    (notes/scales/chords/RN analysis/voice-leading), explicitly designed to be
    **safe to call from a real-time audio thread**. Different deployment
    target than Harmonyx (embedded/real-time vs. web API) but worth a read for
@@ -81,14 +105,14 @@ read (not just "clone it").
    envelope — could surface API-design ideas even if the tech stack is
    irrelevant.
 
-8. **`tskovlund/mcp-score`** — MCP server for AI-driven score generation:
+9. **`tskovlund/mcp-score`** — MCP server for AI-driven score generation:
    natural language → notation via MusicXML + **live MuseScore integration**
    (14★, very fresh). Different from thiri-mcp/music21-mcp in that it
    targets *notation editing* via a live MuseScore connection rather than
    pure analysis — worth comparing the "live app integration" pattern vs.
    Harmonyx's own OSMD-in-browser approach.
 
-9. **Humdrum/**kern** corpus tooling** — `craigsapp/humdrum2musicxml`
+10. **Humdrum/**kern** corpus tooling** — `craigsapp/humdrum2musicxml`
    (Humdrum-to-MusicXML web service) and `leihua-dev/KernScores-downloader`
    (bulk `.krn` downloader for KernScores.org). Humdrum/**kern is a major
    classical-score corpus format alongside MusicXML/RomanText that hadn't
@@ -97,11 +121,11 @@ read (not just "clone it").
    When-in-Rome, research #06) if L1/analyzer-eval corpus expansion is ever
    revisited.
 
-10. **`napulen/AugmentedNet`** (50★, pushed 2026-07-21 — actively maintained)
+11. **`napulen/AugmentedNet`** (50★, pushed 2026-07-21 — actively maintained)
     — the actual neural RNA model that produced the `analysis_automatic.rntxt`
     files inside When-in-Rome's corpus (research #06 referenced its output
     without covering the tool itself). Worth reading alongside rnbert/μMoE
-    (#5 above) as the third neural-RNA baseline, and specifically because
+    (#6 above) as the third neural-RNA baseline, and specifically because
     it's the one already embedded in a corpus Harmonyx has already studied.
 
 ---
@@ -137,9 +161,11 @@ so the candidates aren't lost if that decision ever gets revisited:
 
 ## Suggested order
 
-Tier 1 (all three, since they're short and closely related — MCP theory
-exposure pattern) → Tier 3 #10 AugmentedNet (quick, ties directly to already-
-read #06) → Tier 2 in listed order → Tier 3 remainder as time allows.
+Shimaoka-SATB-SkillSet first (all-markdown, fastest read, and a human-flagged
+find) → rest of Tier 1 (thiri-mcp + music21-mcp together — short and closely
+related, MCP theory exposure pattern) → Tier 3 #11 AugmentedNet (quick, ties
+directly to already-read #06) → Tier 2 in listed order → Tier 3 remainder as
+time allows.
 
 As always: one peer (or one small related cluster, like the two MCP servers)
 per chunk, notes written to `docs/research/0N-*.md`, landscape doc + AI-DIARY
