@@ -260,3 +260,36 @@ grammar, analyzer A1/A2/A7.
 
 Next human action: start a **fresh** chat; paste the START-HERE blurb; name
 one chunk only.
+
+## Entry 12 — LLM L1–L3 implemented; Q3 scoped (2026-07-21)
+
+Same day, a focused Grok session implemented the LLM **foundation** only
+(no API client, no UI):
+
+| Phase | Commit (feature branch) | Artifacts |
+|-------|-------------------------|-----------|
+| L1 corpus | `f0ae8ab` | `data/progression_corpus.json` (~40 hand templates), `app/generation/corpus.py`, `tests/test_generation_corpus.py` |
+| L2 validator | `154155f` | `app/generation/validate.py`, `tests/test_generation_validate.py` — theory gate (empty/unknown/forbidden/cadence/locks) + optional engine gate |
+| L3 fixer | `78eb0d7` | `app/generation/fix.py`, `tests/test_generation_fix.py` — `suggest_fixes`; `validate_progression(..., suggest=True)` |
+
+Full suite after L3: **~133 passed**. Branch was **ahead of origin by 3**
+(L1–L3) at handoff — **push if not yet remote**.
+
+Design choice (L2): secondary dominants are **not** house-forbidden; only
+explicit retrogressions (`V→IV`, etc.) fail theory. L3 prefers fixing the
+forbidden *destination* chord (e.g. IV→I) over rewriting the dominant.
+
+User asked to **scope Q3** (richer rule grammar, no LLM) then continue in a
+**new chat** to save credits. Captured as:
+
+- **`docs/RICH-GRAMMAR-SPEC.md`** — Q3a (inversions+Cad64), Q3b (`spice` +
+  secondary dominants), Q3c (style presets); defaults agreed in-doc.
+- Handoff refresh: `START-HERE.md`, `STATUS.md`, `AGENT-START-HERE.md`,
+  this entry; LLM spec phases L1–L3 marked done.
+
+**Do not start Q3 implementation in the same breath as reading this** —
+next session should paste START-HERE, read RICH-GRAMMAR-SPEC if doing Q3,
+stop, and wait for “implement Q3a only” (or another single chunk).
+
+Open queue order (human still chooses): **Q3a recommended**, else L4, Q2
+`/check`, Q4 analyzer.

@@ -1,19 +1,21 @@
 # Project status — Harmonyx API
 
 Snapshot for handoff. Pairs with [`START-HERE.md`](START-HERE.md) (plain language),
-[`AI-DIARY.md`](AI-DIARY.md), [`LLM-PROGRESSION-SPEC.md`](LLM-PROGRESSION-SPEC.md),
+[`AI-DIARY.md`](AI-DIARY.md), [`RICH-GRAMMAR-SPEC.md`](RICH-GRAMMAR-SPEC.md),
+[`LLM-PROGRESSION-SPEC.md`](LLM-PROGRESSION-SPEC.md),
 [`IMPLEMENTATION-PLAN.md`](IMPLEMENTATION-PLAN.md), [`PARTWRITING-RULES.md`](PARTWRITING-RULES.md),
 [`chorale-generation.md`](chorale-generation.md), [`ROADMAP.md`](ROADMAP.md).
 
-_Last updated: 2026-07-21 (handoff after grand staff + playback)._
+_Last updated: 2026-07-21 (after L1–L3 code + Q3 design handoff)._
 
 ## One-liner
 
 Two-way harmony tool. **Analyze:** MusicXML/MIDI → Roman numerals JSON.
 **Generate:** RN progression → grand-staff SATB MusicXML + browser preview/play.
 Deterministic core (music21 + clean-room part-writing). Optional LLM explainer
-on analyze; **optional LLM progression proposer is designed, not built**
-(see `LLM-PROGRESSION-SPEC.md`).
+on analyze. **LLM progression path:** corpus + validator + fixer **implemented**
+(L1–L3); LLM API client **not** built (L4+). **Richer rule grammar (Q3):**
+designed only — see `RICH-GRAMMAR-SPEC.md`.
 
 ## Where the code lives
 
@@ -21,6 +23,8 @@ on analyze; **optional LLM progression proposer is designed, not built**
 - Working branch: `claude/harmonic-analysis-api-loc82f`
 - PR: **#1** (may need status refresh vs older description)
 - Default branch: `main`
+- Note: some environments use a git worktree (e.g. under `/private/tmp/...`);
+  confirm `git status` / remote ahead-count before push.
 
 ## What's built (working)
 
@@ -32,14 +36,20 @@ app/
     voicing.py     candidate_voicings (rejects non-chord-tone soprano)
     rules.py       rule_violations + transition_cost
     realize.py     DP realize; grand-staff score; playback_from_voicings
-    grammar.py     weighted functional-harmony generate_progression
+    grammar.py     weighted functional-harmony generate_progression (vanilla)
+    corpus.py      L1 progression corpus loader
+    validate.py    L2 validate_progression (theory + engine gates)
+    fix.py         L3 suggest_fixes (minimal-edit suggestions)
   static/index.html   Analyze + Generate tabs; OSMD; Play @ 75 BPM
+data/
+  progression_corpus.json   ~40 hand-written RN phrases (few-shot seed)
 eval/
   run_eval.py                 key agreement (Bach set)
   run_generation_eval.py      RN round-trip + hard violations (M2)
   expected/keys.json
   expected/generation_fixtures.json
-tests/   analyzer, partwriting (LOCKED), generation_*, generate/progression endpoints
+tests/   analyzer, partwriting (LOCKED), generation_*, generate/progression,
+         test_generation_corpus, test_generation_validate, test_generation_fix
 ```
 
 ### Milestone map (IMPLEMENTATION-PLAN)
@@ -53,16 +63,39 @@ tests/   analyzer, partwriting (LOCKED), generation_*, generate/progression endp
 | M4 `POST /check` | **Not done** |
 | M5 frontend generate panel | Done (plus OSMD + play beyond original M5) |
 
+### LLM progression phases (`LLM-PROGRESSION-SPEC.md`)
+
+| Phase | Status |
+|-------|--------|
+| L0 design | Done |
+| L1 corpus + loader | **Done** |
+| L2 validator | **Done** |
+| L3 deterministic fixer | **Done** |
+| L4 LLM client | Not started |
+| L5 API `source: llm\|grammar` | Not started |
+| L6 frontend AI propose | Not started |
+| L7 optional LLM repair | Not started |
+
+### Q3 richer grammar (`RICH-GRAMMAR-SPEC.md`)
+
+| Chunk | Status |
+|-------|--------|
+| Q3a inversions + Cad64 | **Not started** (design ready) |
+| Q3b secondary dominants + `spice` API | **Not started** |
+| Q3c style presets + polish | **Not started** |
+
 ## API surface
 
 | Route | Method | Notes |
 |-------|--------|--------|
 | `/analyze` | POST | file upload; `duration_threshold`, `explain` |
-| `/progression` | POST | `{key, length?, locked?, cadence?, seed?}` → RN list |
+| `/progression` | POST | `{key, length?, locked?, cadence?, seed?}` → RN list (no spice yet) |
 | `/generate` | POST | `{key, progression, time_signature?, soprano?}` → `{musicxml, playback}` |
 | `/health` | GET | liveness |
 | `/` | GET | frontend |
 | `/docs` | GET | Swagger |
+
+Library-only (not yet HTTP): `validate_progression`, `suggest_fixes`, `load_corpus`.
 
 **`/generate` playback:** `{ tempo_bpm: 75, events: [{beat, midi, duration}, ...] }`
 — block chords (4 notes per beat).
@@ -77,7 +110,7 @@ python -m venv .venv && .venv/bin/pip install -r requirements-dev.txt
 # music21 10.x needs Python ≥ 3.11
 .venv/bin/uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
 
-.venv/bin/python -m pytest tests/ -q          # expect 83 passed (as of handoff)
+.venv/bin/python -m pytest tests/ -q          # expect ~133 passed (after L1–L3)
 .venv/bin/python -m eval.run_eval --min 0.6
 .venv/bin/python -m eval.run_generation_eval --min-roundtrip 1.0 --max-violations 0
 ```
@@ -86,35 +119,43 @@ python -m venv .venv && .venv/bin/pip install -r requirements-dev.txt
 
 - Key detection eval: **~65% (13/20)** Bach chorales (relative major/minor).
 - Generation eval (curated fixtures): **100% primary RN round-trip, 0 hard violations**.
-- Grammar output: idiomatic but **plain** (root-heavy, single key).
+- Grammar output: idiomatic but **plain** (root-heavy, single key) until Q3.
+- L2 theory gate: forbids house retrogressions; allows secondary dominants.
+- L3 fixer: suggestions re-pass validator (theory-first by default).
 
 ## Known limitations
 
 **Analyzer:** NCT noise; over-eager half cadences; no modulation tracking; key 65%.
 
-**Generator:** grammar lacks rich inversions / secondary dominants / modulation;
-realizer is block-chord hymn style (no NCTs/suspensions); playback is basic Web Audio.
+**Generator:** grammar lacks rich inversions / secondary dominants / modulation
+(Q3 not built); realizer is block-chord hymn style (no NCTs/suspensions);
+playback is basic Web Audio.
+
+**LLM path:** no API call, no `/progression` flag, no UI chips yet (L4–L6).
 
 ## Decisions (stable)
 
 - OCR deferred.
 - Clean-room part-writing engine (do not copy third-party partwriter code).
-- Rule grammar is default Layer 1; **LLM proposer is optional**, API-key-gated,
-  never trains from scratch — corpus few-shot + validator (spec written).
+- Rule grammar is default Layer 1; LLM proposer optional and API-key-gated
+  (L4+); never train from scratch — corpus few-shot + validator.
+- Q3 enriches grammar **in parallel** with LLM path; default `spice=0`.
 - `tests/test_partwriting.py` is **locked** — implement to match, never edit fixtures.
 - Work in **small chunks**; ask before large continuous burns (`AGENTS.md`).
 
 ## Open queue
 
-See [`START-HERE.md`](START-HERE.md) open queue. Headline leftovers:
+See [`START-HERE.md`](START-HERE.md). Headline leftovers:
 
-1. LLM progression system (`LLM-PROGRESSION-SPEC.md`) — design only.
-2. M4 `POST /check`.
-3. Grammar enrichment / style presets (no LLM).
+1. **Q3 richer rule grammar** — implement from `RICH-GRAMMAR-SPEC.md` (Q3a first).
+2. LLM L4+ — client / endpoint / UI.
+3. M4 `POST /check`.
 4. Analyzer A1 / A2 / A7.
+5. Push/PR polish if L1–L3 commits are still local-only.
 
 ## Suggested next session shape
 
-1. Fresh chat; agent reads START-HERE + AGENTS (+ LLM spec if relevant).
-2. **Stop and wait** for one narrow task from the human.
-3. Do not “continue the whole plan.”
+1. Fresh chat; agent reads START-HERE + AGENTS (+ RICH-GRAMMAR-SPEC if Q3).
+2. **Stop and wait** for one narrow task (e.g. “implement Q3a only”).
+3. Do not “continue the whole plan” or start Q3b in the same run as Q3a
+   without explicit approval.

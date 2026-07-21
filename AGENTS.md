@@ -38,7 +38,9 @@ Before touching code, read (in this order):
 3. `docs/IMPLEMENTATION-PLAN.md` — the build plan
 4. `docs/PARTWRITING-RULES.md` — the locked rule spec for the generator (if
    working on generation)
-5. `docs/AI-DIARY.md` — chronological log with reasoning and gotchas (at
+5. `docs/RICH-GRAMMAR-SPEC.md` — if working on Q3 richer rule grammar
+6. `docs/LLM-PROGRESSION-SPEC.md` — if working on LLM progression (L4+)
+7. `docs/AI-DIARY.md` — chronological log with reasoning and gotchas (at
    least the most recent entries)
 
 ## Rule 4: Don't edit locked fixtures

@@ -1,13 +1,17 @@
-# Spec: LLM progression proposer (design only)
+# Spec: LLM progression proposer
 
-**Status:** design / not implemented.  
-**Date:** 2026-07-21.  
-**Do not implement this entire doc in one session.** Work in named phases only,
+**Status:** L0 design + **L1–L3 implemented in code** (2026-07-21).  
+**L4–L7 not implemented.**  
+**Date:** 2026-07-21 (updated after L3).  
+**Do not implement remaining phases in one session.** Work in named phases only,
 after the user approves a chunk.
 
 Related: existing optional LLM **explainer** on `/analyze` (`app/explainer.py`,
 `ANTHROPIC_API_KEY`). Same product pattern: deterministic core always works;
 LLM is optional spice.
+
+**Parallel offline track:** richer *rule* grammar (no LLM) is **Q3** —
+see `docs/RICH-GRAMMAR-SPEC.md` (designed, not built).
 
 ---
 
@@ -224,27 +228,29 @@ Deterministic fixer **first**; optional LLM repair pass later.
 
 Execute **one phase per session** unless the user expands scope.
 
-| Phase | Deliverable | Done when |
-|-------|-------------|-----------|
-| **L0** | This spec (done as design) | Merged in docs |
-| **L1** | Corpus file + 20–50 hand/analyzer entries + loader tests | JSON validates; loadable |
-| **L2** | `validate_progression(...)` + issue/suggestion types + unit tests | Forbidden + cadence + unknown figure covered |
-| **L3** | Deterministic fixer (minimal edit suggestions) | Suggestions pass validator |
-| **L4** | LLM client: prompt builder + parse JSON + API key gate | Dry-run with mock; no key → clear error |
-| **L5** | `POST /progression` flag e.g. `source: "llm" \| "grammar"` or separate route | Endpoint + tests |
-| **L6** | Frontend: AI propose + show validation chips | Manual smoke OK |
-| **L7** | Optional LLM repair pass | Only if L2–L3 insufficient |
+| Phase | Deliverable | Done when | Status |
+|-------|-------------|-----------|--------|
+| **L0** | This spec (design) | Merged in docs | **Done** |
+| **L1** | Corpus file + 20–50 hand entries + loader tests | JSON validates; loadable | **Done** — `data/progression_corpus.json`, `app/generation/corpus.py` (~40 entries) |
+| **L2** | `validate_progression(...)` + issue types + unit tests | Forbidden + cadence + unknown figure covered | **Done** — `app/generation/validate.py` |
+| **L3** | Deterministic fixer (minimal edit suggestions) | Suggestions pass validator | **Done** — `app/generation/fix.py`; `suggest=True` on validator |
+| **L4** | LLM client: prompt builder + parse JSON + API key gate | Dry-run with mock; no key → clear error | Not started |
+| **L5** | `POST /progression` flag e.g. `source: "llm" \| "grammar"` or separate route | Endpoint + tests | Not started |
+| **L6** | Frontend: AI propose + show validation chips | Manual smoke OK | Not started |
+| **L7** | Optional LLM repair pass | Only if L2–L3 insufficient | Not started |
+
+**Next LLM chunk is L4** (only after user asks). Do not re-implement L1–L3.
 
 **Do not start at L4 without L1–L2** unless the user explicitly says so
-(unvalidated LLM output is not shippable).
+(unvalidated LLM output is not shippable). L1–L2 are done.
 
 ---
 
 ## 9. Relationship to current grammar
 
 - Keep `app/generation/grammar.py` as default and fallback.
-- Long-term: enrich grammar (inversions, V/x) **in parallel** with LLM path
-  (see open queue Q3 in `START-HERE.md`) so offline mode also improves.
+- Enrich grammar (inversions, V/x) **in parallel** with LLM path — that work
+  is **Q3**, specified in `docs/RICH-GRAMMAR-SPEC.md` (not this file).
 - Realizer stays source of truth for playable notes.
 
 ---
