@@ -16,7 +16,9 @@ from __future__ import annotations
 
 from typing import List, Optional
 
+from music21 import clef as m21clef
 from music21 import key as m21key
+from music21 import layout as m21layout
 from music21 import meter as m21meter
 from music21 import note as m21note
 from music21 import stream as m21stream
@@ -25,8 +27,11 @@ from . import chords as _chords
 from .rules import RuleViolation, rule_violations, transition_cost
 from .voicing import Voicing, candidate_voicings
 
-_VOICE_NAMES = ("Soprano", "Alto", "Tenor", "Bass")
-_VOICE_ATTRS = ("s", "a", "t", "b")
+# Grand-staff layout (hymnal style):
+#   Treble: Soprano (stem up) + Alto (stem down)
+#   Bass:   Tenor   (stem up) + Bass  (stem down)
+_STEM_UP = "up"
+_STEM_DOWN = "down"
 
 
 class RealizationError(Exception):
@@ -71,6 +76,9 @@ def realize(
     time_signature: str = "4/4",
 ) -> m21stream.Score:
     """Realize a Roman-numeral progression as a 4-voice SATB ``music21.Score``.
+
+    Output is a **grand staff** (piano layout): treble holds soprano+alto as
+    separate voices (stems up/down); bass holds tenor+bass (stems up/down).
 
     ``soprano``, if given, must be the same length as ``progression``; an
     entry may be ``None`` to leave that beat free. Callers should run
@@ -184,17 +192,126 @@ def path_violations(voicings: List[Voicing], progression: List[str], key_like: _
 
 
 def _build_score(voicings: List[Voicing], key_like: _chords.KeyLike, time_signature: str) -> m21stream.Score:
+    """Pack SATB into a braced grand staff with correct stem directions."""
     k = _chords.to_key(key_like)
+
+    treble = m21stream.PartStaff(id="Treble")
+    treble.partName = "Soprano / Alto"
+    bass_staff = m21stream.PartStaff(id="Bass")
+    bass_staff.partName = "Tenor / Bass"
+
+    v_s = m21stream.Voice(id="Soprano")
+    v_a = m21stream.Voice(id="Alto")
+    v_t = m21stream.Voice(id="Tenor")
+    v_b = m21stream.Voice(id="Bass")
+
+    for v in voicings:
+        v_s.append(_note(v.s, _STEM_UP))
+        v_a.append(_note(v.a, _STEM_DOWN))
+        v_t.append(_note(v.t, _STEM_UP))
+        v_b.append(_note(v.b, _STEM_DOWN))
+
+    treble.append(m21clef.TrebleClef())
+    treble.append(m21meter.TimeSignature(time_signature))
+    treble.append(m21key.Key(k.tonic.name, k.mode))
+    treble.insert(0, v_s)
+    treble.insert(0, v_a)
+
+    bass_staff.append(m21clef.BassClef())
+    bass_staff.append(m21meter.TimeSignature(time_signature))
+    bass_staff.append(m21key.Key(k.tonic.name, k.mode))
+    bass_staff.insert(0, v_t)
+    bass_staff.insert(0, v_b)
+
     score = m21stream.Score()
-    for name, attr in zip(_VOICE_NAMES, _VOICE_ATTRS):
-        part = m21stream.Part(id=name)
-        part.partName = name
-        part.append(m21meter.TimeSignature(time_signature))
-        part.append(m21key.Key(k.tonic.name, k.mode))
-        for v in voicings:
-            n = m21note.Note()
-            n.pitch.midi = getattr(v, attr)
-            n.quarterLength = 1.0
-            part.append(n)
-        score.insert(0, part)
+    score.insert(0, treble)
+    score.insert(0, bass_staff)
+    score.insert(
+        0,
+        m21layout.StaffGroup(
+            [treble, bass_staff],
+            name="SATB",
+            symbol="brace",
+            barTogether=True,
+        ),
+    )
     return score.makeMeasures(inPlace=False)
+
+
+def _note(midi: int, stem_direction: str) -> m21note.Note:
+    n = m21note.Note()
+    n.pitch.midi = midi
+    n.quarterLength = 1.0
+    n.stemDirection = stem_direction
+    return n
+
+
+def satb_voicings_from_score(score: m21stream.Score) -> List[Voicing]:
+    """Recover the SATB MIDI path from a grand-staff (or legacy 4-part) score.
+
+    Grand staff: Treble staff voice 0 = S (stems up), voice 1 = A (stems down);
+    Bass staff voice 0 = T (stems up), voice 1 = B (stems down). Legacy four
+    ``Part`` scores keyed by Soprano/Alto/Tenor/Bass ids are also supported.
+    """
+    by_id = {p.id: p for p in score.parts}
+
+    if {"Soprano", "Alto", "Tenor", "Bass"}.issubset(by_id):
+        s = [n.pitch.midi for n in by_id["Soprano"].recurse().notes]
+        a = [n.pitch.midi for n in by_id["Alto"].recurse().notes]
+        t = [n.pitch.midi for n in by_id["Tenor"].recurse().notes]
+        b = [n.pitch.midi for n in by_id["Bass"].recurse().notes]
+        return [Voicing(s[i], a[i], t[i], b[i]) for i in range(len(s))]
+
+    treble = by_id.get("Treble")
+    bass = by_id.get("Bass")
+    if treble is None or bass is None:
+        # MusicXML reparse may rename parts; fall back to first two parts.
+        parts = list(score.parts)
+        if len(parts) < 2:
+            raise ValueError("score does not look like SATB grand staff or 4-part")
+        treble, bass = parts[0], parts[1]
+
+    s_midis, a_midis = _staff_voice_midis(treble)
+    t_midis, b_midis = _staff_voice_midis(bass)
+    n = len(s_midis)
+    if not (n == len(a_midis) == len(t_midis) == len(b_midis)):
+        raise ValueError(
+            f"uneven SATB lengths: S={n} A={len(a_midis)} T={len(t_midis)} B={len(b_midis)}"
+        )
+    return [Voicing(s_midis[i], a_midis[i], t_midis[i], b_midis[i]) for i in range(n)]
+
+
+def _staff_voice_midis(part: m21stream.Part) -> tuple[List[int], List[int]]:
+    """Return (stem-up midis, stem-down midis) for a two-voice staff.
+
+    After ``makeMeasures``, each measure has its own Voice pair, so we collect
+    every note on the staff and split by stem direction (S/T up, A/B down),
+    ordered by score offset.
+    """
+    notes = list(part.recurse().notes)
+    if not notes:
+        raise ValueError(f"staff {part.id!r} has no notes")
+
+    # (offset, midi) per stem direction — offset from the Part for stable order.
+    up_pairs: List[tuple[float, int]] = []
+    down_pairs: List[tuple[float, int]] = []
+    for n in notes:
+        # Absolute-ish order: offset relative to part (works across measures).
+        off = float(n.getOffsetInHierarchy(part))
+        midi = n.pitch.midi
+        if n.stemDirection == _STEM_DOWN:
+            down_pairs.append((off, midi))
+        else:
+            # Default / "up" / "unspecified" treated as the upper voice on the staff.
+            up_pairs.append((off, midi))
+
+    up_pairs.sort(key=lambda x: x[0])
+    down_pairs.sort(key=lambda x: x[0])
+    up = [m for _, m in up_pairs]
+    down = [m for _, m in down_pairs]
+    if up and down and len(up) == len(down):
+        return up, down
+    raise ValueError(
+        f"could not split staff {part.id!r} into two equal voices "
+        f"(up={len(up)} down={len(down)})"
+    )

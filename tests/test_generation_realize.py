@@ -10,26 +10,36 @@ from __future__ import annotations
 import pytest
 from music21 import stream as m21stream
 
-from app.generation.realize import RealizationError, check_soprano, path_violations, realize
+from app.generation.realize import (
+    RealizationError,
+    check_soprano,
+    path_violations,
+    realize,
+    satb_voicings_from_score,
+)
 from app.generation.voicing import Voicing
 
 KEY = "C major"
 
 
 def _voicings_from_score(score: m21stream.Score) -> list[Voicing]:
-    parts = {p.id: [n.pitch.midi for n in p.recurse().notes] for p in score.parts}
-    n = len(parts["Soprano"])
-    return [
-        Voicing(parts["Soprano"][i], parts["Alto"][i], parts["Tenor"][i], parts["Bass"][i])
-        for i in range(n)
-    ]
+    return satb_voicings_from_score(score)
 
 
-def test_realize_returns_four_voice_score():
+def test_realize_returns_grand_staff_satb():
     score = realize(["I", "IV", "V", "I"], KEY)
-    assert {p.id for p in score.parts} == {"Soprano", "Alto", "Tenor", "Bass"}
-    for part in score.parts:
-        assert len(list(part.recurse().notes)) == 4
+    assert {p.id for p in score.parts} == {"Treble", "Bass"}
+    voicings = satb_voicings_from_score(score)
+    assert len(voicings) == 4
+    # Stem directions: S/T up, A/B down on their respective staves.
+    treble = next(p for p in score.parts if p.id == "Treble")
+    bass = next(p for p in score.parts if p.id == "Bass")
+    t_notes = list(treble.recurse().notes)
+    b_notes = list(bass.recurse().notes)
+    assert any(n.stemDirection == "up" for n in t_notes)
+    assert any(n.stemDirection == "down" for n in t_notes)
+    assert any(n.stemDirection == "up" for n in b_notes)
+    assert any(n.stemDirection == "down" for n in b_notes)
 
 
 def test_realize_i_iv_v_i_has_zero_hard_violations():

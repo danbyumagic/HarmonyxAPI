@@ -32,26 +32,11 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from app.analyzer import analyze_score  # noqa: E402
 from app.generation.chords import rn_agreement  # noqa: E402
-from app.generation.realize import path_violations, realize  # noqa: E402
-from app.generation.voicing import Voicing  # noqa: E402
+from app.generation.realize import path_violations, realize, satb_voicings_from_score  # noqa: E402
 
 FIXTURES_PATH = os.path.join(
     os.path.dirname(__file__), "expected", "generation_fixtures.json"
 )
-
-
-def _voicings_from_score(score) -> List[Voicing]:
-    parts = {p.id: [n.pitch.midi for n in p.recurse().notes] for p in score.parts}
-    n = len(parts["Soprano"])
-    return [
-        Voicing(
-            parts["Soprano"][i],
-            parts["Alto"][i],
-            parts["Tenor"][i],
-            parts["Bass"][i],
-        )
-        for i in range(n)
-    ]
 
 
 def _write_and_reparse(score):
@@ -111,7 +96,7 @@ def run(*, min_roundtrip: float, max_violations: int) -> int:
         soprano: Optional[List[Optional[int]]] = fix.get("soprano")
 
         score = realize(progression, key, soprano=soprano)
-        voicings = _voicings_from_score(score)
+        voicings = satb_voicings_from_score(score)
         viols = path_violations(voicings, progression, key)
         n_viol = len(viols)
         total_violations += n_viol
