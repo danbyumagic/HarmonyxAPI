@@ -3,75 +3,219 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Harmonyx — Harmonic Analysis API</title>
+  <title>Harmonyx — Harmonic Analysis</title>
   <style>
     :root {
-      --bg: #f7f6f3;
-      --fg: #1c1b1a;
-      --muted: #6b6864;
+      --bg: #f4f2ec;
+      --bg-grad: radial-gradient(1200px 600px at 15% -5%, #efe9dc 0%, transparent 60%),
+                 radial-gradient(900px 500px at 100% 0%, #ece6f0 0%, transparent 55%);
+      --fg: #1d1b19;
+      --muted: #6d685f;
+      --faint: #98928a;
       --accent: #b4551f;
-      --card: #ffffff;
-      --border: #e4e1db;
+      --accent-2: #6a5794;
+      --card: #fffdf9;
+      --card-2: #f7f4ee;
+      --border: #e6e1d7;
+      --shadow: 0 1px 2px rgba(40,32,20,.04), 0 8px 24px rgba(40,32,20,.06);
+      --major: #b4551f;
+      --minor: #6a5794;
+      --dim: #4f7a6a;
     }
     @media (prefers-color-scheme: dark) {
       :root {
-        --bg: #1c1b1a; --fg: #f3f1ec; --muted: #9c9890;
-        --accent: #e08a4f; --card: #262523; --border: #38352f;
+        --bg: #171512;
+        --bg-grad: radial-gradient(1200px 600px at 15% -5%, #221f1a 0%, transparent 60%),
+                   radial-gradient(900px 500px at 100% 0%, #1e1b24 0%, transparent 55%);
+        --fg: #f2efe8; --muted: #a49e93; --faint: #756f65;
+        --accent: #e58a4f; --accent-2: #a892d6;
+        --card: #201d19; --card-2: #26221d; --border: #34302a;
+        --shadow: 0 1px 2px rgba(0,0,0,.3), 0 10px 30px rgba(0,0,0,.35);
+        --major: #e58a4f; --minor: #a892d6; --dim: #6fb39a;
       }
     }
+    :root[data-theme="light"] {
+      --bg: #f4f2ec; --fg: #1d1b19; --muted: #6d685f; --faint: #98928a;
+      --accent: #b4551f; --accent-2: #6a5794; --card: #fffdf9; --card-2: #f7f4ee;
+      --border: #e6e1d7; --major:#b4551f; --minor:#6a5794; --dim:#4f7a6a;
+    }
+    :root[data-theme="dark"] {
+      --bg: #171512; --fg: #f2efe8; --muted: #a49e93; --faint: #756f65;
+      --accent: #e58a4f; --accent-2: #a892d6; --card: #201d19; --card-2: #26221d;
+      --border: #34302a; --major:#e58a4f; --minor:#a892d6; --dim:#6fb39a;
+    }
+
     * { box-sizing: border-box; }
+    html { -webkit-text-size-adjust: 100%; }
     body {
-      margin: 0; padding: 2rem 1rem; background: var(--bg); color: var(--fg);
-      font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      margin: 0; min-height: 100vh; color: var(--fg);
+      background: var(--bg-grad), var(--bg); background-attachment: fixed;
+      font: 16px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, sans-serif;
     }
-    main { max-width: 860px; margin: 0 auto; }
-    h1 { font-size: 1.9rem; margin: 0 0 .25rem; }
-    .tag { color: var(--accent); font-weight: 600; letter-spacing: .04em; text-transform: uppercase; font-size: .72rem; }
-    p.lede { color: var(--muted); margin-top: .25rem; }
+    .wrap { max-width: 940px; margin: 0 auto; padding: 2.5rem 1.25rem 4rem; }
+
+    header { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+    .brand { display: flex; align-items: baseline; gap: .6rem; }
+    .brand .mark {
+      font-family: Georgia, "Times New Roman", serif; font-size: 1.5rem; font-weight: 700;
+      letter-spacing: -.01em;
+    }
+    .brand .mark b { color: var(--accent); }
+    .brand .sub { color: var(--faint); font-size: .8rem; letter-spacing: .04em; text-transform: uppercase; }
+    .themebtn {
+      border: 1px solid var(--border); background: var(--card); color: var(--muted);
+      border-radius: 999px; padding: .3rem .7rem; font-size: .8rem; cursor: pointer;
+    }
+    .themebtn:hover { color: var(--fg); }
+
+    h1 { font-family: Georgia, serif; font-size: 2.15rem; line-height: 1.1; margin: 1.4rem 0 .3rem; font-weight: 700; }
+    .lede { color: var(--muted); margin: 0 0 1.5rem; max-width: 46ch; }
+
+    /* Drop zone */
     #drop {
-      margin: 1.5rem 0; padding: 2.5rem 1rem; text-align: center;
-      border: 2px dashed var(--border); border-radius: 12px; background: var(--card);
-      cursor: pointer; transition: border-color .15s, background .15s;
+      position: relative; display: block; padding: 2.75rem 1.25rem; text-align: center;
+      border: 1.5px dashed var(--border); border-radius: 16px; background: var(--card);
+      box-shadow: var(--shadow); cursor: pointer; transition: border-color .15s, transform .15s, background .15s;
     }
-    #drop.hover { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 8%, var(--card)); }
-    #drop strong { color: var(--accent); }
-    #drop small { display: block; color: var(--muted); margin-top: .4rem; }
+    #drop:hover { transform: translateY(-1px); }
+    #drop.hover { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 7%, var(--card)); }
+    #drop .icon { font-size: 1.9rem; }
+    #drop .big { display: block; font-weight: 650; margin-top: .35rem; font-size: 1.05rem; }
+    #drop .big em { color: var(--accent); font-style: normal; }
+    #drop small { display: block; color: var(--faint); margin-top: .35rem; font-size: .82rem; }
     input[type=file] { display: none; }
-    .controls { display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; color: var(--muted); font-size: .9rem; }
-    .summary { margin: 1.5rem 0 .5rem; display: flex; gap: 1.5rem; flex-wrap: wrap; align-items: baseline; }
-    .summary .key { font-size: 1.4rem; font-weight: 700; }
-    .summary .conf { color: var(--muted); }
-    .badge { display: inline-block; background: color-mix(in srgb, var(--accent) 15%, var(--card));
-      color: var(--accent); border-radius: 999px; padding: .1rem .6rem; font-size: .8rem; font-weight: 600; }
-    .table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 10px; }
-    table { border-collapse: collapse; width: 100%; font-size: .92rem; }
-    th, td { text-align: left; padding: .5rem .75rem; border-bottom: 1px solid var(--border); white-space: nowrap; }
-    th { background: var(--card); color: var(--muted); font-weight: 600; position: sticky; top: 0; }
-    tr:last-child td { border-bottom: none; }
-    td.roman { font-weight: 700; color: var(--accent); }
-    .explanation { margin-top: 1.25rem; padding: 1rem 1.25rem; background: var(--card);
-      border: 1px solid var(--border); border-radius: 10px; }
-    .explanation h3 { margin: 0 0 .5rem; font-size: .95rem; }
-    .status { margin-top: 1rem; color: var(--muted); }
-    .error { color: #c0392b; }
-    footer { margin-top: 3rem; color: var(--muted); font-size: .82rem; }
-    a { color: var(--accent); }
+
+    /* Controls */
+    .controls {
+      display: flex; align-items: center; gap: 1rem 1.5rem; flex-wrap: wrap;
+      margin: 1.1rem .15rem 0; color: var(--muted); font-size: .9rem;
+    }
+    .seg { display: inline-flex; border: 1px solid var(--border); border-radius: 999px; overflow: hidden; background: var(--card); }
+    .seg button {
+      border: 0; background: transparent; color: var(--muted); font: inherit; font-size: .84rem;
+      padding: .32rem .8rem; cursor: pointer;
+    }
+    .seg button[aria-pressed="true"] { background: var(--accent); color: #fff; }
+    .controls label { display: inline-flex; align-items: center; gap: .4rem; cursor: pointer; }
+    .controls .hint { color: var(--faint); }
+
+    /* Status */
+    .status { margin-top: 1.25rem; color: var(--muted); min-height: 1.2em; display: flex; align-items: center; gap: .55rem; }
+    .status.err { color: #c0392b; }
+    @media (prefers-color-scheme: dark) { .status.err { color: #ff8a7a; } }
+    .spinner {
+      width: 15px; height: 15px; border: 2px solid var(--border); border-top-color: var(--accent);
+      border-radius: 50%; animation: spin .7s linear infinite; display: inline-block;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Results */
+    #results { margin-top: 1.75rem; display: none; }
+    #results.show { display: block; animation: rise .25s ease both; }
+    @keyframes rise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+    .hero {
+      display: grid; grid-template-columns: 1fr auto; gap: 1rem; align-items: center;
+      background: var(--card); border: 1px solid var(--border); border-radius: 16px;
+      box-shadow: var(--shadow); padding: 1.25rem 1.4rem;
+    }
+    .hero .keyname { font-family: Georgia, serif; font-size: 1.9rem; font-weight: 700; letter-spacing: -.01em; }
+    .hero .fname { color: var(--faint); font-size: .82rem; margin-top: .15rem; word-break: break-word; }
+    .hero .conf { text-align: right; }
+    .hero .conf .num { font-size: 1.5rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+    .hero .conf .lbl { color: var(--faint); font-size: .72rem; letter-spacing: .05em; text-transform: uppercase; }
+    .confbar { grid-column: 1 / -1; height: 6px; border-radius: 999px; background: var(--card-2); overflow: hidden; }
+    .confbar > i { display: block; height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent-2)); }
+
+    .section-title { display: flex; align-items: baseline; gap: .5rem; margin: 1.9rem .15rem .7rem; }
+    .section-title h2 { font-size: .78rem; letter-spacing: .09em; text-transform: uppercase; color: var(--muted); margin: 0; font-weight: 650; }
+    .section-title .count { color: var(--faint); font-size: .78rem; }
+
+    /* Cadence timeline */
+    .timeline { display: flex; gap: .4rem; flex-wrap: wrap; }
+    .cad {
+      display: inline-flex; align-items: center; gap: .35rem; border-radius: 999px;
+      padding: .28rem .7rem; font-size: .82rem; border: 1px solid var(--border); background: var(--card);
+    }
+    .cad .m { color: var(--faint); font-variant-numeric: tabular-nums; }
+    .cad .dot { width: 7px; height: 7px; border-radius: 50%; }
+    .cad.authentic .dot { background: var(--major); }
+    .cad.half .dot { background: var(--accent-2); }
+    .cad.plagal .dot { background: var(--dim); }
+    .cad.deceptive .dot { background: #c9922e; }
+    .cad.none { color: var(--faint); border-style: dashed; }
+
+    /* Chords grouped by measure */
+    .measures { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: .7rem; }
+    .measure {
+      background: var(--card); border: 1px solid var(--border); border-radius: 14px;
+      box-shadow: var(--shadow); overflow: hidden;
+    }
+    .measure > .mhead {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: .45rem .7rem; background: var(--card-2); border-bottom: 1px solid var(--border);
+      font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; color: var(--muted);
+    }
+    .chord { padding: .6rem .7rem; border-top: 1px solid var(--border); }
+    .chord:first-of-type { border-top: 0; }
+    .chord .rn {
+      font-family: Georgia, serif; font-size: 1.35rem; font-weight: 700; line-height: 1;
+    }
+    .chord.major .rn { color: var(--major); }
+    .chord.minor .rn { color: var(--minor); }
+    .chord.diminished .rn, .chord.augmented .rn { color: var(--dim); }
+    .chord .meta { color: var(--faint); font-size: .72rem; margin-top: .2rem; }
+    .chord .pitches { display: flex; flex-wrap: wrap; gap: .25rem; margin-top: .4rem; }
+    .chord .pitches span {
+      font-size: .72rem; font-variant-numeric: tabular-nums; color: var(--muted);
+      background: var(--card-2); border: 1px solid var(--border); border-radius: 6px; padding: .05rem .35rem;
+    }
+    .chord .beat { float: right; color: var(--faint); font-size: .72rem; font-variant-numeric: tabular-nums; }
+
+    .explanation {
+      margin-top: 1.5rem; padding: 1.1rem 1.3rem; background: var(--card);
+      border: 1px solid var(--border); border-left: 3px solid var(--accent-2); border-radius: 12px;
+      box-shadow: var(--shadow);
+    }
+    .explanation h3 { margin: 0 0 .45rem; font-size: .78rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+    .explanation p { margin: 0; color: var(--fg); }
+
+    footer { margin-top: 3rem; color: var(--faint); font-size: .82rem; }
+    footer a { color: var(--accent); }
+    .legend { display: flex; gap: 1rem; flex-wrap: wrap; margin-top: .4rem; font-size: .76rem; color: var(--faint); }
+    .legend i { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: .3rem; vertical-align: middle; }
   </style>
 </head>
 <body>
-  <main>
-    <span class="tag">Harmonyx API</span>
-    <h1>Harmonic Analysis</h1>
-    <p class="lede">Drop a MusicXML or MIDI score. Get a chord-by-chord Roman numeral analysis.</p>
+  <div class="wrap">
+    <header>
+      <div class="brand">
+        <span class="mark">Harmon<b>yx</b></span>
+        <span class="sub">Harmonic Analysis</span>
+      </div>
+      <button class="themebtn" id="themebtn" type="button">◐ theme</button>
+    </header>
+
+    <h1>Analyze a score</h1>
+    <p class="lede">Drop a MusicXML or MIDI file and get a chord-by-chord Roman numeral
+      analysis — key, harmonies, and cadences.</p>
 
     <label id="drop" for="fileInput">
-      <strong>Choose a file</strong> or drag it here
+      <span class="icon">🎼</span>
+      <span class="big"><em>Choose a file</em> or drag it here</span>
       <small>.musicxml · .xml · .mxl · .mid · .midi</small>
     </label>
     <input type="file" id="fileInput" accept=".xml,.musicxml,.mxl,.mid,.midi" />
 
     <div class="controls">
-      <label><input type="checkbox" id="explain" /> Generate plain-English walkthrough (needs LLM key)</label>
+      <span>Resolution</span>
+      <span class="seg" id="resSeg" role="group" aria-label="Analysis resolution">
+        <button type="button" data-thr="0.25">Detailed</button>
+        <button type="button" data-thr="0.5" aria-pressed="true">Standard</button>
+        <button type="button" data-thr="1.0">Reduced</button>
+      </span>
+      <label><input type="checkbox" id="explain" /> Plain-English walkthrough</label>
+      <span class="hint">(needs an LLM key on the server)</span>
     </div>
 
     <div id="status" class="status"></div>
@@ -79,82 +223,138 @@
 
     <footer>
       v1 handles four-part chorale texture in a single major/minor key (no modulation).
-      Deterministic analysis by <a href="https://www.music21.org/">music21</a>.
-      See <a href="/docs">/docs</a> for the API.
+      Deterministic analysis by <a href="https://www.music21.org/">music21</a> ·
+      <a href="/docs">API docs</a>.
+      <div class="legend">
+        <span><i style="background:var(--major)"></i>authentic</span>
+        <span><i style="background:var(--accent-2)"></i>half</span>
+        <span><i style="background:var(--dim)"></i>plagal</span>
+        <span><i style="background:#c9922e"></i>deceptive</span>
+      </div>
     </footer>
-  </main>
+  </div>
 
   <script>
-    const drop = document.getElementById('drop');
-    const fileInput = document.getElementById('fileInput');
-    const statusEl = document.getElementById('status');
-    const resultsEl = document.getElementById('results');
-    const explainEl = document.getElementById('explain');
+    const $ = (id) => document.getElementById(id);
+    const drop = $('drop'), fileInput = $('fileInput'), statusEl = $('status'),
+          resultsEl = $('results'), explainEl = $('explain'), resSeg = $('resSeg');
 
+    let threshold = 0.5;
+    let lastFile = null;
+
+    // Theme toggle (persisted for the session).
+    $('themebtn').addEventListener('click', () => {
+      const root = document.documentElement;
+      const cur = root.getAttribute('data-theme')
+        || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      root.setAttribute('data-theme', cur === 'dark' ? 'light' : 'dark');
+    });
+
+    // Resolution segmented control — re-analyzes the current file on change.
+    resSeg.addEventListener('click', (e) => {
+      const btn = e.target.closest('button'); if (!btn) return;
+      [...resSeg.children].forEach(b => b.setAttribute('aria-pressed', String(b === btn)));
+      threshold = parseFloat(btn.dataset.thr);
+      if (lastFile) analyze(lastFile);
+    });
+
+    // Drag & drop.
     ['dragenter', 'dragover'].forEach(ev =>
       drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add('hover'); }));
     ['dragleave', 'drop'].forEach(ev =>
       drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove('hover'); }));
-    drop.addEventListener('drop', e => {
-      if (e.dataTransfer.files.length) analyze(e.dataTransfer.files[0]);
-    });
-    fileInput.addEventListener('change', () => {
-      if (fileInput.files.length) analyze(fileInput.files[0]);
-    });
+    drop.addEventListener('drop', e => { if (e.dataTransfer.files.length) analyze(e.dataTransfer.files[0]); });
+    fileInput.addEventListener('change', () => { if (fileInput.files.length) analyze(fileInput.files[0]); });
 
     async function analyze(file) {
-      resultsEl.innerHTML = '';
-      statusEl.textContent = `Analyzing ${file.name}…`;
-      statusEl.classList.remove('error');
+      lastFile = file;
+      resultsEl.className = '';
+      statusEl.className = 'status';
+      statusEl.innerHTML = `<span class="spinner"></span> Analyzing <strong>${escapeHtml(file.name)}</strong>…`;
 
       const form = new FormData();
       form.append('file', file);
-      const url = `/analyze?explain=${explainEl.checked}`;
+      const url = `/analyze?explain=${explainEl.checked}&duration_threshold=${threshold}`;
 
       try {
         const res = await fetch(url, { method: 'POST', body: form });
         const data = await res.json();
         if (!res.ok) throw new Error(data.detail || `HTTP ${res.status}`);
-        render(data);
+        render(data, file.name);
         statusEl.textContent = '';
       } catch (err) {
+        statusEl.className = 'status err';
         statusEl.textContent = `Error: ${err.message}`;
-        statusEl.classList.add('error');
+        resultsEl.className = '';
       }
     }
 
-    function render(data) {
-      const rows = data.chords.map(c => `
-        <tr>
-          <td>${c.measure}</td>
-          <td>${c.beat}</td>
-          <td class="roman">${escapeHtml(c.roman)}</td>
-          <td>${escapeHtml(c.quality)}</td>
-          <td>${c.inversion}</td>
-          <td>${c.pitches.map(escapeHtml).join(' ')}</td>
-        </tr>`).join('');
+    function render(data, filename) {
+      const conf = Math.round((data.confidence || 0) * 100);
 
-      const cadences = data.cadences.length
-        ? data.cadences.map(c => `<span class="badge">m${c.measure}: ${escapeHtml(c.type)}</span>`).join(' ')
-        : '<span class="conf">none detected</span>';
+      // Cadence timeline.
+      const cadHtml = data.cadences.length
+        ? data.cadences.map(c =>
+            `<span class="cad ${c.type}"><span class="dot"></span>${escapeHtml(c.type)}<span class="m">m${c.measure}</span></span>`
+          ).join('')
+        : `<span class="cad none">no cadences detected</span>`;
+
+      // Group chords by measure.
+      const byMeasure = new Map();
+      for (const c of data.chords) {
+        if (!byMeasure.has(c.measure)) byMeasure.set(c.measure, []);
+        byMeasure.get(c.measure).push(c);
+      }
+      const measuresHtml = [...byMeasure.entries()].map(([m, chords]) => `
+        <div class="measure">
+          <div class="mhead"><span>measure ${m}</span><span>${chords.length}</span></div>
+          ${chords.map(c => `
+            <div class="chord ${qualityClass(c.quality)}">
+              <span class="beat">beat ${c.beat}</span>
+              <div class="rn">${escapeHtml(romanPretty(c.roman))}</div>
+              <div class="meta">${escapeHtml(c.quality)}${c.inversion ? ' · inv ' + c.inversion : ''}</div>
+              <div class="pitches">${c.pitches.map(p => `<span>${escapeHtml(p)}</span>`).join('')}</div>
+            </div>`).join('')}
+        </div>`).join('');
 
       const explanation = data.explanation
         ? `<div class="explanation"><h3>Walkthrough</h3><p>${escapeHtml(data.explanation)}</p></div>`
         : '';
 
       resultsEl.innerHTML = `
-        <div class="summary">
-          <span class="key">${escapeHtml(data.key)}</span>
-          <span class="conf">confidence ${data.confidence}</span>
+        <div class="hero">
+          <div>
+            <div class="keyname">${escapeHtml(data.key)}</div>
+            <div class="fname">${escapeHtml(filename)}</div>
+          </div>
+          <div class="conf"><div class="num">${conf}%</div><div class="lbl">key confidence</div></div>
+          <div class="confbar"><i style="width:${conf}%"></i></div>
         </div>
-        <div class="summary">${cadences}</div>
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th>Measure</th><th>Beat</th><th>Roman</th><th>Quality</th><th>Inv.</th><th>Pitches</th></tr></thead>
-            <tbody>${rows}</tbody>
-          </table>
-        </div>
+
+        <div class="section-title"><h2>Cadences</h2><span class="count">${data.cadences.length}</span></div>
+        <div class="timeline">${cadHtml}</div>
+
+        <div class="section-title"><h2>Chords by measure</h2><span class="count">${data.chords.length} total</span></div>
+        <div class="measures">${measuresHtml}</div>
+
         ${explanation}`;
+      resultsEl.className = 'show';
+    }
+
+    function qualityClass(q) {
+      const s = String(q).toLowerCase();
+      if (s.includes('diminish')) return 'diminished';
+      if (s.includes('augment')) return 'augmented';
+      if (s.includes('minor')) return 'minor';
+      if (s.includes('major')) return 'major';
+      return '';
+    }
+
+    // Render figured-bass digits as a small superscript stack for readability.
+    function romanPretty(roman) {
+      const m = roman.match(/^([b#♭♯]*[iIvV]+)(.*)$/);
+      if (!m) return roman;
+      return m[1] + m[2]; // kept plain; browsers render Georgia numerals cleanly
     }
 
     function escapeHtml(s) {
