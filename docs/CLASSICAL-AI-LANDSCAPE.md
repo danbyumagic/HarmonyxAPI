@@ -295,7 +295,7 @@ Do **not** implement from this list without an explicit human chunk. Study order
 | 4 | **chorale-optimizer** | Alternative search/fix vs DP realizer |
 | 5 | ~~**choral-llm-workbench**~~ | **Done** — MusicXML + LLM reharm; see `docs/research/05-choral-llm-workbench.md` |
 | 6 | ~~**When-in-Rome**~~ | **Done** — corpus expansion for L1 few-shot + analyzer eval; see `docs/research/06-when-in-rome.md` |
-| 7 | **AccoMontage2 + POP909** | Only if arrangement becomes a milestone |
+| 7 | ~~**AccoMontage2 + POP909**~~ | **Done** — pop melody→chords+texture pipeline; see `docs/research/07-accomontage2.md` |
 | 8 | **JJazzLab** | Lead-sheet product completeness (jazz) as product reference |
 | 9 | **rnbert / muMoE-RNBERT** | Only if investing in neural RNA |
 | 10 | **ai-music-theory + MuTheoryEval** | Explainer grounding / LLM trust for theory chat |
@@ -346,9 +346,11 @@ Written notes (read these before re-cloning peers):
 | 04 | [`docs/research/04-chorale-optimizer.md`](research/04-chorale-optimizer.md) | 604korupt/chorale-optimizer — beam + fixups vs DP realizer |
 | 05 | [`docs/research/05-choral-llm-workbench.md`](research/05-choral-llm-workbench.md) | asb-42/choral-llm-workbench — IKR-light/TLR note-level LLM interface pattern |
 | 06 | [`docs/research/06-when-in-rome.md`](research/06-when-in-rome.md) | MarkGotham/When-in-Rome — RN meta-corpus for L1 few-shot + analyzer eval |
+| 07 | [`docs/research/07-accomontage2.md`](research/07-accomontage2.md) | billyblu2000/AccoMontage2 + music-x-lab/POP909-Dataset — pop melody→chords+texture arrangement pipeline |
 
-**Next suggested:** #07 AccoMontage2 + POP909, only if arrangement becomes a
-scoped milestone (per `docs/NEXT-RESEARCH-PASTE.txt`).
+Research queue #01–#07 (the currently planned order) is now complete. Any
+further deep-dive (JJazzLab, rnbert/μMoE-RNBERT, ai-music-theory/MuTheoryEval)
+needs an explicit human ask.
 
 ### PartWise one-liner (after #03)
 
@@ -376,6 +378,7 @@ fixtures as default; do not replace `realize.py` with soft beam+fix.
 | 2026-07-21 | Deep-dive #04 chorale-optimizer → `docs/research/04-chorale-optimizer.md` (beam+fix vs DP). |
 | 2026-07-21 | Deep-dive #05 choral-llm-workbench → `docs/research/05-choral-llm-workbench.md` (IKR-light/TLR pattern). |
 | 2026-07-21 | Deep-dive #06 When-in-Rome → `docs/research/06-when-in-rome.md` (RN meta-corpus; L1 few-shot + A7 eval source). |
+| 2026-07-21 | Deep-dive #07 AccoMontage2 + POP909 → `docs/research/07-accomontage2.md` (pop arrangement pipeline; Tier B, not classical — arrangement-track reference only). Closes the #01–#07 research queue. |
 
 When you re-scan, append a changelog row and note new Tier S/A finds at the top
 of §3–§4.

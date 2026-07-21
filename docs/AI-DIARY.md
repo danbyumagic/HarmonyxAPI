@@ -510,3 +510,41 @@ Research chunks #01–06 are now all done. Next default (#07 AccoMontage2 +
 POP909) is arrangement-track-only — per `docs/NEXT-RESEARCH-PASTE.txt`, don't
 continue there without an explicit "continue research" from the human.
 Stopping for check-in as instructed.
+
+## Entry 23 — Research deep-dive #07 AccoMontage2 + POP909 (2026-07-21)
+
+Human asked to continue with the next research chunk. Read
+`billyblu2000/AccoMontage2` (README, full repo tree via `gh api`,
+`chorderator/core.py`, `chorderator/utils/models/DP.py` in full) and
+`music-x-lab/POP909-Dataset` (README, tree). Notes:
+`docs/research/07-accomontage2.md`.
+
+**Product:** pop melody-in → two-stage pipeline: (1) per-phrase chord-template
+DP retrieval (`DP.py`, micro/mid/macro scoring, chained via Viterbi) over a
+5k+ progression library sourced from a commercial MIDI pack, then (2) full
+piano-accompaniment **texture** arrangement via the original zhaojw1998
+AccoMontage engine (PianoTree VAE + POP909-derived phrase embeddings,
+PyTorch). Requires hand-provided phrase segmentation (`"A8B8A8B8"`) and
+externally-hosted pretrained weights — not fully self-contained in-repo.
+**Corrected the landscape doc's implied recency:** last real commits are
+2023-05 (AccoMontage2) / 2020-08 (POP909) — the 2026 "updated" timestamps
+were star/watch activity, not code changes.
+
+**Vs Harmonyx:** Tier B (pop/arrangement), not classical — no overlap with
+`rules.py`/`realize.py`. The DP harmonization stage's micro/mid/macro
+template-scoring shape is the one structurally-adjacent idea to Harmonyx's L1
+corpus retrieval, worth remembering only if arrangement is ever scoped. The
+texture engine (heavy PyTorch/VAE, no theory gate, external weights) doesn't
+fit Harmonyx's deterministic/locked-fixture philosophy at all — not a steal
+target.
+
+**Steal:** micro/mid/macro phrase-scoring pattern (idea only, future
+arrangement scoping); honest mandatory-segmentation-as-input UX precedent.
+**Don't steal:** any code, the PyTorch/VAE texture stack, or POP909/Niko-pack
+as corpus content (pop, not RN-labeled, commercial-pack provenance).
+
+Updated landscape §10 (marked #7 done), §13, §14. **This closes the
+originally-planned research queue #01–#07** — remaining candidates (JJazzLab,
+rnbert/μMoE-RNBERT, ai-music-theory/MuTheoryEval) need an explicit human ask,
+not a default "next chunk." Per AGENTS.md Rule 2b: good point for a chat reset
+before naming the next task (a build chunk, or a new research target).
