@@ -1,7 +1,7 @@
-"""FastAPI wrapper around the harmonic analyzer.
+"""FastAPI wrapper around the harmonic analyzer and chorale generator.
 
-One upload endpoint, Pydantic response models, auto-generated Swagger UI at
-``/docs``.  A static frontend (drop zone + results table) is served at ``/``.
+Upload endpoints for analysis, JSON endpoints for generation, Pydantic models
+for Swagger at ``/docs``. A static frontend is served at ``/``.
 """
 
 from __future__ import annotations
@@ -15,14 +15,16 @@ from fastapi.staticfiles import StaticFiles
 
 from .analyzer import DEFAULT_DURATION_THRESHOLD, AnalysisError, analyze_score
 from .explainer import explain_progression
-from .models import AnalysisResponse
+from .generation.realize import RealizationError, check_soprano, realize
+from .models import AnalysisResponse, GenerateRequest, GenerateResponse
 
 app = FastAPI(
     title="Harmonyx API",
     version="1.0.0",
     description=(
-        "Send a score, get back a chord-by-chord Roman numeral analysis as "
-        "structured JSON. Upload a MusicXML or MIDI file to `/analyze`.\n\n"
+        "Two-way harmony tool: **analyze** a score to Roman numerals "
+        "(`POST /analyze`), or **generate** a four-part SATB MusicXML hymn "
+        "from a Roman-numeral progression (`POST /generate`).\n\n"
         "**v1 scope:** four-part chorale texture in a single major/minor key, "
         "no modulation."
     ),
@@ -86,10 +88,87 @@ async def analyze(
     return AnalysisResponse(**payload)
 
 
+@app.post("/generate", response_model=GenerateResponse, tags=["generation"])
+async def generate(body: GenerateRequest) -> GenerateResponse:
+    """Realize a Roman-numeral progression as a four-part SATB MusicXML score.
+
+    Optional ``soprano`` MIDI pitches must be chord tones of their paired
+    figures; mismatches return **422** with per-beat detail.
+    """
+    if body.soprano is not None:
+        if len(body.soprano) != len(body.progression):
+            raise HTTPException(
+                status_code=422,
+                detail={
+                    "error": "soprano_length_mismatch",
+                    "message": "soprano list length must match progression length",
+                    "progression_length": len(body.progression),
+                    "soprano_length": len(body.soprano),
+                },
+            )
+        mismatches = check_soprano(body.progression, body.key, body.soprano)
+        if mismatches:
+            raise HTTPException(
+                status_code=422,
+                detail={
+                    "error": "incompatible_soprano",
+                    "message": "one or more soprano pitches are not chord tones",
+                    "mismatches": mismatches,
+                },
+            )
+
+    try:
+        score = realize(
+            body.progression,
+            body.key,
+            soprano=body.soprano,
+            time_signature=body.time_signature,
+        )
+    except RealizationError as exc:
+        raise HTTPException(
+            status_code=422,
+            detail={"error": "realization_failed", "message": str(exc)},
+        ) from exc
+    except Exception as exc:  # music21 / RN parse failures, etc.
+        raise HTTPException(
+            status_code=422,
+            detail={"error": "realization_failed", "message": str(exc)},
+        ) from exc
+
+    musicxml = _score_to_musicxml_text(score)
+    return GenerateResponse(
+        key=body.key,
+        progression=body.progression,
+        time_signature=body.time_signature,
+        musicxml=musicxml,
+    )
+
+
 @app.get("/health", tags=["meta"])
 async def health() -> dict:
     """Liveness probe for deployment platforms (Railway / Fly.io)."""
     return {"status": "ok"}
+
+
+def _score_to_musicxml_text(score) -> str:
+    """Serialize a music21 Score to MusicXML text via a temp file (path required)."""
+    tmp_path = None
+    written_path = None
+    try:
+        with tempfile.NamedTemporaryFile(suffix=".musicxml", delete=False) as tmp:
+            tmp_path = tmp.name
+        # music21 may rewrite the path / extension; prefer the returned path.
+        written = score.write("musicxml", fp=tmp_path)
+        written_path = str(written) if written is not None else tmp_path
+        with open(written_path, encoding="utf-8") as fh:
+            return fh.read()
+    finally:
+        for p in {tmp_path, written_path}:
+            if p and os.path.exists(p):
+                try:
+                    os.unlink(p)
+                except OSError:
+                    pass
 
 
 def _extension(filename: str | None) -> str:

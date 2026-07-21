@@ -1,14 +1,14 @@
-"""Pydantic response models for the analysis API.
+"""Pydantic request/response models for the Harmonyx API.
 
-These drive both response validation and the auto-generated Swagger UI at
-``/docs``, so the ``examples`` matter -- they are the demo surface.
+These drive both validation and the auto-generated Swagger UI at ``/docs``,
+so the ``examples`` matter -- they are the demo surface.
 """
 
 from __future__ import annotations
 
 from typing import List, Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 
 class ChordOut(BaseModel):
@@ -74,6 +74,66 @@ class AnalysisResponse(BaseModel):
                 ],
                 "cadences": [{"measure": 8, "type": "authentic"}],
                 "explanation": None,
+            }
+        }
+    }
+
+
+class GenerateRequest(BaseModel):
+    """Body for ``POST /generate``: Roman numerals → four-part MusicXML."""
+
+    key: str = Field(..., description="Key, e.g. 'C major' or 'A minor'.", examples=["C major"])
+    progression: List[str] = Field(
+        ...,
+        min_length=1,
+        description="Roman-numeral figures in order, e.g. ['I', 'IV', 'V', 'I'].",
+    )
+    time_signature: str = Field(
+        "4/4",
+        description="Time signature for the realized score.",
+    )
+    soprano: Optional[List[Optional[int]]] = Field(
+        None,
+        description=(
+            "Optional MIDI pitches for the soprano, one per chord. "
+            "null leaves that beat free. Length must match progression when set."
+        ),
+    )
+
+    @field_validator("progression")
+    @classmethod
+    def _figures_nonempty(cls, value: List[str]) -> List[str]:
+        if any(not (f and str(f).strip()) for f in value):
+            raise ValueError("progression figures must be non-empty strings")
+        return value
+
+    model_config = {
+        "json_schema_extra": {
+            "example": {
+                "key": "C major",
+                "progression": ["I", "IV", "V", "I"],
+                "time_signature": "4/4",
+                "soprano": None,
+            }
+        }
+    }
+
+
+class GenerateResponse(BaseModel):
+    """Successful realization: the input progression plus MusicXML text."""
+
+    key: str
+    progression: List[str]
+    time_signature: str
+    musicxml: str = Field(..., description="Four-part SATB score as MusicXML text.")
+
+    model_config = {
+        "json_schema_extra": {
+            "example": {
+                "key": "C major",
+                "progression": ["I", "IV", "V", "I"],
+                "time_signature": "4/4",
+                "musicxml": "<?xml version='1.0' ...",
             }
         }
     }
