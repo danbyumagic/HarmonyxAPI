@@ -10,6 +10,7 @@ Read these, in order, then **stop and wait** for my instructions:
 3. `docs/CLASSICAL-AI-LANDSCAPE.md` (full landscape map + Tier S–D)
 4. `docs/research/01-resonance.md` (**done** — L4 architecture twin)
 5. `docs/research/02-choral-counterpoint.md` (**done** — SATB checker + Bach oracle)
+6. `docs/research/03-partwise.md` (**done** — M4 `/check` UX + evaluate API)
 
 **Do not start implementing code.** Research / notes only unless I name a build chunk.
 
@@ -19,20 +20,20 @@ Read these, in order, then **stop and wait** for my instructions:
 |---|------|------|--------------|
 | 01 | `docs/research/01-resonance.md` | will825/resonance | LLM → RN JSON only; Zod; always-200 fallback; `source`/`reason` for L4 |
 | 02 | `docs/research/02-choral-counterpoint.md` | DashWieland/choral-counterpoint | V vs W rules; Bach false-alarm harness; fermata boundaries for M4 |
+| 03 | `docs/research/03-partwise.md` | cjohanson64-netizen/PartWise | Evaluate API projection; pass/warn/fail + colors + weighted %; skip TAT; keep our deeper `rules.py` |
 
 ## Next research chunk (default)
 
-**03 — PartWise** (`cjohanson64-netizen/PartWise`)
-- Why: M4 `POST /check` UX peer (OSMD editor, SATB evaluate, scoring, color feedback)
-- Write notes to: `docs/research/03-partwise.md`
+**04 — chorale-optimizer** (`604korupt/chorale-optimizer`)
+- Why: beam search + iterative rule enforcement vs our DP realizer; VexFlow + play peer
+- Write notes to: `docs/research/04-chorale-optimizer.md`
 - Update `docs/CLASSICAL-AI-LANDSCAPE.md` §13 and a short `AI-DIARY` entry
-- Then **stop** for check-in (do not auto-continue to #04)
+- Then **stop** for check-in (do not auto-continue to #05)
 
 ## After that (only if I say continue)
 
 | # | Target | Focus |
 |---|--------|--------|
-| 04 | 604korupt/chorale-optimizer | Beam search + constraint fixups vs our DP realizer |
 | 05 | asb-42/choral-llm-workbench | MusicXML + LLM choral reharm |
 | 06 | MarkGotham/When-in-Rome | RN corpus for L1/eval |
 | 07 | billyblu2000/AccoMontage2 + POP909 | Arrangement track (later) |
@@ -41,14 +42,13 @@ Read these, in order, then **stop and wait** for my instructions:
 
 - Two-way: analyze score→RN; generate RN→SATB MusicXML; propose grammar+spice/style
 - L1–L3 (corpus/validate/fix) **done**; L4 LLM client **not** started
-- M4 `POST /check` **not** done — PartWise is the UX blueprint
+- M4 `POST /check` **not** done — PartWise (#03) is the UX blueprint
 - Locked: `tests/test_partwriting.py` — never edit fixtures to match peers
 - Rules: `docs/PARTWRITING-RULES.md`; L4 plan: `docs/LLM-PROGRESSION-SPEC.md`
 
 ## Working branch
 
-- Branch: `claude/harmonic-analysis-api-loc82f`
-- Research docs may live in a git worktree (confirm `git status` / path)
+- Branch: `claude/harmonic-analysis-api-loc82f` (confirm with `git status`)
 - Commit research notes at end of each peer deep-dive
 
 ## When I say “continue research”

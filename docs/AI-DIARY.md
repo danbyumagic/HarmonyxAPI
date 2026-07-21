@@ -364,3 +364,25 @@ Next research chunk (when human says): PartWise.
 Committed landscape + deep-dives 01–02 on `claude/harmonic-analysis-api-loc82f`.
 Added `docs/NEXT-RESEARCH-PASTE.txt` for a fresh agent to continue with **PartWise**
 (#03) without re-explaining context. Research only; no product code.
+
+## Entry 18 — Research deep-dive #03 PartWise (2026-07-21)
+
+Read `cjohanson64-netizen/PartWise` (README + FastAPI evaluate path + TAT rule
+graphs + React OSMD grader). Notes: `docs/research/03-partwise.md`.
+
+**Product:** student writes SATB + RN in OSMD editor → evaluate → % score,
+pass/warn/fail cards, green/orange/red notes, try-again loop.
+
+**Stack:** React/Vite + OSMD; FastAPI; pitch primitives without music21;
+TryAngleTree graphs for rule *contracts*, Python adapters for comparisons.
+
+**Rules actually run (V1):** tiered ranges, voice order, soft upper spacing,
+complete triads / NCT, harmonic-flow edges on I–ii–IV–V–vi, soft V–I cadence.
+Parallels, LT, sevenths authored in TAT but **not wired** (roadmap V2–V3).
+
+**For M4:** steal projection/issue shape + color mapping + optional weighted
+score; **do not** adopt TAT runtime or soften locked `test_partwriting.py`.
+Harmonyx `rules.py` already deeper than their V1 checker.
+
+Updated landscape §13 + changelog. Next research chunk when asked:
+**#04 chorale-optimizer**.
