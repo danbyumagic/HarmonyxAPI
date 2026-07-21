@@ -251,6 +251,18 @@
     .gen-done { margin-top: 1rem; display: flex; flex-wrap: wrap; gap: .55rem; align-items: center; }
     .ok-msg { color: var(--dim); font-size: .9rem; }
 
+    /* OSMD sheet viewer (Phase A: display only). Always light so black ink is readable. */
+    .score-panel {
+      margin-top: 1rem; background: #fffdf9; border: 1px solid #e6e1d7;
+      border-radius: 14px; box-shadow: var(--shadow); overflow: auto;
+      color: #1d1b19;
+    }
+    #osmdContainer { padding: .75rem 1rem 1.1rem; min-height: 120px; }
+    #osmdContainer svg { max-width: 100%; height: auto; }
+    .score-fallback {
+      padding: 1rem 1.2rem; color: #6d685f; font-size: .9rem;
+    }
+
     footer { margin-top: 3rem; color: var(--faint); font-size: .82rem; }
     footer a { color: var(--accent); }
     .legend { display: flex; gap: 1rem; flex-wrap: wrap; margin-top: .4rem; font-size: .76rem; color: var(--faint); }
@@ -581,6 +593,7 @@
 
       genResults.className = '';
       lastMusicXml = null;
+      osmdInstance = null;
       setGenStatus(`<span class="spinner"></span> Proposing progression…`);
 
       try {
@@ -645,13 +658,18 @@
           </div>
           <div class="section-title"><h2>Progression</h2><span class="count">${progression.length}</span></div>
           <div class="chip-row">${chips}</div>
+          <div class="section-title"><h2>Score</h2><span class="count">MusicXML preview</span></div>
+          <div class="score-panel">
+            <div id="osmdContainer"><div class="score-fallback">Loading notation…</div></div>
+          </div>
           <div class="gen-done">
             <button type="button" class="btn btn-primary" id="btnDownload">Download MusicXML</button>
-            <span class="ok-msg">Ready — open in MuseScore, Dorico, or re-upload under Analyze.</span>
+            <span class="ok-msg">Preview above · download for MuseScore / Dorico · or re-upload under Analyze.</span>
           </div>`;
         genResults.className = 'show';
         $('btnDownload').addEventListener('click', downloadMusicXml);
         setGenStatus('');
+        await renderOsmdPreview(lastMusicXml);
       } catch (err) {
         setGenStatus(`Error: ${err.message}`, true);
       }
@@ -666,6 +684,56 @@
       a.download = `harmonyx_${keySlug}.musicxml`;
       a.click();
       URL.revokeObjectURL(a.href);
+    }
+
+    /** Phase A: OpenSheetMusicDisplay — view only (no audio). */
+    let osmdInstance = null;
+
+    function ensureOsmdLoaded() {
+      if (window.opensheetmusicdisplay && window.opensheetmusicdisplay.OpenSheetMusicDisplay) {
+        return Promise.resolve(window.opensheetmusicdisplay);
+      }
+      return new Promise((resolve, reject) => {
+        const existing = document.querySelector('script[data-osmd]');
+        if (existing) {
+          existing.addEventListener('load', () => resolve(window.opensheetmusicdisplay));
+          existing.addEventListener('error', () => reject(new Error('Failed to load OpenSheetMusicDisplay')));
+          return;
+        }
+        const s = document.createElement('script');
+        s.src = 'https://cdn.jsdelivr.net/npm/opensheetmusicdisplay@1.8.9/build/opensheetmusicdisplay.min.js';
+        s.async = true;
+        s.dataset.osmd = '1';
+        s.onload = () => resolve(window.opensheetmusicdisplay);
+        s.onerror = () => reject(new Error('Failed to load OpenSheetMusicDisplay from CDN'));
+        document.head.appendChild(s);
+      });
+    }
+
+    async function renderOsmdPreview(musicxml) {
+      const container = $('osmdContainer');
+      if (!container || !musicxml) return;
+      try {
+        const lib = await ensureOsmdLoaded();
+        const OSMD = lib.OpenSheetMusicDisplay;
+        // Recreate each time: container was replaced via innerHTML.
+        osmdInstance = new OSMD(container, {
+          autoResize: true,
+          backend: 'svg',
+          drawTitle: false,
+          drawSubtitle: false,
+          drawComposer: false,
+          drawLyricist: false,
+          drawPartNames: true,
+          drawingParameters: 'compacttight',
+        });
+        await osmdInstance.load(musicxml);
+        osmdInstance.render();
+      } catch (err) {
+        container.innerHTML =
+          `<div class="score-fallback">Could not render notation preview (${escapeHtml(err.message)}). ` +
+          `You can still download the MusicXML file.</div>`;
+      }
     }
 
     function setGenStatus(html, isErr) {
