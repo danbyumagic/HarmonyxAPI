@@ -63,8 +63,8 @@ These encode the same product philosophy as Harmonyx L1–L4:
 | **resonance** | https://github.com/will825/resonance | LLM emits **Roman numerals only**; TS theory engine → voice-led MIDI; Zod validate; offline fallback | Closest L4 architecture mirror (2026-06/07). Live demo on Vercel. |
 | **choral-counterpoint** | https://github.com/DashWieland/choral-counterpoint | SATB + Fux engine, Bach-calibrated checkers, corpus oracle, **no LLM at runtime**; started as Claude skill | Same “rules as product” story as part-writing realizer. HTTP compose API. Jul 2026. |
 | **choral-llm-workbench** | https://github.com/asb-42/choral-llm-workbench | MusicXML roundtrip + LLM-assisted choral reharm/style; music21; ghost chords | Professional choir arranger angle. Jan 2026. |
-| **thiri-mcp** | https://github.com/BluesPrince/thiri-mcp | Deterministic theory MCP: RNA, voicing, reharm | “Computed, not hallucinated.” Agent-facing API pattern. |
-| **music21-mcp** | https://github.com/SimonsonM/music21-mcp | music21 as MCP tools (key, RNA, counterpoint, harmonize) | How agents will call theory stacks. |
+| **thiri-mcp** | https://github.com/BluesPrince/thiri-mcp | Deterministic theory MCP: RNA, voicing, reharm | “Computed, not hallucinated.” Thin client over a **hosted** proprietary engine, production-hardened (timeout/quota/error patterns). See research #10. |
+| **music21-mcp** | https://github.com/SimonsonM/music21-mcp | music21 as MCP tools (key, RNA, counterpoint, harmonize) | Thin wrapper directly over a **local** open engine — closer template for Harmonyx if MCP is ever scoped. See research #10. |
 | **music-arranger** | https://codeberg.org/scarrow/music-arranger | NL → Claude tool-call → CP-SAT (OR-Tools) SATB solver | Closest "L4 + realizer, one architecture" twin; see research #09. |
 
 ### Resonance architecture (reference diagram)
@@ -323,6 +323,7 @@ If “king of classical × AI” becomes a multi-product strategy:
 | Augmented-sixth chords | Two independent peers now flag this gap: When-in-Rome's `It6`/`Fr43`/`Ger65` notation (#06 §2) + Shimaoka's usage rules (only at D₂, ⟨2nd⟩ disposition default) (#08 §3) | If/when scoped: use WiR's wire syntax, Shimaoka's "when to use which form" theory. |
 | Pre-solve infeasibility diagnostics ("why would this fail" before/instead of a bare error) | music-arranger's `verify_solver.py` names specific failure modes (melody-outside-scale, empty-domain conflict, cadence truncation, cadence-vs-melody conflict) before solving — see research #09 §3 | If M4 `POST /check` or `POST /generate`/`POST /progression` error responses are revisited; independent of the DP-vs-CP-SAT question. |
 | Global constraint solving (CP-SAT) as a DP-realizer alternative | music-arranger uses Google OR-Tools CP-SAT for one-pass joint hard+soft constraint optimization instead of Harmonyx's sequential DP — see research #09 §2 | Only relevant if the rule grammar ever needs a genuinely non-local constraint the DP realizer's step-adjacency scoring can't express; not needed today, locked DP fixtures stay as-is. |
+| Agent-native theory (MCP exposure of `/analyze` + `/generate` + future `/check`) | thiri-mcp (hosted-API-client template, production hardening: timeout/quota/structured-error patterns) vs. music21-mcp (`@mcp.tool()`-over-local-library template, closer to Harmonyx's own shape) — see research #10 | If an MCP-exposure chunk is ever scoped: use music21-mcp's low-boilerplate local-wrapper pattern + thiri-mcp's hardening checklist. Not on the open queue today. |
 
 ---
 
@@ -354,11 +355,12 @@ Written notes (read these before re-cloning peers):
 | 07 | [`docs/research/07-accomontage2.md`](research/07-accomontage2.md) | billyblu2000/AccoMontage2 + music-x-lab/POP909-Dataset — pop melody→chords+texture arrangement pipeline |
 | 08 | [`docs/research/08-shimaoka-satb-skillset.md`](research/08-shimaoka-satb-skillset.md) | ShikiSuen/Shimaoka-SATB-SkillSet — LLM-context-only Swing Theory SATB knowledge base; counter-example to "LLM proposes, code enforces"; 2nd source flagging the augmented-sixth notation gap |
 | 09 | [`docs/research/09-music-arranger.md`](research/09-music-arranger.md) | scarrow/music-arranger — Claude tool-call NL extraction + Google OR-Tools CP-SAT SATB solver; "L4 + realizer, one architecture" twin; steals: pre-solve infeasibility diagnostics, soft/hard scale confirmation; don't steal: CP-SAT replacing DP, wide NL→full-arrangement tool schema |
+| 10 | [`docs/research/10-thiri-mcp-and-music21-mcp.md`](research/10-thiri-mcp-and-music21-mcp.md) | BluesPrince/thiri-mcp + SimonsonM/music21-mcp — two opposite answers to "how to expose theory ops as MCP tools" (hosted-proprietary-client vs. local-open-wrapper); steals: production-hardening checklist, low-boilerplate `@mcp.tool()` pattern; don't steal: hosted-API-with-quota architecture (doesn't apply — Harmonyx is the engine) |
 
 Research queue #01–#07 (the originally planned order) is complete. Further
 deep-dives now come from `docs/RESEARCH-QUEUE.md` (Tier 1–4 candidates found
 in the 2026-07-21 follow-up scans, plus human-flagged repos) — see that file
-for the live queue and suggested order. #08–#09 are entries from that queue;
+for the live queue and suggested order. #08–#10 are entries from that queue;
 the rest still need an explicit human ask.
 
 ### PartWise one-liner (after #03)
@@ -391,6 +393,7 @@ fixtures as default; do not replace `realize.py` with soft beam+fix.
 | 2026-07-21 | New candidates found via follow-up GitHub scans + a human-flagged repo → `docs/RESEARCH-QUEUE.md` (11 repos, tiered). |
 | 2026-07-21 | Deep-dive #08 Shimaoka-SATB-SkillSet → `docs/research/08-shimaoka-satb-skillset.md` (LLM-context-only SATB knowledge base; counter-example to code-enforced validation; 2nd source on augmented-sixth gap). |
 | 2026-07-21 | Deep-dive #09 music-arranger → `docs/research/09-music-arranger.md` (Claude tool-call NL extraction + CP-SAT SATB solver; DP-vs-CP-SAT comparison; pre-solve diagnostics idea for M4). |
+| 2026-07-21 | Deep-dive #10 thiri-mcp + music21-mcp → `docs/research/10-thiri-mcp-and-music21-mcp.md` (hosted-proprietary vs. local-open MCP theory server architectures; hardening checklist + low-boilerplate wrapper template). Closes Tier 1 of `RESEARCH-QUEUE.md`. |
 
 When you re-scan, append a changelog row and note new Tier S/A finds at the top
 of §3–§4.

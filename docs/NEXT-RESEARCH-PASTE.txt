@@ -25,16 +25,19 @@ Read these, in order, then **stop and wait** for my instructions:
 | 07 | `docs/research/07-accomontage2.md` | billyblu2000/AccoMontage2 + music-x-lab/POP909-Dataset | Pop melody→chords+texture arrangement pipeline; Tier B (not classical) — arrangement-track reference only if that track is ever scoped |
 | 08 | `docs/research/08-shimaoka-satb-skillset.md` | ShikiSuen/Shimaoka-SATB-SkillSet | LLM-context-only SATB knowledge base (no validator/enforcement code) — counter-example to "LLM proposes, code enforces"; 2nd independent source (after #06) flagging the augmented-sixth notation gap |
 | 09 | `docs/research/09-music-arranger.md` | scarrow/music-arranger (Codeberg) | Claude tool-call NL→params + Google OR-Tools CP-SAT SATB solver — "L4 + realizer, one architecture" twin; steal: pre-solve infeasibility diagnostics (M4 idea); don't steal: CP-SAT replacing DP, wide NL→full-arrangement tool schema |
+| 10 | `docs/research/10-thiri-mcp-and-music21-mcp.md` | BluesPrince/thiri-mcp + SimonsonM/music21-mcp | Two opposite MCP theory-server architectures (hosted-proprietary client vs. local-open wrapper); steal: production-hardening checklist, low-boilerplate `@mcp.tool()` pattern; don't steal: hosted-API-with-quota design (doesn't apply — Harmonyx is the engine) |
 
-Research #01–#07 (the originally planned landscape order) is complete. #08–#09
+Research #01–#07 (the originally planned landscape order) is complete. #08–#10
 came from the follow-up `docs/RESEARCH-QUEUE.md` scan (Tier 1–4 candidates +
-a human-flagged repo).
+a human-flagged repo). **Tier 1 of the queue is now fully closed.**
 
 ## Next research chunk (default)
 
 Per `docs/RESEARCH-QUEUE.md`'s suggested order, the next candidate is:
-- **`BluesPrince/thiri-mcp`** + **`SimonsonM/music21-mcp`** — short, closely
-  related MCP theory-exposure pair, read together as one chunk.
+- **Tier 3 #11 `napulen/AugmentedNet`** — quick read, the neural RNA model
+  behind When-in-Rome's (#06) own corpus annotations.
+- Or Tier 2 #5 **JJazzLab** — product-completeness study (jazz backing-track
+  arranger, not classical, but the most complete product in the landscape map).
 
 See `docs/RESEARCH-QUEUE.md` for the full tiered list (11 repos), what to
 actually read in each, and the reasoning. Write notes to

@@ -55,19 +55,16 @@ read (not just "clone it").
    global constraints vs. sequential DP scoring). Closest thing yet to an
    "L4 + realizer, one architecture" twin.
 
-3. **`BluesPrince/thiri-mcp`** — Deterministic music-theory MCP server (RN
-   analysis, voicing, reharmonization) for Claude/Cursor, hosted at
-   `mcp.thiri.ai`. Already flagged Tier S in the landscape doc but **never
-   actually deep-dived** — confirmed still active (pushed 2026-07-19). Read:
-   how it exposes RN/voicing operations as MCP tool calls, and whether its
-   "computed not hallucinated" tool contract has ideas for how Harmonyx would
-   expose `/analyze` + `/generate` + (future) `/check` as agent-facing tools.
+3. **`BluesPrince/thiri-mcp`** — **Done**, see
+   `docs/research/10-thiri-mcp-and-music21-mcp.md`. Deterministic
+   music-theory MCP server (RN analysis, voicing, reharmonization) for
+   Claude/Cursor, hosted at `mcp.thiri.ai`.
 
-4. **`SimonsonM/music21-mcp`** — music21 exposed as 7 MCP tools (key
-   detection, RNA, cadence/counterpoint generation, melody harmonization,
-   MIDI/MusicXML parsing). Same "agent-native theory" question as thiri-mcp,
-   different design choice (wrap music21 directly vs. a custom deterministic
-   engine). Worth comparing the two side by side in one chunk.
+4. **`SimonsonM/music21-mcp`** — **Done**, see
+   `docs/research/10-thiri-mcp-and-music21-mcp.md` (read together with
+   thiri-mcp as one chunk). music21 exposed as 7 MCP tools (key detection,
+   RNA, cadence/counterpoint generation, melody harmonization, MIDI/MusicXML
+   parsing).
 
 ---
 
@@ -165,13 +162,14 @@ so the candidates aren't lost if that decision ever gets revisited:
 
 ~~Shimaoka-SATB-SkillSet first~~ **Done** (`docs/research/
 08-shimaoka-satb-skillset.md`) → ~~music-arranger~~ **Done** (`docs/research/
-09-music-arranger.md`) → rest of Tier 1 (thiri-mcp + music21-mcp
-together — short and closely related, MCP theory exposure pattern) →
-Tier 3 #11 AugmentedNet (quick, ties directly to already-read #06) →
-Tier 2 in listed order → Tier 3 remainder as time allows.
+09-music-arranger.md`) → ~~thiri-mcp + music21-mcp~~ **Done** (`docs/research/
+10-thiri-mcp-and-music21-mcp.md`) — **Tier 1 fully closed** → Tier 3 #11
+AugmentedNet (quick, ties directly to already-read #06) → Tier 2 in listed
+order → Tier 3 remainder as time allows.
 
-Next default: **thiri-mcp + music21-mcp** pair (Tier 1 #3–4 — short, closely
-related, MCP theory exposure pattern).
+Next default: **Tier 3 #11 `napulen/AugmentedNet`** (quick — the neural RNA
+model behind When-in-Rome's `analysis_automatic.rntxt`, #06's own corpus) or
+Tier 2 #5 **JJazzLab** (product-completeness study). Human picks.
 
 As always: one peer (or one small related cluster, like the two MCP servers)
 per chunk, notes written to `docs/research/0N-*.md`, landscape doc + AI-DIARY

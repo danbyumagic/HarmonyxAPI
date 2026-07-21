@@ -647,3 +647,56 @@ default updated to thiri-mcp/music21-mcp), and `docs/NEXT-RESEARCH-PASTE.txt`.
 Per AGENTS.md Rule 2b: good point for a chat reset before naming the next
 task — next research default is the **thiri-mcp + music21-mcp** MCP pair
 (Tier 1 #3–4).
+
+## Entry 26 — Research deep-dive #10 thiri-mcp + music21-mcp (2026-07-21)
+
+Human confirmed the queue's default pair for this chunk. Read both via `gh`
+(no local clone needed — both small): `SimonsonM/music21-mcp`'s `server.py`
+in full (288 lines, single file), `BluesPrince/thiri-mcp`'s `src/index.ts` in
+full (~18KB — API client, formatters, 5 tools + 1 resource); both READMEs in
+full. Notes: `docs/research/10-thiri-mcp-and-music21-mcp.md`. This closes
+**Tier 1 of `docs/RESEARCH-QUEUE.md`** (all four candidates now done: #08
+Shimaoka, #09 music-arranger, #10 this pair).
+
+**Product:** both expose music-theory operations as MCP tools, but with
+opposite engine placement. thiri-mcp is a thin TypeScript client that POSTs
+to a **hosted, closed-source, quota-metered API** (`chords.thiri.ai`, "v2
+grid engine") and formats the JSON as markdown — the actual pitch-class-set
+theory engine isn't in the repo at all. music21-mcp is a thin Python
+wrapper calling the **local, open-source `music21` library directly**,
+in-process, no network call, no auth.
+
+**Vs Harmonyx:** the useful frame is "agent-native theory server is a
+spectrum from hosted-proprietary-client to local-open-wrapper" — and
+Harmonyx, if it ever exposes `/analyze`/`/generate`/`/progression`/(future)
+`/check` as MCP tools, sits at the music21-mcp end: it already *is* the
+engine (FastAPI + music21 + custom realizer), so an MCP layer would be a
+thin adapter over existing endpoints, not a hosted-API client. Two concrete,
+transferable pieces regardless of that architecture choice: (1) thiri-mcp's
+production-hardening checklist — request timeout, structured error parsing
+(never echo raw internal errors), fail-fast on missing auth, quota
+self-pacing via response headers, markdown+JSON dual-format responses, MCP
+tool safety annotations (`readOnlyHint` etc.) — each tied to a numbered
+bug-tracked fix in inline comments, evidence this is a *deployed*, not demo,
+server; (2) music21-mcp's `@mcp.tool()`-decorator-with-docstring pattern as
+the lowest-boilerplate template for wrapping Python functions as MCP tools,
+directly relevant since Harmonyx is also Python/FastAPI. Also noted:
+music21-mcp's cadence-detection (hardcoded last-two-RN lookup table) and
+first-species counterpoint generator (toy consonant-interval picker, no real
+Fux rule enforcement) are both shallower than what Harmonyx already has —
+confirms no regression, not a source of new ideas.
+
+**Steal:** the hardening checklist + the `@mcp.tool()` low-boilerplate
+pattern (both MIT-licensed, ideas and reference snippets both fine).
+**Don't steal:** the hosted-API-with-auth-and-quota architecture itself —
+doesn't apply, Harmonyx isn't wrapping a third-party paid engine.
+
+Updated `docs/CLASSICAL-AI-LANDSCAPE.md` §3 (both Tier S rows annotated with
+the hosted-vs-local distinction) and §11 (new "agent-native theory" backlog
+row), §13/§14, `docs/RESEARCH-QUEUE.md` (#3–4 marked done, Tier 1 closed,
+next default set to Tier 3 AugmentedNet or Tier 2 JJazzLab),
+`docs/NEXT-RESEARCH-PASTE.txt`, and `docs/START-HERE.md`. Per AGENTS.md Rule
+2b: good point for a chat reset before naming the next task — next research
+default is **Tier 3 `napulen/AugmentedNet`** (quick, ties to #06's own
+corpus) or **Tier 2 JJazzLab** (product-completeness study); no build chunk
+implied by any of this.
