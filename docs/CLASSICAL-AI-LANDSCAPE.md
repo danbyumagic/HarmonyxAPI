@@ -139,7 +139,7 @@ orchestration, choir reharm.
 | **POP909-Dataset** | https://github.com/music-x-lab/POP909-Dataset | Pop arrangement generation corpus | ~395 |
 | **D3EMO** | https://github.com/OlyMarco/D3EMO | Emotion-driven piano accompaniment from lead sheet (diffusion) | 2026-07 |
 | **EMO_Harmonizer** | https://github.com/Yuer867/EMO_Harmonizer | Emotion-conditioned melody harmonization | research |
-| **JJazzLab** | https://github.com/jjazzboss/JJazzLab | Mature open **jazz backing track** arranger app | ~574 |
+| **JJazzLab** | https://github.com/jjazzboss/JJazzLab | Mature open **jazz backing track** arranger app | ~574; **Done**, see research #12 — model/engine/UI SPI separation + concatenative pattern-retrieval generation, no ML |
 | **oh-sheet** | https://github.com/Oh-Sheet-Team/oh-sheet | Audio/YouTube → two-hand piano arrangement + PDF | ~322 |
 | **music_orchestration** | https://github.com/Landmark-Innovation-Labs/music_orchestration | Audio → orchestral arrangement MVP | early |
 | **AI-for-Projective-Musical-Orchestration** | https://github.com/andrew-simons/AI-for-Projective-Musical-Orchestration | MIT Media Lab Opera of the Future | research |
@@ -298,7 +298,7 @@ Do **not** implement from this list without an explicit human chunk. Study order
 | 5 | ~~**choral-llm-workbench**~~ | **Done** — MusicXML + LLM reharm; see `docs/research/05-choral-llm-workbench.md` |
 | 6 | ~~**When-in-Rome**~~ | **Done** — corpus expansion for L1 few-shot + analyzer eval; see `docs/research/06-when-in-rome.md` |
 | 7 | ~~**AccoMontage2 + POP909**~~ | **Done** — pop melody→chords+texture pipeline; see `docs/research/07-accomontage2.md` |
-| 8 | **JJazzLab** | Lead-sheet product completeness (jazz) as product reference |
+| 8 | ~~**JJazzLab**~~ | **Done** — product-completeness lessons (SPI separation, retrieval-based generation); see `docs/research/12-jjazzlab.md` |
 | 8.5 | ~~**AugmentedNet**~~ | **Done** — neural multi-task RNA baseline + accuracy ceiling reference; see `docs/research/11-augmentednet.md` |
 | 9 | **rnbert / muMoE-RNBERT** | Only if investing in neural RNA |
 | 10 | **ai-music-theory + MuTheoryEval** | Explainer grounding / LLM trust for theory chat |
@@ -326,6 +326,9 @@ If “king of classical × AI” becomes a multi-product strategy:
 | Pre-solve infeasibility diagnostics ("why would this fail" before/instead of a bare error) | music-arranger's `verify_solver.py` names specific failure modes (melody-outside-scale, empty-domain conflict, cadence truncation, cadence-vs-melody conflict) before solving — see research #09 §3 | If M4 `POST /check` or `POST /generate`/`POST /progression` error responses are revisited; independent of the DP-vs-CP-SAT question. |
 | Global constraint solving (CP-SAT) as a DP-realizer alternative | music-arranger uses Google OR-Tools CP-SAT for one-pass joint hard+soft constraint optimization instead of Harmonyx's sequential DP — see research #09 §2 | Only relevant if the rule grammar ever needs a genuinely non-local constraint the DP realizer's step-adjacency scoring can't express; not needed today, locked DP fixtures stay as-is. |
 | Agent-native theory (MCP exposure of `/analyze` + `/generate` + future `/check`) | thiri-mcp (hosted-API-client template, production hardening: timeout/quota/structured-error patterns) vs. music21-mcp (`@mcp.tool()`-over-local-library template, closer to Harmonyx's own shape) — see research #10 | If an MCP-exposure chunk is ever scoped: use music21-mcp's low-boilerplate local-wrapper pattern + thiri-mcp's hardening checklist. Not on the open queue today. |
+| Analyzer neural-baseline ceiling | AugmentedNet's published ~45-52% full-RN accuracy on a trained, multi-task, synthetic-augmented model — see research #11 | Cite as an external sanity-check number next time analyzer eval (A7) results are reported; don't chase it as a target, different eval methodology. |
+| Third realization-strategy option: pattern-retrieval | JJazzLab's JJSwing engine matches/splices small hand-curated pre-voiced MIDI phrases by chord-sequence + tag, no ML/no solver — see research #12 §2 | If a second, faster/looser generation mode is ever wanted alongside the locked DP realizer, alongside CP-SAT (#09) and VAE-embedding retrieval (#07) as the other two known alternatives. Not scoped; DP + locked fixtures stay default. |
+| Explicit plugin SPI as a product decision | JJazzLab's public `Rhythm`/`MusicGenerator`/`RhythmParameter` interfaces + standalone `JJazzLabToolkit` jar let third parties add style plugins without touching the app — see research #12 §4 | If Harmonyx's generation engine is ever opened to alternate realization strategies or third-party rule sets, design the interface deliberately (like this) rather than discovering the seam via refactor. Not scoped today. |
 
 ---
 
@@ -359,11 +362,12 @@ Written notes (read these before re-cloning peers):
 | 09 | [`docs/research/09-music-arranger.md`](research/09-music-arranger.md) | scarrow/music-arranger — Claude tool-call NL extraction + Google OR-Tools CP-SAT SATB solver; "L4 + realizer, one architecture" twin; steals: pre-solve infeasibility diagnostics, soft/hard scale confirmation; don't steal: CP-SAT replacing DP, wide NL→full-arrangement tool schema |
 | 10 | [`docs/research/10-thiri-mcp-and-music21-mcp.md`](research/10-thiri-mcp-and-music21-mcp.md) | BluesPrince/thiri-mcp + SimonsonM/music21-mcp — two opposite answers to "how to expose theory ops as MCP tools" (hosted-proprietary-client vs. local-open-wrapper); steals: production-hardening checklist, low-boilerplate `@mcp.tool()` pattern; don't steal: hosted-API-with-quota architecture (doesn't apply — Harmonyx is the engine) |
 | 11 | [`docs/research/11-augmentednet.md`](research/11-augmentednet.md) | napulen/AugmentedNet — CRNN multi-task neural RNA (11-14 output heads: key/degree/quality/inversion/voice-pitches, reconciled via pcset-cosine match at inference, not raw argmax); produced When-in-Rome's automatic-analysis files; steals: decomposed-task + voted-reconciliation pattern, corpus-registry layout, published accuracy ceiling (~45-52% full-RN even for a trained model) as an analyzer-eval reference point; don't steal: the network itself, synthetic-texturization training strategy |
+| 12 | [`docs/research/12-jjazzlab.md`](research/12-jjazzlab.md) | jjazzboss/JJazzLab — mature jazz backing-track app (NetBeans RCP, 65-module Maven tree); product-completeness study, not a theory peer; steals: strict model/engine/UI separation behind a public `Rhythm`/`MusicGenerator` SPI, JJSwing's concatenative pattern-retrieval generation (hand-curated MIDI phrase bank scored by chord-sequence+tag, no ML/solver) as a third lightweight realization-strategy alternative next to CP-SAT (#09) and VAE-embedding retrieval (#07); don't steal: NetBeans/desktop-app infra, jazz-specific content |
 
 Research queue #01–#07 (the originally planned order) is complete. Further
 deep-dives now come from `docs/RESEARCH-QUEUE.md` (Tier 1–4 candidates found
 in the 2026-07-21 follow-up scans, plus human-flagged repos) — see that file
-for the live queue and suggested order. #08–#11 are entries from that queue;
+for the live queue and suggested order. #08–#12 are entries from that queue;
 the rest still need an explicit human ask.
 
 ### PartWise one-liner (after #03)
@@ -388,6 +392,7 @@ fixtures as default; do not replace `realize.py` with soft beam+fix.
 |------|------|
 | 2026-07-21 | Initial landscape from two GitHub/web research passes (Harmonyx-adjacent + broad arrange/AI-theory). |
 | 2026-07-21 | Research #11 (AugmentedNet) added; §4.2, §10, §13 updated. |
+| 2026-07-21 | Research #12 (JJazzLab) added; §5.1, §10, §11, §13 updated. |
 | 2026-07-21 | Deep-dives #01 Resonance, #02 choral-counterpoint → `docs/research/`. |
 | 2026-07-21 | Deep-dive #03 PartWise → `docs/research/03-partwise.md` (M4 UX/API blueprint). |
 | 2026-07-21 | Deep-dive #04 chorale-optimizer → `docs/research/04-chorale-optimizer.md` (beam+fix vs DP). |

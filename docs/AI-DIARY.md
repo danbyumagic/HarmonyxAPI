@@ -758,3 +758,77 @@ chat reset before naming the next task — next research default is **Tier 2
 JJazzLab** (product-completeness study) or **Tier 2 rnbert/muMoE-RNBERT**
 (now directly comparable to AugmentedNet as a second/third neural-RNA
 baseline); no build chunk implied by any of this.
+
+## Entry 28 — Research deep-dive #12 JJazzLab (2026-07-21)
+
+Human picked JJazzLab this chunk. Read via `gh api` (large Java/NetBeans RCP
+repo, 65 `pom.xml` modules, no local clone needed): README, `Rhythm.java`
+and `MusicGenerator.java` (the plugin SPI), `ChordType.java` (chord-symbol
+theory model), and — the most interesting part — `JJSwing`'s
+`BassGenerator.java` and `DrumsGenerator.java` plus `WbpSourceDatabase.java`,
+which revealed the actual generation technique: a **concatenative
+pattern-retrieval engine**, not rule-based synthesis or ML. Also skimmed
+`YamJJazz` (imports Yamaha `.sty` hardware-style files as an alternate
+content source) and the `app/` module list for UI/product breadth. Notes:
+`docs/research/12-jjazzlab.md`.
+
+**Product:** desktop backing-track generator (574★, LGPL-2.1, 35k+ users,
+actively maintained — last push 2026-07-05) — chord symbols + rhythm style
+in, multi-instrument arrangement out, built-in FluidSynth or VST output.
+Framed per `RESEARCH-QUEUE.md` as a **product-completeness study**, not a
+theory peer.
+
+**Architecture, the actual finding:** strict separation of `model/`
+(pure domain: chord/scale theory, independent of generation),
+`core/RhythmMusicGenerationSPI` (the public `Rhythm`/`MusicGenerator`
+plugin contract — shipped standalone as `JJazzLabToolkit` so third parties
+can write style plugins without the whole app), and `plugins/` (the actual
+style engines: `YamJJazz` importing an entire pre-existing proprietary
+content format vs. `JJSwing`'s own **`WbpSourceDatabase`** — pre-recorded
+1-4 bar bass/drum MIDI phrases indexed by the chord sequence they were
+played over, including all sub-phrases, matched at generation time by a
+scorer against the song's actual chords + style/intensity parameters +
+guessed tags, then spliced and humanized). This is a **third distinct
+"chords in, music out" technique** alongside AccoMontage2's (#07)
+VAE-embedding DP retrieval and music-arranger's (#09) CP-SAT constraint
+solving — no ML, no solver, just curated-bank lookup + scoring + splice,
+and it ships to 35k real users.
+
+**Vs Harmonyx:** no theory-content overlap (jazz chord symbols, not
+classical RN/SATB), so nothing here touches `rules.py`/`realize.py`
+directly. The transferable lessons are entirely about product shape: (1)
+model/engine/UI kept strictly decoupled behind a documented public
+interface, with the interface's own javadoc explicitly listing everything
+the *framework* handles centrally (instrument/channel assignment, mute,
+custom-phrase substitution, transposition, etc.) so a plugin only
+implements the musical part — a sharper version of `AGENTS.md`'s own
+"own the seams" principle, enforced as a hard contract instead of a
+convention; (2) JJSwing's hand-curated-bank-plus-retrieval technique is a
+third, much lighter-weight realization-strategy option worth remembering
+alongside CP-SAT and VAE-embedding retrieval if Harmonyx ever wants a
+second/faster generation mode alongside the locked DP; (3) real-user
+infrastructure (Upgrade/migration, crowdin community translation,
+Analytics, CONTRIBUTING.md) that internal tools never need but a shipped
+product eventually does — not urgent, just a named checklist for later.
+
+**Steal (ideas only):** model/engine/UI separation via public interfaces;
+"document what the framework handles so plugins don't have to" as a
+contract-documentation pattern; concatenative pattern-retrieval as a third
+lightweight generation-strategy alternative. **Don't steal:** NetBeans/
+desktop-app plumbing (Upgrade, StartupManager, Analytics) — solving
+problems Harmonyx doesn't have as a web API; jazz-specific content
+(Yamaha styles, walking-bass MIDI banks) — wrong domain.
+
+Updated `docs/CLASSICAL-AI-LANDSCAPE.md` §5.1 (JJazzLab row annotated done),
+§10 (marked #8/JJazzLab done), §11 (two new backlog rows: pattern-retrieval
+alternative, explicit-SPI-as-product-decision), §13/§14;
+`docs/RESEARCH-QUEUE.md` (#5 marked done, next-default updated to Tier 2
+rnbert/muMoE-RNBERT or ai-music-theory+MuTheoryEval); `docs/NEXT-RESEARCH-
+PASTE.txt`; `docs/START-HERE.md` and `docs/AGENT-START-HERE.md`'s
+research-status lines. This closes **Tier 2 #5**, leaving Tier 2 #6-7
+(rnbert/muMoE-RNBERT, ai-music-theory+MuTheoryEval) and Tier 3 #8-10
+(diatone, mcp-score, Humdrum tooling) as the remaining queue. Per AGENTS.md
+Rule 2b: good point for a chat reset before naming the next task — next
+research default is **rnbert / muMoE-RNBERT** (now comparable to both
+AugmentedNet #11 and this chunk's product-completeness framing) or
+**ai-music-theory + MuTheoryEval**; no build chunk implied by any of this.

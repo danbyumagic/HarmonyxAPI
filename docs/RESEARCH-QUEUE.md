@@ -70,12 +70,16 @@ read (not just "clone it").
 
 ## Tier 2 — carried over from `CLASSICAL-AI-LANDSCAPE.md` §10 (not yet started)
 
-5. **JJazzLab** (`jjazzboss/JJazzLab`, ~574★) — mature, actively developed
-   open-source **jazz backing-track arranger app** (Java/NetBeans RCP). Not
-   classical, but the most complete *product* in the whole landscape map —
-   worth studying purely for "what does a finished, polished desktop music
-   app look like feature-complete" product-completeness lessons, independent
-   of the jazz domain.
+5. **JJazzLab** (`jjazzboss/JJazzLab`, ~574★) — **Done**, see
+   `docs/research/12-jjazzlab.md`. Mature, actively developed open-source
+   **jazz backing-track arranger app** (Java/NetBeans RCP, 65-module Maven
+   tree). Not classical, but the most complete *product* in the whole
+   landscape map. Studied for product-completeness lessons: strict
+   model/engine/UI separation behind a public `Rhythm`/`MusicGenerator` SPI,
+   plus a third distinct chords-in/music-out technique (JJSwing's
+   concatenative retrieval from a hand-curated MIDI phrase bank, scored
+   against chord sequence + tags — no ML, no solver) alongside AccoMontage2's
+   (#07) VAE-embedding retrieval and music-arranger's (#09) CP-SAT solving.
 
 6. **rnbert** (`malcolmsailor/rnbert`) + **muMoE-RNBERT**
    (`TomusD/muMoE-RNBERT`) — neural Roman-numeral-analysis baselines
@@ -168,12 +172,13 @@ so the candidates aren't lost if that decision ever gets revisited:
 08-shimaoka-satb-skillset.md`) → ~~music-arranger~~ **Done** (`docs/research/
 09-music-arranger.md`) → ~~thiri-mcp + music21-mcp~~ **Done** (`docs/research/
 10-thiri-mcp-and-music21-mcp.md`) — **Tier 1 fully closed** → ~~Tier 3 #11
-AugmentedNet~~ **Done** (`docs/research/11-augmentednet.md`) → Tier 2 in
-listed order → Tier 3 remainder as time allows.
+AugmentedNet~~ **Done** (`docs/research/11-augmentednet.md`) → ~~Tier 2 #5
+JJazzLab~~ **Done** (`docs/research/12-jjazzlab.md`) → Tier 2 remainder →
+Tier 3 remainder as time allows.
 
-Next default: Tier 2 #5 **JJazzLab** (product-completeness study) or Tier 2
-#6 **rnbert / muMoE-RNBERT** (now that AugmentedNet gives a first neural-RNA
-baseline to compare against). Human picks.
+Next default: Tier 2 #6 **rnbert / muMoE-RNBERT** (neural-RNA baselines, now
+comparable to AugmentedNet #11) or Tier 2 #7 **ai-music-theory +
+MuTheoryEval** (theory-knowledge KB / eval hub). Human picks.
 
 As always: one peer (or one small related cluster, like the two MCP servers)
 per chunk, notes written to `docs/research/0N-*.md`, landscape doc + AI-DIARY
