@@ -39,7 +39,8 @@ read (not just "clone it").
    `references/d-chords.md` (augmented 6ths), and `references/notation-
    syntax.md`; skim the `VALUEADD/` LLM reviews for outside critique.
 
-2. **`git-scarrow/music-arranger`** (moved to Codeberg:
+2. **`git-scarrow/music-arranger`** — **Done**, see
+   `docs/research/09-music-arranger.md`. (moved to Codeberg:
    `codeberg.org/scarrow/music-arranger`) — Natural-language → SATB via
    Claude tool-call extraction + **Google OR-Tools CP-SAT constraint solver**.
    Already skimmed `music_arranger.py` (Claude tool schema) and
@@ -163,14 +164,14 @@ so the candidates aren't lost if that decision ever gets revisited:
 ## Suggested order
 
 ~~Shimaoka-SATB-SkillSet first~~ **Done** (`docs/research/
-08-shimaoka-satb-skillset.md`) → rest of Tier 1 (thiri-mcp + music21-mcp
+08-shimaoka-satb-skillset.md`) → ~~music-arranger~~ **Done** (`docs/research/
+09-music-arranger.md`) → rest of Tier 1 (thiri-mcp + music21-mcp
 together — short and closely related, MCP theory exposure pattern) →
 Tier 3 #11 AugmentedNet (quick, ties directly to already-read #06) →
 Tier 2 in listed order → Tier 3 remainder as time allows.
 
-Next default: **`git-scarrow/music-arranger`** (Tier 1 #2 — CP-SAT
-constraint-solver twin to the realizer) or the **thiri-mcp + music21-mcp**
-pair (Tier 1 #3–4 — short, closely related). Human picks.
+Next default: **thiri-mcp + music21-mcp** pair (Tier 1 #3–4 — short, closely
+related, MCP theory exposure pattern).
 
 As always: one peer (or one small related cluster, like the two MCP servers)
 per chunk, notes written to `docs/research/0N-*.md`, landscape doc + AI-DIARY

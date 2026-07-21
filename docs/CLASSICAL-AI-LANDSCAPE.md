@@ -65,6 +65,7 @@ These encode the same product philosophy as Harmonyx L1–L4:
 | **choral-llm-workbench** | https://github.com/asb-42/choral-llm-workbench | MusicXML roundtrip + LLM-assisted choral reharm/style; music21; ghost chords | Professional choir arranger angle. Jan 2026. |
 | **thiri-mcp** | https://github.com/BluesPrince/thiri-mcp | Deterministic theory MCP: RNA, voicing, reharm | “Computed, not hallucinated.” Agent-facing API pattern. |
 | **music21-mcp** | https://github.com/SimonsonM/music21-mcp | music21 as MCP tools (key, RNA, counterpoint, harmonize) | How agents will call theory stacks. |
+| **music-arranger** | https://codeberg.org/scarrow/music-arranger | NL → Claude tool-call → CP-SAT (OR-Tools) SATB solver | Closest "L4 + realizer, one architecture" twin; see research #09. |
 
 ### Resonance architecture (reference diagram)
 
@@ -320,6 +321,8 @@ If “king of classical × AI” becomes a multi-product strategy:
 | Analyzer eval against real ground truth | When-in-Rome's 371 Bach chorales + slice-based RN-vs-score agreement scoring — see research #06 §3–4 | Next time analyzer A7 (RN-agreement eval) is scoped; reimplement the matching idea, don't vendor `romanUmpire.py` (CC BY-SA + coupled to WiR's layout). |
 | Richer grammar features (Neapolitan 6th, borrowed/modal-mixture chords, Picardy third, pedal point/sustained bass) | Shimaoka-SATB-SkillSet's prefix-degree-suffix notation names each as a distinct feature Harmonyx doesn't model — see research #08 §3 | If the rule grammar is ever extended past Q3c; not urgent, just a named checklist so the gap isn't re-discovered from scratch. |
 | Augmented-sixth chords | Two independent peers now flag this gap: When-in-Rome's `It6`/`Fr43`/`Ger65` notation (#06 §2) + Shimaoka's usage rules (only at D₂, ⟨2nd⟩ disposition default) (#08 §3) | If/when scoped: use WiR's wire syntax, Shimaoka's "when to use which form" theory. |
+| Pre-solve infeasibility diagnostics ("why would this fail" before/instead of a bare error) | music-arranger's `verify_solver.py` names specific failure modes (melody-outside-scale, empty-domain conflict, cadence truncation, cadence-vs-melody conflict) before solving — see research #09 §3 | If M4 `POST /check` or `POST /generate`/`POST /progression` error responses are revisited; independent of the DP-vs-CP-SAT question. |
+| Global constraint solving (CP-SAT) as a DP-realizer alternative | music-arranger uses Google OR-Tools CP-SAT for one-pass joint hard+soft constraint optimization instead of Harmonyx's sequential DP — see research #09 §2 | Only relevant if the rule grammar ever needs a genuinely non-local constraint the DP realizer's step-adjacency scoring can't express; not needed today, locked DP fixtures stay as-is. |
 
 ---
 
@@ -350,12 +353,13 @@ Written notes (read these before re-cloning peers):
 | 06 | [`docs/research/06-when-in-rome.md`](research/06-when-in-rome.md) | MarkGotham/When-in-Rome — RN meta-corpus for L1 few-shot + analyzer eval |
 | 07 | [`docs/research/07-accomontage2.md`](research/07-accomontage2.md) | billyblu2000/AccoMontage2 + music-x-lab/POP909-Dataset — pop melody→chords+texture arrangement pipeline |
 | 08 | [`docs/research/08-shimaoka-satb-skillset.md`](research/08-shimaoka-satb-skillset.md) | ShikiSuen/Shimaoka-SATB-SkillSet — LLM-context-only Swing Theory SATB knowledge base; counter-example to "LLM proposes, code enforces"; 2nd source flagging the augmented-sixth notation gap |
+| 09 | [`docs/research/09-music-arranger.md`](research/09-music-arranger.md) | scarrow/music-arranger — Claude tool-call NL extraction + Google OR-Tools CP-SAT SATB solver; "L4 + realizer, one architecture" twin; steals: pre-solve infeasibility diagnostics, soft/hard scale confirmation; don't steal: CP-SAT replacing DP, wide NL→full-arrangement tool schema |
 
 Research queue #01–#07 (the originally planned order) is complete. Further
 deep-dives now come from `docs/RESEARCH-QUEUE.md` (Tier 1–4 candidates found
 in the 2026-07-21 follow-up scans, plus human-flagged repos) — see that file
-for the live queue and suggested order. #08 (Shimaoka-SATB-SkillSet) is the
-first entry from that queue; the rest still need an explicit human ask.
+for the live queue and suggested order. #08–#09 are entries from that queue;
+the rest still need an explicit human ask.
 
 ### PartWise one-liner (after #03)
 
@@ -386,6 +390,7 @@ fixtures as default; do not replace `realize.py` with soft beam+fix.
 | 2026-07-21 | Deep-dive #07 AccoMontage2 + POP909 → `docs/research/07-accomontage2.md` (pop arrangement pipeline; Tier B, not classical — arrangement-track reference only). Closes the #01–#07 research queue. |
 | 2026-07-21 | New candidates found via follow-up GitHub scans + a human-flagged repo → `docs/RESEARCH-QUEUE.md` (11 repos, tiered). |
 | 2026-07-21 | Deep-dive #08 Shimaoka-SATB-SkillSet → `docs/research/08-shimaoka-satb-skillset.md` (LLM-context-only SATB knowledge base; counter-example to code-enforced validation; 2nd source on augmented-sixth gap). |
+| 2026-07-21 | Deep-dive #09 music-arranger → `docs/research/09-music-arranger.md` (Claude tool-call NL extraction + CP-SAT SATB solver; DP-vs-CP-SAT comparison; pre-solve diagnostics idea for M4). |
 
 When you re-scan, append a changelog row and note new Tier S/A finds at the top
 of §3–§4.

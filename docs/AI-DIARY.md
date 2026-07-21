@@ -595,3 +595,55 @@ Updated `docs/CLASSICAL-AI-LANDSCAPE.md` §11 (two new backlog rows) and §13/
 before naming the next task — next research default (human picks) is
 `git-scarrow/music-arranger` (CP-SAT twin to the realizer) or the
 thiri-mcp/music21-mcp MCP pair.
+
+## Entry 25 — Research deep-dive #09 music-arranger (2026-07-21)
+
+Human picked `git-scarrow/music-arranger` (Tier 1 #2) over the thiri-mcp/
+music21-mcp pair for this chunk. Repo moved off GitHub to Codeberg
+(`codeberg.org/scarrow/music-arranger`); no `README.md` found (404) so
+architecture was reconstructed from source: `music_arranger.py`,
+`solver_template.py`, `verify_solver.py`, `verify_barbershop.py`,
+`theory_definitions.json`, read via raw file fetch (no local clone, no gh —
+Codeberg not GitHub). No LICENSE file found — treated as all-rights-reserved,
+ideas cited, no code vendored. Notes: `docs/research/09-music-arranger.md`.
+
+**Product:** natural language → Claude tool-call extraction (`apply_arrangement`,
+forced tool_choice) → structured arrangement params → **Google OR-Tools
+CP-SAT constraint solver** → SATB (or barbershop 4-voice) voicing. The
+closest peer yet to Harmonyx's own L4 plan — same "LLM proposes, code
+enforces" bet — but the deterministic engine is a **declarative constraint
+solver** (all voice/step variables + all hard/soft constraints declared at
+once, `model.Maximize(sum(objective_terms))`) instead of Harmonyx's
+sequential DP/Viterbi realizer.
+
+**Vs Harmonyx:** not a case for replacing the DP realizer — CP-SAT is a
+heavier dependency for a benefit (global joint constraint optimization)
+Harmonyx's currently-scoped, checkably-local rule set (`PARTWRITING-RULES.md`
+§0–7) doesn't need; the locked DP + `test_partwriting.py` fixtures stay as-is
+per `AGENTS.md` Rule 4. Two things worth carrying forward as ideas (not
+code): (1) `verify_solver.py`'s **pre-solve infeasibility diagnostics** —
+named, specific failure reasons (melody-outside-scale, empty-domain
+conflict, cadence truncation, cadence-vs-pinned-melody conflict) reported
+*before* solving, relevant to M4 `POST /check` design or to
+`POST /generate`/`POST /progression` error responses; (2) `verify_barbershop.py`'s
+soft-vs-hard scale constraint duality independently confirms Harmonyx's
+existing `spice`/`style` soft-preference design (Q3b/c) is the right shape —
+no change needed, just validation. Also flagged as a **don't-steal**: this
+repo's wide single-tool-call NL→full-arrangement schema is more expressive
+but more tightly coupled to solver internals than Harmonyx's planned
+"LLM emits RN only, deterministic stage handles voicing" L4 contract (also
+independently validated by research #01 resonance) — the narrower contract
+stays the plan.
+
+**Steal:** pre-solve infeasibility diagnostic pattern (M4/error-response
+idea); soft/hard scale duality as confirmation, not a new idea. **Don't
+steal:** CP-SAT replacing the DP realizer; the wide NL→full-arrangement tool
+schema; any literal code (no confirmed license).
+
+Updated `docs/CLASSICAL-AI-LANDSCAPE.md` §3 (Tier S table — music-arranger
+row), §11 (two new backlog rows: pre-solve diagnostics, CP-SAT-as-alternative),
+§13/§14, `docs/RESEARCH-QUEUE.md` (#2 marked done, suggested-order + next-
+default updated to thiri-mcp/music21-mcp), and `docs/NEXT-RESEARCH-PASTE.txt`.
+Per AGENTS.md Rule 2b: good point for a chat reset before naming the next
+task — next research default is the **thiri-mcp + music21-mcp** MCP pair
+(Tier 1 #3–4).
