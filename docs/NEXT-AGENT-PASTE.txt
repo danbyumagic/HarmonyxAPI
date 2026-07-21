@@ -1,7 +1,7 @@
 ================================================================================
 NEXT AGENT — paste-ready prompt (Harmonyx API)
-Saved: 2026-07-21 after research deep-dives 01–04 + vision check-in
-Pushed tip: 769bd06 on claude/harmonic-analysis-api-loc82f
+Saved: 2026-07-21 after research deep-dive #08 Shimaoka-SATB-SkillSet
+Pushed tip: 95370fc on claude/harmonic-analysis-api-loc82f
 ================================================================================
 
 Copy everything below the line into a new Claude Code chat:
@@ -12,35 +12,39 @@ Then stop and wait for my instructions — do not start implementing anything ye
 --------------------------------------------------------------------------------
 
 If the session is **research-only**, use docs/NEXT-RESEARCH-PASTE.txt instead
-(default next peer: #05 choral-llm-workbench).
+(default next: git-scarrow/music-arranger, or the thiri-mcp/music21-mcp pair —
+see docs/RESEARCH-QUEUE.md).
 
 ================================================================================
-WHAT JUST HAPPENED (this Grok session — do not re-do)
+WHAT JUST HAPPENED (this session — do not re-do)
 ================================================================================
 
-Branch: claude/harmonic-analysis-api-loc82f (pushed through 769bd06)
-Worktree (if present): /private/tmp/harmonyx-voicing-fix
-  (Developer path may be a separate checkout — always confirm with git status)
+Branch: claude/harmonic-analysis-api-loc82f (pushed through 95370fc)
+Always confirm with git status — Developer path may be a separate checkout.
 
-Research deep-dives completed and documented:
+Research deep-dives completed and documented (docs/research/01-08):
 
-  01  docs/research/01-resonance.md           L4: LLM → RN JSON only; fallback
-  02  docs/research/02-choral-counterpoint.md M4: V/W rules; Bach oracle culture
-  03  docs/research/03-partwise.md            M4: evaluate UX + pass/warn/fail
-  04  docs/research/04-chorale-optimizer.md   Realizer peer: beam+fix vs DP
+  01  01-resonance.md            L4: LLM → RN JSON only; fallback
+  02  02-choral-counterpoint.md  M4: V/W rules; Bach oracle culture
+  03  03-partwise.md             M4: evaluate UX + pass/warn/fail
+  04  04-chorale-optimizer.md    Realizer peer: beam+fix vs DP
+  05  05-choral-llm-workbench.md Note-level LLM interface pattern (IKR-light/TLR)
+  06  06-when-in-rome.md         RN meta-corpus; L1 few-shot + analyzer A7 eval
+  07  07-accomontage2.md         Pop arrangement pipeline (Tier B, not classical)
+  08  08-shimaoka-satb-skillset.md  LLM-context-only SATB KB; counter-example to
+                                 code-enforced validation; augmented-6th gap (2nd source)
 
-Also: docs/CLASSICAL-AI-LANDSCAPE.md living map (Tier S–D).
-AI-DIARY entries 15–19 cover landscape + deep-dives.
+Also: docs/CLASSICAL-AI-LANDSCAPE.md living map (Tier S–D) and
+docs/RESEARCH-QUEUE.md (live queue of repos still to deep-dive, tiered).
+AI-DIARY entries 15–24 cover landscape + all deep-dives.
 
-Human vision (context only, not a license to build everything):
-  Want to be wowed by classical music AI in every realm — multi-product
-  domain ambition; still work in small named chunks (AGENTS.md).
+Product code status: unchanged since Q3c / L1-L3 (research-only sessions
+since then; see below for what's actually built).
 
-Product code status unchanged this session (research docs only for #04).
-
-Already shipped earlier (do not re-implement):
-  Analyze, generate, progression grammar Q3a–c, spice UI, L1–L3,
-  OSMD, playback, grand staff, locked test_partwriting.py.
+Already shipped (do not re-implement):
+  Analyze, generate, progression grammar Q3a–c (inversions/Cad64, spice 0-3,
+  style presets), spice/style UI, L1-L3 (corpus/validate/fix), OSMD, playback,
+  grand staff, locked test_partwriting.py.
 
 Verify (optional):
   .venv/bin/python -m pytest tests/ -q
@@ -50,20 +54,22 @@ Verify (optional):
 OPEN QUEUE (human picks ONE chunk per session)
 ================================================================================
 
-Build candidates:
+Build candidates (see docs/START-HERE.md "Open queue" for the live table):
   Q1  LLM progression L4+     docs/LLM-PROGRESSION-SPEC.md (+ steal from #01)
   Q2  M4 POST /check          PartWise #03 UX + rules.py + #02 V/W
   Q4  Analyzer A1/A2/A7       NCT / cadences / RN-agreement eval
   Q5  Docs / PR polish
 
 Research default (if human says continue research):
-  #05  asb-42/choral-llm-workbench → docs/research/05-choral-llm-workbench.md
+  See docs/RESEARCH-QUEUE.md — next up: git-scarrow/music-arranger (Codeberg,
+  CP-SAT solver twin to the realizer) or thiri-mcp + music21-mcp (MCP pair).
   Paste: docs/NEXT-RESEARCH-PASTE.txt
 
 Optional later ideas from research (not scheduled):
   Best-effort generate mode + residual flags (#04)
   Cadence phrase chunking for long paths (#04)
-  N6 / Ger6 vocabulary when fixtures exist (#04)
+  N6 / Ger6 vocabulary when fixtures exist (#04, #06, #08 — augmented 6ths
+  now flagged by two independent peers)
 
 Rules: AGENTS.md — ask before big spends; small chunks; never edit
 tests/test_partwriting.py; commit/push at stops.

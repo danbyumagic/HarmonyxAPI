@@ -8,12 +8,7 @@ Read these, in order, then **stop and wait** for my instructions:
 1. `AGENTS.md` (agent rules — small chunks, ask before big spends)
 2. `docs/START-HERE.md` (product status — orientation only)
 3. `docs/CLASSICAL-AI-LANDSCAPE.md` (full landscape map + Tier S–D)
-4. `docs/research/01-resonance.md` (**done** — L4 architecture twin)
-5. `docs/research/02-choral-counterpoint.md` (**done** — SATB checker + Bach oracle)
-6. `docs/research/03-partwise.md` (**done** — M4 `/check` UX + evaluate API)
-7. `docs/research/04-chorale-optimizer.md` (**done** — beam + fixups vs DP realizer)
-8. `docs/research/05-choral-llm-workbench.md` (**done** — IKR-light/TLR note-level LLM interface pattern)
-9. `docs/research/06-when-in-rome.md` (**done** — RN meta-corpus for L1 few-shot + analyzer eval)
+4. `docs/RESEARCH-QUEUE.md` (the live queue of repos still to deep-dive)
 
 **Do not start implementing code.** Research / notes only unless I name a build chunk.
 
@@ -27,14 +22,27 @@ Read these, in order, then **stop and wait** for my instructions:
 | 04 | `docs/research/04-chorale-optimizer.md` | 604korupt/chorale-optimizer | Beam w=40 + iterative fixups; always-emit; cadence splits; keep fail-closed DP |
 | 05 | `docs/research/05-choral-llm-workbench.md` | asb-42/choral-llm-workbench | IKR-light + TLR (line-per-event text) as a *future* note-level LLM interface pattern; validated "LLM proposes, code enforces" independently; repo itself is sprawling/unhealthy — don't vendor code |
 | 06 | `docs/research/06-when-in-rome.md` | MarkGotham/When-in-Rome | RN meta-corpus (~1,300 analyses incl. 371 Bach chorales); validates existing RN syntax (`Cad64`, `/V`); augmented-6th + suspension bracket syntax ready if scoped; `romanUmpire` slice-matching technique relevant to analyzer A7 (reimplement, don't vendor — CC BY-SA) |
+| 07 | `docs/research/07-accomontage2.md` | billyblu2000/AccoMontage2 + music-x-lab/POP909-Dataset | Pop melody→chords+texture arrangement pipeline; Tier B (not classical) — arrangement-track reference only if that track is ever scoped |
+| 08 | `docs/research/08-shimaoka-satb-skillset.md` | ShikiSuen/Shimaoka-SATB-SkillSet | LLM-context-only SATB knowledge base (no validator/enforcement code) — counter-example to "LLM proposes, code enforces"; 2nd independent source (after #06) flagging the augmented-sixth notation gap |
+
+Research #01–#07 (the originally planned landscape order) is complete. #08
+came from the follow-up `docs/RESEARCH-QUEUE.md` scan (Tier 1–4 candidates +
+a human-flagged repo).
 
 ## Next research chunk (default)
 
-**07 — AccoMontage2 + POP909** (`billyblu2000/AccoMontage2`)
-- Why: arrangement track (later) — only relevant if arrangement becomes a scoped milestone
-- Write notes to: `docs/research/07-accomontage2.md`
-- Update `docs/CLASSICAL-AI-LANDSCAPE.md` §10/§11 and a short `AI-DIARY` entry
-- Then **stop** for check-in (research #01–07 would complete the current landscape's suggested order)
+Per `docs/RESEARCH-QUEUE.md`'s suggested order, the next candidates are:
+- **`git-scarrow/music-arranger`** (Codeberg: `codeberg.org/scarrow/music-arranger`)
+  — Claude tool-call extraction + Google OR-Tools CP-SAT constraint solver for
+  SATB; closest thing yet to an "L4 + realizer, one architecture" twin.
+- **`BluesPrince/thiri-mcp`** + **`SimonsonM/music21-mcp`** — short, closely
+  related MCP theory-exposure pair, read together as one chunk.
+
+See `docs/RESEARCH-QUEUE.md` for the full tiered list (11 repos), what to
+actually read in each, and the reasoning. Write notes to
+`docs/research/09-*.md`, update `docs/CLASSICAL-AI-LANDSCAPE.md` §10/§11/§13,
+`docs/RESEARCH-QUEUE.md` (mark the entry done), and a short `AI-DIARY` entry.
+Then **stop** for check-in.
 
 ## Harmonyx context (one screen)
 
@@ -49,9 +57,13 @@ Read these, in order, then **stop and wait** for my instructions:
 - Branch: `claude/harmonic-analysis-api-loc82f` (confirm with `git status`)
 - Commit research notes at end of each peer deep-dive
 
-## When I say “continue research”
+## When I say "continue research"
 
-Deep-dive the next numbered peer: clone/browse via `gh`, read README + core sources, write `docs/research/0N-….md` with architecture, comparison to Harmonyx, steal/don’t-steal list, open questions. One peer per chunk unless I ask for more.
+Deep-dive the next entry from `docs/RESEARCH-QUEUE.md` (or the next numbered
+peer if the queue is empty): clone/browse via `gh`, read README + core
+sources, write `docs/research/0N-….md` with architecture, comparison to
+Harmonyx, steal/don't-steal list, open questions. One peer (or one small
+related cluster, like an MCP pair) per chunk unless I ask for more.
 
 ---
 

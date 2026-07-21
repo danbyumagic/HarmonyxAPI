@@ -99,7 +99,8 @@ For classical×AI **research** sessions, paste `docs/NEXT-RESEARCH-PASTE.txt`.
 - `docs/PARTWRITING-RULES.md` — locked theory for the realizer (§9 / §9b)
 - `docs/CLASSICAL-AI-LANDSCAPE.md` — external classical×AI / arrange landscape
   (GitHub peers, Tier S–D map; research only, not a build queue)
-- `docs/research/01`–`05-*.md` — peer deep-dives (Resonance, choral-counterpoint,
-  PartWise, chorale-optimizer, choral-llm-workbench)
+- `docs/research/01`–`08-*.md` — peer deep-dives (Resonance, choral-counterpoint,
+  PartWise, chorale-optimizer, choral-llm-workbench, When-in-Rome,
+  AccoMontage2+POP909, Shimaoka-SATB-SkillSet)
 - `docs/NEXT-RESEARCH-PASTE.txt` — paste for next **research** session
 - `docs/AI-DIARY.md` — chronological agent log (newest at bottom)

@@ -7,7 +7,8 @@ This file is **not** a license to implement the next milestone unprompted.
 
 Paste-ready prompts:
 - **Build / general:** `docs/NEXT-AGENT-PASTE.txt`
-- **Research peers only:** `docs/NEXT-RESEARCH-PASTE.txt` (default #05)
+- **Research peers only:** `docs/NEXT-RESEARCH-PASTE.txt` (default: next item
+  in `docs/RESEARCH-QUEUE.md`)
 
 ---
 
@@ -48,9 +49,14 @@ Branch: `claude/harmonic-analysis-api-loc82f` (confirm `git status` / `git log`)
 | 04 | `docs/research/04-chorale-optimizer.md` | Realizer alternatives; keep DP default |
 | 05 | `docs/research/05-choral-llm-workbench.md` | Note-level LLM interface pattern (IKR-light/TLR); not needed for RN-based L4 |
 | 06 | `docs/research/06-when-in-rome.md` | RN meta-corpus; L1 few-shot expansion + analyzer A7 eval |
+| 07 | `docs/research/07-accomontage2.md` | Pop melody→chords+texture pipeline; Tier B, arrangement-track only |
+| 08 | `docs/research/08-shimaoka-satb-skillset.md` | LLM-context-only SATB knowledge base; counter-example to code-enforced validation; 2nd source on augmented-sixth gap |
 
-Landscape map: `docs/CLASSICAL-AI-LANDSCAPE.md`. Next research default: **#07
-AccoMontage2 + POP909** (arrangement track only).
+Landscape map: `docs/CLASSICAL-AI-LANDSCAPE.md`. Research #01–#07 (originally
+planned order) is complete; further deep-dives come from
+`docs/RESEARCH-QUEUE.md`. Next default: **`git-scarrow/music-arranger`**
+(Codeberg — CP-SAT constraint-solver twin to the realizer) or the
+**thiri-mcp + music21-mcp** pair — human picks.
 
 ### Designed / not started (build)
 
@@ -87,7 +93,8 @@ They will name **one** chunk. Examples of open work (human picks):
    V/W thinking from #02.
 3. Analyzer improvements (NCT / cadences / RN eval).
 4. Docs / PR polish.
-5. Research #05+ only if they paste research mode or say “continue research.”
+5. Research (next item in `docs/RESEARCH-QUEUE.md`) only if they paste
+   research mode or say "continue research."
 
 Until they name a chunk: **report that you read the handoff and wait.**
 
