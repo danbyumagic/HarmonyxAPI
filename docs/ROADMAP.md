@@ -168,8 +168,7 @@ dense orchestral scores. State it explicitly, same as the v1 harmony scope.
 6. ~~Track C (OMR)~~ — deferred.
 
 ## Open questions to decide together
-- Does "output choral Roman numerals" mean realize (B2), analyze (current),
-  or round-trip both?
+_Direction settled._ See the resolved notes below.
 
 > Resolved: reuse question is settled — we build our own clean-room Python
 > part-writing engine (the rules are standard theory, not IP). No license gate,
@@ -184,3 +183,7 @@ dense orchestral scores. State it explicitly, same as the v1 harmony scope.
 > random RNs), with per-chord **manual edit / lock + constrained regenerate**;
 > (2) the clean-room realizer. Rule-based grammar is the default; an LLM
 > proposer is an optional later alternative.
+>
+> Resolved: Harmonyx is a **multi-utility tool that does both directions** —
+> analyze (score → RNs) *and* generate (RNs → score) — designed as inverses
+> that round-trip and validate each other.

@@ -107,7 +107,7 @@ slices to the model, show rule-based vs. model side by side) as the higher-value
 AI angle once NCT filtering and modulation detection land.
 
 ### Still open for a human
-- "Output choral Roman numerals" = realize / analyze / round-trip both?
+- _(resolved in Entry 7 — none outstanding on direction.)_
 
 ## Entry 5 — Generator: soprano decision
 User decided the **soprano is optional**. Free-soprano mode has the engine
@@ -145,3 +145,10 @@ default, LLM optional). Folded into the three planning docs.
   back through `/analyze` — use that round-trip as its correctness eval.
 - Keep the core service lean and deterministic; anything heavy or stylistic
   (LLM layers) stays optional/gated like the explainer already is.
+
+## Entry 7 — Confirmed: multi-utility, both directions
+User confirmed Harmonyx is a **multi-utility tool that does both** — analyze
+(score → Roman numerals) and generate (Roman numerals → score). The two are
+designed as inverses that round-trip and validate each other. This closes the
+last open direction question; remaining decisions are implementation details
+(e.g. one realization vs. several alternates). Updated STATUS and ROADMAP.

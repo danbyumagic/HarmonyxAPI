@@ -7,9 +7,12 @@ and [`chorale-generation.md`](chorale-generation.md).
 _Last updated: 2026-07-21._
 
 ## One-liner
-Send a MusicXML or MIDI score to `POST /analyze`, get back a chord-by-chord
-Roman-numeral analysis (key, chords, cadences) as structured JSON. Deterministic
-core (music21) + an optional LLM "explainer."
+A two-way, multi-utility harmony tool. **Analyze:** send a MusicXML/MIDI score
+to `POST /analyze`, get a chord-by-chord Roman-numeral analysis (key, chords,
+cadences) as JSON. **Generate:** turn a Roman-numeral progression into a
+four-part SATB hymn as MusicXML (planned — see `chorale-generation.md`). The
+two directions are inverses that round-trip and validate each other.
+Deterministic core (music21) + an optional LLM "explainer."
 
 ## Where the code lives
 - Repo: `danbyumagic/HarmonyxAPI`
@@ -110,8 +113,10 @@ python -m eval.run_eval            # Agreement: 13/20 = 65%
   (Layer 2). See [`chorale-generation.md`](chorale-generation.md).
 
 ## Open questions (need a human decision)
-1. "Output choral Roman numerals" — does it mean *realize* an RN progression to
-   SATB (the generator), *analyze* SATB to RNs (already done), or round-trip both?
+_None outstanding on direction._ Resolved: Harmonyx is a **multi-utility tool
+that does both** — analyze (score → RNs) and generate (RNs → score) — designed
+as inverses that round-trip. Remaining decisions are implementation details
+covered in `chorale-generation.md` (e.g. one realization vs. alternates).
 
 ## Suggested next steps (from ROADMAP phasing)
 1. NCT filtering (A1) + fermata-based cadence detection (A2) — biggest quality
