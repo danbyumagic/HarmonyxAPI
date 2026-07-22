@@ -765,10 +765,19 @@
 
     async function fetchMoreSopranoOptions() {
       const progression = slots.map((s) => s.figure.trim()).filter(Boolean);
-      const nextCount = sopranoOptions.length + 3;
+      const nextCount = Math.min(sopranoOptions.length + 3, 10);
       const btn = $('btnMoreSoprano');
       const note = $('sopranoMoreNote');
       if (btn) btn.disabled = true;
+
+      if (nextCount <= sopranoOptions.length) {
+        // Backend caps count at 10 (SopranoOptionsRequest.count, le=10); no
+        // room to grow further, so don't bother making a request.
+        sopranoOptionsExhausted = true;
+        if (btn) btn.disabled = true;
+        if (note) note.hidden = false;
+        return;
+      }
 
       try {
         const res = await fetch('/generate/soprano-options', {
