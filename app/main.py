@@ -221,7 +221,7 @@ async def generate_soprano_options(body: SopranoOptionsRequest) -> SopranoOption
     option into a full score via ``POST /generate``'s ``soprano`` param.
     """
     try:
-        options = soprano_alternatives(body.progression, body.key, n=3)
+        options = soprano_alternatives(body.progression, body.key, n=body.count)
     except RealizationError as exc:
         raise HTTPException(
             status_code=422,
