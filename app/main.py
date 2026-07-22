@@ -30,6 +30,7 @@ from .generation.realize import (
     soprano_alternatives,
 )
 from .generation.chords import midi_to_name
+from .generation.fix import roman_alternatives_for_slot
 from .models import (
     AnalysisResponse,
     GenerateRequest,
@@ -37,6 +38,8 @@ from .models import (
     PlaybackPayload,
     ProgressionRequest,
     ProgressionResponse,
+    RomanAlternativesRequest,
+    RomanAlternativesResponse,
     SopranoOptionsRequest,
     SopranoOptionsResponse,
 )
@@ -239,6 +242,50 @@ async def generate_soprano_options(body: SopranoOptionsRequest) -> SopranoOption
             for s in options
         ]
     )
+
+
+@app.post(
+    "/generate/roman-alternatives",
+    response_model=RomanAlternativesResponse,
+    tags=["generation"],
+)
+async def generate_roman_alternatives(
+    body: RomanAlternativesRequest,
+) -> RomanAlternativesResponse:
+    """Up to 6 theory-valid replacement Roman numerals for one progression
+    slot -- Roman-numeral logic only, no melody/engine involvement.
+    """
+    if body.index >= len(body.progression):
+        raise HTTPException(
+            status_code=422,
+            detail={
+                "error": "index_out_of_range",
+                "message": (
+                    f"index {body.index} out of range for progression of "
+                    f"length {len(body.progression)}"
+                ),
+            },
+        )
+    try:
+        alts = roman_alternatives_for_slot(
+            body.progression,
+            body.key,
+            body.index,
+            locked=body.locked,
+            cadence=body.cadence,
+        )
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=422,
+            detail={"error": "index_out_of_range", "message": str(exc)},
+        ) from exc
+    except Exception as exc:  # music21 / RN parse failures, etc.
+        raise HTTPException(
+            status_code=422,
+            detail={"error": "invalid_progression", "message": str(exc)},
+        ) from exc
+
+    return RomanAlternativesResponse(alternatives=alts)
 
 
 @app.get("/health", tags=["meta"])

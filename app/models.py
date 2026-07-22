@@ -6,7 +6,7 @@ so the ``examples`` matter -- they are the demo surface.
 
 from __future__ import annotations
 
-from typing import List, Optional
+from typing import List, Literal, Optional
 
 from pydantic import BaseModel, Field, field_validator
 
@@ -216,6 +216,63 @@ class SopranoOptionsResponse(BaseModel):
                 "options": [
                     {"soprano": [72, 72, 71, 72], "pitches": ["C5", "C5", "B4", "C5"]},
                     {"soprano": [64, 65, 62, 64], "pitches": ["E4", "F4", "D4", "E4"]},
+                ]
+            }
+        }
+    }
+
+
+class RomanAlternativesRequest(BaseModel):
+    """Body for ``POST /generate/roman-alternatives``."""
+
+    key: str = Field(..., description="Key, e.g. 'C major' or 'A minor'.", examples=["C major"])
+    progression: List[str] = Field(
+        ...,
+        min_length=1,
+        description="Roman-numeral figures in order, e.g. ['I', 'IV', 'V', 'I'].",
+    )
+    index: int = Field(..., ge=0, description="Index of the slot to suggest alternatives for.")
+    locked: Optional[dict[int, str]] = Field(
+        None, description="Map of index -> required figure for other slots."
+    )
+    cadence: Optional[Literal["PAC", "HC"]] = Field(
+        None, description="If set, alternatives must preserve this cadence shape."
+    )
+
+    @field_validator("progression")
+    @classmethod
+    def _figures_nonempty(cls, value: List[str]) -> List[str]:
+        if any(not (f and str(f).strip()) for f in value):
+            raise ValueError("progression figures must be non-empty strings")
+        return value
+
+    model_config = {
+        "json_schema_extra": {
+            "example": {
+                "key": "C major",
+                "progression": ["I", "IV", "V", "I"],
+                "index": 1,
+            }
+        }
+    }
+
+
+class RomanAlternative(BaseModel):
+    figure: str = Field(..., description="Candidate Roman-numeral figure.")
+    label: str = Field(..., description="Short human-readable description of the edit.")
+
+
+class RomanAlternativesResponse(BaseModel):
+    """Up to 6 theory-valid replacement figures for one progression slot."""
+
+    alternatives: List[RomanAlternative]
+
+    model_config = {
+        "json_schema_extra": {
+            "example": {
+                "alternatives": [
+                    {"figure": "V", "label": "Use dominant"},
+                    {"figure": "ii", "label": "Beat 2: IV → ii"},
                 ]
             }
         }

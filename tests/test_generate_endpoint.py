@@ -173,3 +173,60 @@ def test_soprano_options_count_out_of_bounds_returns_422():
         json={"key": "C major", "progression": ["I", "V", "I"], "count": 11},
     )
     assert resp_high.status_code == 422, resp_high.text
+
+
+# --- POST /generate/roman-alternatives ----------------------------------
+
+
+def test_roman_alternatives_happy_path_returns_valid_swaps():
+    resp = client.post(
+        "/generate/roman-alternatives",
+        json={"key": "C major", "progression": ["I", "IV", "V", "I"], "index": 1},
+    )
+    assert resp.status_code == 200, resp.text
+    data = resp.json()
+    alts = data["alternatives"]
+    assert alts
+    assert len(alts) <= 6
+    figures = [a["figure"] for a in alts]
+    assert "IV" not in figures
+    for a in alts:
+        assert a["label"]
+
+
+def test_roman_alternatives_locked_slot_returns_empty_list():
+    resp = client.post(
+        "/generate/roman-alternatives",
+        json={
+            "key": "C major",
+            "progression": ["I", "IV", "V", "I"],
+            "index": 1,
+            "locked": {"1": "IV"},
+        },
+    )
+    assert resp.status_code == 200, resp.text
+    assert resp.json()["alternatives"] == []
+
+
+def test_roman_alternatives_out_of_range_index_returns_422():
+    resp = client.post(
+        "/generate/roman-alternatives",
+        json={"key": "C major", "progression": ["I", "IV", "V", "I"], "index": 4},
+    )
+    assert resp.status_code == 422, resp.text
+
+
+def test_roman_alternatives_chosen_swap_feeds_generate_successfully():
+    # The whole point: a returned figure must be a drop-in valid replacement.
+    alts_resp = client.post(
+        "/generate/roman-alternatives",
+        json={"key": "C major", "progression": ["I", "IV", "V", "I"], "index": 1},
+    )
+    chosen = alts_resp.json()["alternatives"][0]["figure"]
+    prog = ["I", chosen, "V", "I"]
+
+    gen_resp = client.post(
+        "/generate",
+        json={"key": "C major", "progression": prog},
+    )
+    assert gen_resp.status_code == 200, gen_resp.text
