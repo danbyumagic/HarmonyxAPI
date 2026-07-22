@@ -226,7 +226,8 @@
     }
     .cad .m { color: var(--faint); font-variant-numeric: tabular-nums; }
     .cad .dot { width: 7px; height: 7px; border-radius: 50%; }
-    .cad.authentic .dot { background: var(--major); }
+    .cad.PAC .dot, .cad.authentic .dot { background: var(--major); }
+    .cad.IAC .dot { background: var(--major); opacity: .55; }
     .cad.half .dot { background: var(--accent-2); }
     .cad.plagal .dot { background: var(--dim); }
     .cad.deceptive .dot { background: #c9922e; }
@@ -417,7 +418,8 @@
       Deterministic core by <a href="https://www.music21.org/">music21</a> ·
       <a href="/docs">API docs</a>.
       <div class="legend">
-        <span><i style="background:var(--major)"></i>authentic</span>
+        <span><i style="background:var(--major)"></i>PAC</span>
+        <span><i style="background:var(--major);opacity:.55"></i>IAC</span>
         <span><i style="background:var(--accent-2)"></i>half</span>
         <span><i style="background:var(--dim)"></i>plagal</span>
         <span><i style="background:#c9922e"></i>deceptive</span>

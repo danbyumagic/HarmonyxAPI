@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from fastapi.testclient import TestClient
-from music21 import chord, corpus, meter, note, stream
+from music21 import chord, corpus, key, meter, note, stream
 
 from app.analyzer import (
     ChordAnalysis,
@@ -20,15 +20,16 @@ from app.main import app
 client = TestClient(app)
 
 
-def _c(roman, pitches, duration=1.0, measure=1, beat=1.0):
+def _c(roman, pitches, duration=1.0, measure=1, beat=1.0, inversion=0, fermata=False):
     return ChordAnalysis(
         measure=measure,
         beat=beat,
         pitches=pitches,
         roman=roman,
         quality="major",
-        inversion=0,
+        inversion=inversion,
         duration=duration,
+        fermata=fermata,
     )
 
 
@@ -140,6 +141,66 @@ def test_detect_plagal_and_half():
     assert any(c.type == "plagal" for c in plagal)
     half = detect_cadences([_c("I", ["C4"]), _c("V", ["G4"])], None)
     assert any(c.type == "half" for c in half)
+
+
+# --- phrase-end restriction + PAC/IAC refinement (A2) -----------------------
+
+def test_only_phrase_final_pair_flagged_when_fermata_present():
+    # I -> V -> I(fermata) -> IV -> I. The mid-phrase I->V ("half") must NOT
+    # be reported once a fermata marks a real phrase end -- only the
+    # phrase-final pairs count.
+    chords = [
+        _c("I", ["C4", "E4", "G4"], measure=1),
+        _c("V", ["G4", "B4", "D5"], measure=2),
+        _c("I", ["C5", "E5", "G5"], measure=3, fermata=True),
+        _c("IV", ["F4", "A4", "C5"], measure=4),
+        _c("I", ["C4", "E4", "G4"], measure=5),
+    ]
+    cadences = detect_cadences(chords, None)
+    types_by_measure = {c.measure: c.type for c in cadences}
+    assert types_by_measure == {3: "authentic", 5: "plagal"}
+
+
+def test_every_pair_checked_when_no_fermata_present():
+    # No fermata anywhere -- fall back to checking every adjacent pair
+    # (legacy behavior), since there's no phrase marker to segment on.
+    chords = [
+        _c("I", ["C4"], measure=1),
+        _c("V", ["G4"], measure=2),
+        _c("I", ["C4"], measure=3),
+    ]
+    cadences = detect_cadences(chords, None)
+    types = [c.type for c in cadences]
+    assert types == ["half", "authentic"]
+
+
+def test_authentic_cadence_root_position_soprano_on_tonic_is_pac():
+    prev = _c("V", ["G3", "B3", "D4"], measure=1, inversion=0)
+    curr = _c("I", ["C3", "E3", "C5"], measure=2, inversion=0, fermata=True)
+    cadences = detect_cadences([prev, curr], key.Key("C"))
+    assert cadences[0].type == "PAC"
+
+
+def test_authentic_cadence_inverted_tonic_chord_is_iac():
+    prev = _c("V", ["G3", "B3", "D4"], measure=1, inversion=0)
+    curr = _c("I", ["E3", "G3", "C5"], measure=2, inversion=1, fermata=True)
+    cadences = detect_cadences([prev, curr], key.Key("C"))
+    assert cadences[0].type == "IAC"
+
+
+def test_authentic_cadence_soprano_off_tonic_is_iac():
+    prev = _c("V", ["G3", "B3", "D4"], measure=1, inversion=0)
+    curr = _c("I", ["C3", "E3", "G5"], measure=2, inversion=0, fermata=True)
+    cadences = detect_cadences([prev, curr], key.Key("C"))
+    assert cadences[0].type == "IAC"
+
+
+def test_cadences_align_with_fermata_measures_on_real_chorale():
+    score = corpus.parse("bach/bwv66.6")
+    result = analyze_score(score)
+    fermata_measures = {1, 2, 3, 5, 7, 9}
+    for cadence in result.cadences:
+        assert cadence.measure in fermata_measures
 
 
 # --- full pipeline on a real chorale --------------------------------------

@@ -18,6 +18,7 @@ class ChordOut(BaseModel):
     roman: str = Field(..., description="Roman numeral figure, e.g. 'I', 'V6', 'ii65'.")
     quality: str = Field(..., description="Chord quality: major, minor, diminished, ...")
     inversion: int = Field(..., description="0 = root position, 1 = first inversion, ...")
+    fermata: bool = Field(False, description="Whether this harmony falls under a fermata (phrase end).")
 
     model_config = {
         "json_schema_extra": {
@@ -28,6 +29,7 @@ class ChordOut(BaseModel):
                 "roman": "I",
                 "quality": "major",
                 "inversion": 0,
+                "fermata": False,
             }
         }
     }
@@ -35,7 +37,7 @@ class ChordOut(BaseModel):
 
 class CadenceOut(BaseModel):
     measure: int = Field(..., description="Measure where the cadence resolves.")
-    type: str = Field(..., description="authentic | plagal | half | deceptive")
+    type: str = Field(..., description="PAC | IAC | plagal | half | deceptive")
 
 
 class AnalysisResponse(BaseModel):
@@ -62,6 +64,7 @@ class AnalysisResponse(BaseModel):
                         "roman": "I",
                         "quality": "major",
                         "inversion": 0,
+                        "fermata": False,
                     },
                     {
                         "measure": 1,
@@ -70,9 +73,10 @@ class AnalysisResponse(BaseModel):
                         "roman": "IV",
                         "quality": "major",
                         "inversion": 0,
+                        "fermata": True,
                     },
                 ],
-                "cadences": [{"measure": 8, "type": "authentic"}],
+                "cadences": [{"measure": 8, "type": "PAC"}],
                 "explanation": None,
             }
         }

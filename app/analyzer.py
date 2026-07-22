@@ -22,7 +22,7 @@ import copy
 from dataclasses import dataclass, field
 from typing import List, Optional
 
-from music21 import chord, converter, key as m21key, pitch, roman, stream
+from music21 import chord, converter, expressions, key as m21key, pitch, roman, stream
 
 
 # A note counts as metrically weak (and thus eligible to be a non-chord tone)
@@ -48,6 +48,7 @@ class ChordAnalysis:
     quality: str
     inversion: int
     duration: float = 0.0
+    fermata: bool = False
 
     def to_dict(self) -> dict:
         return {
@@ -57,6 +58,7 @@ class ChordAnalysis:
             "roman": self.roman,
             "quality": self.quality,
             "inversion": self.inversion,
+            "fermata": self.fermata,
         }
 
 
@@ -215,6 +217,7 @@ def _slice_chords(score: stream.Score, analyzed_key: m21key.Key) -> List[ChordAn
                 quality=_chord_quality(element),
                 inversion=_safe_inversion(element),
                 duration=float(element.quarterLength),
+                fermata=_has_fermata(element),
             )
         )
 
@@ -244,6 +247,7 @@ def _clean_slices(
     for current in kept:
         if merged and _same_harmony(merged[-1], current):
             merged[-1].duration += current.duration
+            merged[-1].fermata = merged[-1].fermata or current.fermata
             continue
         merged.append(current)
 
@@ -263,37 +267,103 @@ def _pitch_classes(c: ChordAnalysis) -> frozenset:
 def detect_cadences(
     chords: List[ChordAnalysis], analyzed_key: m21key.Key
 ) -> List[Cadence]:
-    """Detect cadences from adjacent Roman-numeral pairs.
+    """Detect cadences at phrase ends from adjacent Roman-numeral pairs.
 
-    A lightweight, honest heuristic -- it inspects consecutive harmonies for
-    the classic two-chord cadential motions rather than doing full phrase
-    segmentation:
+    A lightweight, honest heuristic -- it inspects the final two harmonies of
+    each phrase for the classic two-chord cadential motions, rather than
+    scanning every adjacent pair (a mid-phrase V->I is passing harmony, not a
+    cadence). Phrases are segmented on fermatas, the idiomatic phrase-end
+    marker in chorale notation. If no chord carries a fermata (e.g. a MIDI
+    source, which doesn't encode them), there is no phrase marker to segment
+    on, so every adjacent pair is checked instead -- the old, permissive
+    behavior:
 
-      * authentic   V(7) -> I/i
-      * plagal      IV/iv -> I/i
-      * half        anything -> V
-      * deceptive   V(7) -> vi/VI
+      * authentic (PAC/IAC)   V(7) -> I/i
+      * plagal                IV/iv -> I/i
+      * half                  anything -> V
+      * deceptive             V(7) -> vi/VI
+
+    An authentic cadence is refined into a perfect authentic cadence (PAC)
+    when both chords are in root position and the final chord's highest
+    pitch (the soprano, in this four-part texture) is the tonic; otherwise
+    it's an imperfect authentic cadence (IAC).
     """
+    if any(c.fermata for c in chords):
+        # Phrase markers are present -- only the final pair of each phrase
+        # is a cadence candidate; a mid-phrase V->I is passing harmony.
+        pairs = [
+            (phrase[-2], phrase[-1])
+            for phrase in _segment_phrases(chords)
+            if len(phrase) >= 2
+        ]
+    else:
+        # No fermata anywhere (e.g. a MIDI source) -- no phrase marker to
+        # segment on, so fall back to checking every adjacent pair.
+        pairs = list(zip(chords, chords[1:]))
+
     cadences: List[Cadence] = []
-
-    for prev, curr in zip(chords, chords[1:]):
-        prev_deg = _degree(prev.roman)
-        curr_deg = _degree(curr.roman)
-
-        cadence_type: Optional[str] = None
-        if prev_deg == "V" and curr_deg == "I":
-            cadence_type = "authentic"
-        elif prev_deg == "IV" and curr_deg == "I":
-            cadence_type = "plagal"
-        elif prev_deg == "V" and curr_deg == "VI":
-            cadence_type = "deceptive"
-        elif curr_deg == "V":
-            cadence_type = "half"
-
+    for prev, curr in pairs:
+        cadence_type = _classify_cadence(prev, curr, analyzed_key)
         if cadence_type:
             cadences.append(Cadence(measure=curr.measure, type=cadence_type))
 
     return cadences
+
+
+def _segment_phrases(chords: List[ChordAnalysis]) -> List[List[ChordAnalysis]]:
+    """Split a chord sequence into phrases ending at each fermata."""
+    phrases: List[List[ChordAnalysis]] = []
+    current: List[ChordAnalysis] = []
+    for c in chords:
+        current.append(c)
+        if c.fermata:
+            phrases.append(current)
+            current = []
+    if current:
+        phrases.append(current)
+
+    return phrases
+
+
+def _classify_cadence(
+    prev: ChordAnalysis, curr: ChordAnalysis, analyzed_key: Optional[m21key.Key]
+) -> Optional[str]:
+    prev_deg = _degree(prev.roman)
+    curr_deg = _degree(curr.roman)
+
+    if prev_deg == "V" and curr_deg == "I":
+        return _classify_authentic(prev, curr, analyzed_key)
+    if prev_deg == "IV" and curr_deg == "I":
+        return "plagal"
+    if prev_deg == "V" and curr_deg == "VI":
+        return "deceptive"
+    if curr_deg == "V":
+        return "half"
+    return None
+
+
+def _classify_authentic(
+    prev: ChordAnalysis, curr: ChordAnalysis, analyzed_key: Optional[m21key.Key]
+) -> str:
+    """Refine an authentic V->I cadence into PAC or IAC.
+
+    PAC requires both chords in root position and the soprano landing on the
+    tonic. Without a key (unit tests exercising the bare degree logic pass
+    ``None``), there's no tonic to check against, so fall back to the
+    pre-refinement label.
+    """
+    if analyzed_key is None:
+        return "authentic"
+
+    root_position = prev.inversion == 0 and curr.inversion == 0
+    soprano_on_tonic = _soprano_pitch_class(curr) == analyzed_key.tonic.name
+    return "PAC" if (root_position and soprano_on_tonic) else "IAC"
+
+
+def _soprano_pitch_class(c: ChordAnalysis) -> str:
+    # Highest-sounding pitch in a four-part texture is the soprano.
+    top = max(c.pitches, key=lambda p: pitch.Pitch(p).ps)
+    return pitch.Pitch(top).name
 
 
 def _degree(figure: str) -> str:
@@ -334,6 +404,10 @@ def _chord_quality(element: chord.Chord) -> str:
         except Exception:
             return "other"
     return quality
+
+
+def _has_fermata(element: chord.Chord) -> bool:
+    return any(isinstance(e, expressions.Fermata) for e in element.expressions)
 
 
 def _safe_inversion(element: chord.Chord) -> int:
