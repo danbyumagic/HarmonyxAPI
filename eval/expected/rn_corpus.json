@@ -1,0 +1,22 @@
+{
+  "_comment": "Ground-truth Roman-numeral corpus for eval/run_rn_eval.py (A7). Source: music21's bundled bach/choraleAnalyses/*.rntxt (Riemenschneider-numbered hand analyses by Andrew Jones et al., proofread by Dmitri Tymoczko and Hamish Robb). Ships with music21 itself, already a dependency, so unlike the Humdrum/KernScores corpus flagged in docs/research/15-tier3-remainder.md, no external licensing clearance is needed. Only chorales whose BWV number also resolves to a music21 corpus MusicXML score are included (2 of the 20 bundled rntxt files -- BWV 248(2).12 and 41.6s -- don't resolve to a plain bach/bwvN.M corpus path and are left out).",
+  "chorales": [
+    { "riemenschneider": "riemenschneider001.rntxt", "bwv": "bach/bwv269" },
+    { "riemenschneider": "riemenschneider002.rntxt", "bwv": "bach/bwv347" },
+    { "riemenschneider": "riemenschneider003.rntxt", "bwv": "bach/bwv153.1" },
+    { "riemenschneider": "riemenschneider004.rntxt", "bwv": "bach/bwv86.6" },
+    { "riemenschneider": "riemenschneider005.rntxt", "bwv": "bach/bwv267" },
+    { "riemenschneider": "riemenschneider006.rntxt", "bwv": "bach/bwv281" },
+    { "riemenschneider": "riemenschneider007.rntxt", "bwv": "bach/bwv17.7" },
+    { "riemenschneider": "riemenschneider008.rntxt", "bwv": "bach/bwv40.8" },
+    { "riemenschneider": "riemenschneider010.rntxt", "bwv": "bach/bwv38.6" },
+    { "riemenschneider": "riemenschneider012.rntxt", "bwv": "bach/bwv65.2" },
+    { "riemenschneider": "riemenschneider013.rntxt", "bwv": "bach/bwv33.6" },
+    { "riemenschneider": "riemenschneider015.rntxt", "bwv": "bach/bwv277" },
+    { "riemenschneider": "riemenschneider016.rntxt", "bwv": "bach/bwv311" },
+    { "riemenschneider": "riemenschneider017.rntxt", "bwv": "bach/bwv145.5" },
+    { "riemenschneider": "riemenschneider018.rntxt", "bwv": "bach/bwv318" },
+    { "riemenschneider": "riemenschneider019.rntxt", "bwv": "bach/bwv351" },
+    { "riemenschneider": "riemenschneider020.rntxt", "bwv": "bach/bwv302" }
+  ]
+}

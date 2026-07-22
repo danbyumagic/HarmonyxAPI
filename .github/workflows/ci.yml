@@ -21,3 +21,5 @@ jobs:
         run: python -m eval.run_eval --min 0.6
       - name: Run generation eval (round-trip + rule violations)
         run: python -m eval.run_generation_eval --min-roundtrip 1.0 --max-violations 0
+      - name: Run RN-agreement eval (visibility only, not yet a gate)
+        run: python -m eval.run_rn_eval --min 0.0
