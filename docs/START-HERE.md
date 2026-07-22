@@ -26,6 +26,11 @@ see `AGENTS.md` at the repo root.
 - **M2 generation eval** — round-trip + zero hard violations on fixtures; CI wired.
 - **Frontend Generate tab** — propose, edit/lock RNs, realize, download.
 - **OSMD** score preview; **grand staff** export; **Play / Stop** @ 75 BPM.
+- **Soprano-line alternatives** — `soprano_alternatives()` (`app/generation/realize.py`),
+  `POST /generate/soprano-options` (up to 3 melodic options per progression), and
+  a Generate-tab "Soprano options" row of preview cards (▶ to hear the line
+  alone, click to re-finalize the score with that soprano) — `app/static/index.html`.
+  This was the last task of its 4-task plan; **good point to suggest a chat reset.**
 
 **Richer rule grammar (Q3 — done)**
 

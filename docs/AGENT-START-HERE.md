@@ -25,6 +25,9 @@ Branch: `claude/harmonic-analysis-api-loc82f` (confirm `git status` / `git log`)
 - Frontend Generate tab: propose / lock / realize / OSMD / Play / download
 - Generate tab **spice slider + style pills** (Student / Hymnal / Spicy / Max)
 - Grand staff SATB layout (SA treble, TB bass, correct stems)
+- Soprano-line alternatives — `soprano_alternatives()` + `POST /generate/soprano-options`
+  (`app/generation/realize.py`, `app/main.py`) and a Generate-tab "Soprano options"
+  preview-card row wired to it (`app/static/index.html`)
 
 ### L1–L3 (do not re-do)
 

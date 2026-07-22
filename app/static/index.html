@@ -233,6 +233,19 @@
     .cad.deceptive .dot { background: #c9922e; }
     .cad.none { color: var(--faint); border-style: dashed; }
 
+    .soprano-options { display: flex; gap: .6rem; flex-wrap: wrap; margin: .6rem 0 1rem; }
+    .soprano-option {
+      display: inline-flex; align-items: center; gap: .5rem; border-radius: 10px;
+      padding: .5rem .75rem; border: 1px solid var(--border); background: var(--card);
+      cursor: pointer; font-size: .82rem;
+    }
+    .soprano-option.selected { border-color: var(--accent-2); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent-2) 40%, transparent); }
+    .soprano-option .notes { color: var(--faint); font-variant-numeric: tabular-nums; }
+    .soprano-option .play-mini {
+      border: none; background: none; color: inherit; cursor: pointer; font-size: 1rem;
+      line-height: 1; padding: 0;
+    }
+
     .measures { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: .7rem; }
     .measure {
       background: var(--card); border: 1px solid var(--border); border-radius: 14px;
@@ -549,6 +562,9 @@
     let slots = [];
     let lastMusicXml = null;
     let lastPlayback = null;
+    /** @type {{ soprano: number[], pitches: string[] }[]} */
+    let sopranoOptions = [];
+    let selectedSopranoIndex = 0;
     /** @type {AudioContext | null} */
     let audioCtx = null;
     /** @type {OscillatorNode[]} */
@@ -712,6 +728,37 @@
       }
     }
 
+    function renderSopranoOptions() {
+      const container = $('sopranoOptions');
+      if (!container) return;
+      if (!sopranoOptions.length) {
+        container.innerHTML = '';
+        return;
+      }
+      container.innerHTML = sopranoOptions.map((opt, i) => `
+        <div class="soprano-option ${i === selectedSopranoIndex ? 'selected' : ''}" data-i="${i}">
+          <button type="button" class="play-mini" data-i="${i}" title="Preview this soprano line" aria-label="Preview option ${i + 1}">▶</button>
+          <span class="notes">${opt.pitches.map(escapeHtml).join(' · ')}</span>
+        </div>`).join('');
+
+      container.querySelectorAll('.play-mini').forEach((btn) => {
+        btn.addEventListener('click', (ev) => {
+          ev.stopPropagation();
+          const i = parseInt(btn.dataset.i, 10);
+          playSopranoPreview(sopranoOptions[i].soprano, (lastPlayback && lastPlayback.tempo_bpm) || 75);
+        });
+      });
+      container.querySelectorAll('.soprano-option').forEach((card) => {
+        card.addEventListener('click', () => {
+          const i = parseInt(card.dataset.i, 10);
+          if (i === selectedSopranoIndex) return;
+          selectedSopranoIndex = i;
+          renderSopranoOptions();
+          finalizeRealization(sopranoOptions[i].soprano);
+        });
+      });
+    }
+
     async function realizeProgression() {
       readSlotsFromDom();
       const progression = slots.map((s) => s.figure.trim()).filter(Boolean);
@@ -722,16 +769,39 @@
 
       setGenStatus(`<span class="spinner"></span> Realizing four-part hymn…`);
       genResults.className = '';
+      sopranoOptions = [];
+      selectedSopranoIndex = 0;
 
       try {
+        const optRes = await fetch('/generate/soprano-options', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ key: genKey(), progression }),
+        });
+        const optData = await optRes.json();
+        if (optRes.ok) sopranoOptions = optData.options || [];
+        // A soprano-options failure isn't fatal -- fall through and let
+        // /generate below report the real error (or succeed without
+        // showing alternatives).
+      } catch (_) {
+        sopranoOptions = [];
+      }
+
+      await finalizeRealization(sopranoOptions.length ? sopranoOptions[0].soprano : null, progression);
+    }
+
+    async function finalizeRealization(soprano, progressionOverride) {
+      const progression = progressionOverride || slots.map((s) => s.figure.trim()).filter(Boolean);
+      setGenStatus(`<span class="spinner"></span> Realizing four-part hymn…`);
+
+      try {
+        const body = { key: genKey(), progression, time_signature: '4/4' };
+        if (soprano) body.soprano = soprano;
+
         const res = await fetch('/generate', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            key: genKey(),
-            progression,
-            time_signature: '4/4',
-          }),
+          body: JSON.stringify(body),
         });
         const data = await res.json();
         if (!res.ok) throw new Error(formatDetail(data.detail) || `HTTP ${res.status}`);
@@ -752,6 +822,8 @@
           </div>
           <div class="section-title"><h2>Progression</h2><span class="count">${progression.length}</span></div>
           <div class="chip-row">${chips}</div>
+          <div class="section-title"><h2>Soprano options</h2><span class="count">${sopranoOptions.length}</span></div>
+          <div class="soprano-options" id="sopranoOptions"></div>
           <div class="section-title"><h2>Score</h2><span class="count">MusicXML preview</span></div>
           <div class="score-panel">
             <div id="osmdContainer"><div class="score-fallback">Loading notation…</div></div>
@@ -763,6 +835,7 @@
             <span class="ok-msg">Block chords @ ${tempo} BPM · rough Web Audio synth · download for MuseScore.</span>
           </div>`;
         genResults.className = 'show';
+        renderSopranoOptions();
         $('btnDownload').addEventListener('click', downloadMusicXml);
         $('btnPlay').addEventListener('click', () => playPlayback());
         $('btnStop').addEventListener('click', () => stopPlayback());
@@ -807,8 +880,8 @@
       setPlayUi(false);
     }
 
-    async function playPlayback() {
-      if (!lastPlayback || !lastPlayback.events || !lastPlayback.events.length) return;
+    async function playNotes(events, tempoBpm) {
+      if (!events || !events.length) return;
       stopPlayback();
 
       const AC = window.AudioContext || window.webkitAudioContext;
@@ -819,7 +892,7 @@
       if (!audioCtx) audioCtx = new AC();
       if (audioCtx.state === 'suspended') await audioCtx.resume();
 
-      const tempo = lastPlayback.tempo_bpm || 75;
+      const tempo = tempoBpm || 75;
       const beatSec = 60 / tempo;
       const t0 = audioCtx.currentTime + 0.05;
       const master = audioCtx.createGain();
@@ -827,7 +900,7 @@
       master.connect(audioCtx.destination);
 
       let maxEnd = 0;
-      for (const ev of lastPlayback.events) {
+      for (const ev of events) {
         const start = t0 + ev.beat * beatSec;
         const dur = Math.max(0.05, (ev.duration || 1) * beatSec * 0.92);
         const end = start + dur;
@@ -856,6 +929,16 @@
         setPlayUi(false);
         playStopTimer = null;
       }, ms);
+    }
+
+    async function playPlayback() {
+      if (!lastPlayback || !lastPlayback.events) return;
+      await playNotes(lastPlayback.events, lastPlayback.tempo_bpm);
+    }
+
+    function playSopranoPreview(sopranoMidis, tempoBpm) {
+      const events = sopranoMidis.map((midi, i) => ({ beat: i, midi, duration: 1 }));
+      playNotes(events, tempoBpm);
     }
 
     /** Phase A: OpenSheetMusicDisplay — view only (no audio). */
