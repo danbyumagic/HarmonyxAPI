@@ -246,6 +246,9 @@
       line-height: 1; padding: 0;
     }
 
+    .soprano-more { margin: 0 0 1rem; display: flex; align-items: center; gap: .6rem; }
+    .soprano-more-note { color: var(--faint); font-size: .85rem; }
+
     .measures { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: .7rem; }
     .measure {
       background: var(--card); border: 1px solid var(--border); border-radius: 14px;
@@ -565,6 +568,7 @@
     /** @type {{ soprano: number[], pitches: string[] }[]} */
     let sopranoOptions = [];
     let selectedSopranoIndex = 0;
+    let sopranoOptionsExhausted = false;
     /** @type {AudioContext | null} */
     let audioCtx = null;
     /** @type {OscillatorNode[]} */
@@ -759,6 +763,40 @@
       });
     }
 
+    async function fetchMoreSopranoOptions() {
+      const progression = slots.map((s) => s.figure.trim()).filter(Boolean);
+      const nextCount = sopranoOptions.length + 3;
+      const btn = $('btnMoreSoprano');
+      const note = $('sopranoMoreNote');
+      if (btn) btn.disabled = true;
+
+      try {
+        const res = await fetch('/generate/soprano-options', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ key: genKey(), progression, count: nextCount }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(formatDetail(data.detail) || `HTTP ${res.status}`);
+
+        const newOptions = data.options || [];
+        if (newOptions.length > sopranoOptions.length) {
+          sopranoOptions = newOptions;
+          $('sopranoOptionsCount').textContent = String(sopranoOptions.length);
+          renderSopranoOptions();
+          if (btn) btn.disabled = false;
+          if (note) note.hidden = true;
+        } else {
+          sopranoOptionsExhausted = true;
+          if (btn) btn.disabled = true;
+          if (note) note.hidden = false;
+        }
+      } catch (err) {
+        setGenStatus(`Error: ${err.message}`, true);
+        if (btn) btn.disabled = sopranoOptionsExhausted;
+      }
+    }
+
     async function realizeProgression() {
       readSlotsFromDom();
       const progression = slots.map((s) => s.figure.trim()).filter(Boolean);
@@ -771,6 +809,7 @@
       genResults.className = '';
       sopranoOptions = [];
       selectedSopranoIndex = 0;
+      sopranoOptionsExhausted = false;
 
       try {
         const optRes = await fetch('/generate/soprano-options', {
@@ -822,8 +861,12 @@
           </div>
           <div class="section-title"><h2>Progression</h2><span class="count">${progression.length}</span></div>
           <div class="chip-row">${chips}</div>
-          <div class="section-title"><h2>Soprano options</h2><span class="count">${sopranoOptions.length}</span></div>
+          <div class="section-title"><h2>Soprano options</h2><span class="count" id="sopranoOptionsCount">${sopranoOptions.length}</span></div>
           <div class="soprano-options" id="sopranoOptions"></div>
+          <div class="soprano-more">
+            <button type="button" class="btn" id="btnMoreSoprano">More options</button>
+            <span class="soprano-more-note" id="sopranoMoreNote" hidden>No more distinct soprano lines for this progression.</span>
+          </div>
           <div class="section-title"><h2>Score</h2><span class="count">MusicXML preview</span></div>
           <div class="score-panel">
             <div id="osmdContainer"><div class="score-fallback">Loading notation…</div></div>
@@ -836,6 +879,9 @@
           </div>`;
         genResults.className = 'show';
         renderSopranoOptions();
+        $('btnMoreSoprano').addEventListener('click', fetchMoreSopranoOptions);
+        $('btnMoreSoprano').disabled = sopranoOptionsExhausted;
+        $('sopranoMoreNote').hidden = !sopranoOptionsExhausted;
         $('btnDownload').addEventListener('click', downloadMusicXml);
         $('btnPlay').addEventListener('click', () => playPlayback());
         $('btnStop').addEventListener('click', () => stopPlayback());
