@@ -179,3 +179,59 @@ def test_deceptive_or_resolve_labels_preferred():
         or "→" in lab
         for lab in labels
     )
+
+
+# --- roman_alternatives_for_slot ----------------------------------------
+
+from app.generation.fix import roman_alternatives_for_slot
+
+
+def test_roman_alternatives_returns_valid_nonempty_swap_for_unlocked_slot():
+    prog = ["I", "IV", "V", "I"]
+    alts = roman_alternatives_for_slot(prog, KEY, 1)
+    assert alts
+    figures = [a["figure"] for a in alts]
+    assert "IV" not in figures  # never includes the current figure
+    assert len(alts) <= 6
+    for alt in alts:
+        assert alt["label"]
+        trial = list(prog)
+        trial[1] = alt["figure"]
+        result = validate_progression(trial, KEY, check_engine=False, suggest=False)
+        assert result.ok, (alt, [i.message for i in result.issues])
+
+
+def test_roman_alternatives_matches_known_pool_and_order():
+    # Locked-in expectation from manual verification against the current
+    # textbook pool + forbidden-transition table for ["I", "IV", "V", "I"]
+    # at index 1 (IV) in C major.
+    prog = ["I", "IV", "V", "I"]
+    alts = roman_alternatives_for_slot(prog, KEY, 1, max_alternatives=6)
+    figures = [a["figure"] for a in alts]
+    assert figures == ["V", "V7", "ii", "vi", "I6", "iii"]
+
+
+def test_roman_alternatives_locked_slot_returns_empty():
+    prog = ["I", "IV", "V", "I"]
+    alts = roman_alternatives_for_slot(prog, KEY, 1, locked={1: "IV"})
+    assert alts == []
+
+
+def test_roman_alternatives_out_of_range_index_raises():
+    prog = ["I", "IV", "V", "I"]
+    try:
+        roman_alternatives_for_slot(prog, KEY, 4)
+        assert False, "expected ValueError"
+    except ValueError:
+        pass
+    try:
+        roman_alternatives_for_slot(prog, KEY, -1)
+        assert False, "expected ValueError"
+    except ValueError:
+        pass
+
+
+def test_roman_alternatives_respects_max_alternatives_cap():
+    prog = ["I", "IV", "V", "I"]
+    alts = roman_alternatives_for_slot(prog, KEY, 1, max_alternatives=2)
+    assert len(alts) == 2
