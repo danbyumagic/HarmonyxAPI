@@ -1,7 +1,7 @@
 ================================================================================
 NEXT AGENT — paste-ready prompt (Harmonyx API)
-Saved: 2026-07-21 after research deep-dive #08 Shimaoka-SATB-SkillSet
-Pushed tip: 95370fc on claude/harmonic-analysis-api-loc82f
+Saved: 2026-07-22 after soprano-alternatives feature + "More options" spec
+Pushed tip: 5b513fb on claude/harmonic-analysis-api-loc82f
 ================================================================================
 
 Copy everything below the line into a new Claude Code chat:
@@ -12,67 +12,86 @@ Then stop and wait for my instructions — do not start implementing anything ye
 --------------------------------------------------------------------------------
 
 If the session is **research-only**, use docs/NEXT-RESEARCH-PASTE.txt instead
-(default next: git-scarrow/music-arranger, or the thiri-mcp/music21-mcp pair —
-see docs/RESEARCH-QUEUE.md).
+(no default queued — Tier 1-3 of docs/RESEARCH-QUEUE.md are closed; Tier 4
+OMR stays parked per docs/AI-DIARY.md Entry 4 unless you name it explicitly).
 
 ================================================================================
 WHAT JUST HAPPENED (this session — do not re-do)
 ================================================================================
 
-Branch: claude/harmonic-analysis-api-loc82f (pushed through 95370fc)
+Branch: claude/harmonic-analysis-api-loc82f (pushed through 5b513fb)
 Always confirm with git status — Developer path may be a separate checkout.
 
-Research deep-dives completed and documented (docs/research/01-08):
+1. Analyzer Q4 (A1/A2/A7) — done, shipped, docs updated:
+   - A1 NCT filtering (app/analyzer.py: _is_passing_or_neighbor_tone,
+     _neutralize_non_chord_tones)
+   - A2 fermata-based phrase segmentation + PAC/IAC cadence refinement
+     (_segment_phrases, _classify_authentic; fermata field threaded through
+     ChordAnalysis + ChordOut/CadenceOut API models + frontend CSS)
+   - A7 chord-by-chord RN-agreement eval (eval/run_rn_eval.py +
+     eval/expected/rn_corpus.json) — 42% primary / 38% strict baseline on
+     17 chorales / 949 events, CI wired as visibility-only (not a gate yet)
 
-  01  01-resonance.md            L4: LLM → RN JSON only; fallback
-  02  02-choral-counterpoint.md  M4: V/W rules; Bach oracle culture
-  03  03-partwise.md             M4: evaluate UX + pass/warn/fail
-  04  04-chorale-optimizer.md    Realizer peer: beam+fix vs DP
-  05  05-choral-llm-workbench.md Note-level LLM interface pattern (IKR-light/TLR)
-  06  06-when-in-rome.md         RN meta-corpus; L1 few-shot + analyzer A7 eval
-  07  07-accomontage2.md         Pop arrangement pipeline (Tier B, not classical)
-  08  08-shimaoka-satb-skillset.md  LLM-context-only SATB KB; counter-example to
-                                 code-enforced validation; augmented-6th gap (2nd source)
+2. Soprano-line alternatives — done, shipped, full 4-task plan executed via
+   subagent-driven-development, final whole-branch review clean ("ship it"):
+   - soprano_alternatives() (app/generation/realize.py) — up to 3 distinct
+     soprano lines via candidate pruning + re-run of the existing Viterbi
+     search (_best_path unchanged, no new cost model)
+   - midi_to_name() helper (app/generation/chords.py)
+   - POST /generate/soprano-options endpoint (app/main.py, app/models.py) —
+     lightweight preview (pitches only), finalized via existing
+     POST /generate's soprano param
+   - Generate-tab "Soprano options" preview-card row (app/static/index.html)
+     — ▶ to hear a line alone, click a card to re-finalize with it
+   - Two Minor UX findings logged from final review, NOT fixed (not
+     requested): (a) editing an RN chord after Realize but before picking a
+     card can throw a 422 instead of failing gracefully (stale soprano
+     array vs. edited progression length); (b) a soprano-options fetch
+     failure shows an empty "Soprano options 0" heading instead of hiding
+     the section. See docs/START-HERE.md "Not broken — but known limits."
+   - Design docs: docs/superpowers/specs/2026-07-22-soprano-alternatives-design.md
+     Plan: docs/superpowers/plans/2026-07-22-soprano-alternatives.md
 
-Also: docs/CLASSICAL-AI-LANDSCAPE.md living map (Tier S–D) and
-docs/RESEARCH-QUEUE.md (live queue of repos still to deep-dive, tiered).
-AI-DIARY entries 15–24 cover landscape + all deep-dives.
+3. "More options" for the soprano-options row — SPEC APPROVED, PLAN NOT
+   WRITTEN YET. This is mid-flow, not finished:
+   Design: docs/superpowers/specs/2026-07-22-more-soprano-options-design.md
+   Small scope: add a bounded `count` field (ge=1, le=10) to
+   SopranoOptionsRequest/the endpoint (no new endpoint — soprano_alternatives()
+   is already deterministic/prefix-stable, so a bigger `count` reproduces the
+   same first-N options plus new ones), and a "More options" button in the
+   frontend that re-fetches with count = current_length + 3, disabling itself
+   with a note if the response doesn't grow (search exhausted).
+   Explicitly deferred (do NOT build unless asked): mixing/splicing measures
+   from different soprano options into one hybrid line — a separate, larger
+   feature (manual per-note/per-measure soprano editing).
 
-Product code status: unchanged since Q3c / L1-L3 (research-only sessions
-since then; see below for what's actually built).
-
-Already shipped (do not re-implement):
-  Analyze, generate, progression grammar Q3a–c (inversions/Cad64, spice 0-3,
-  style presets), spice/style UI, L1-L3 (corpus/validate/fix), OSMD, playback,
-  grand staff, locked test_partwriting.py.
+   NEXT STEP if the human picks this up: run superpowers:writing-plans on
+   the approved spec above, then execute (subagent-driven-development
+   worked well for the soprano-alternatives plan — same pattern applies:
+   ~2 small tasks, backend param + frontend button).
 
 Verify (optional):
-  .venv/bin/python -m pytest tests/ -q
-  # expect ~155 passed (count may drift)
+  source .venv/bin/activate   # needs Python 3.11+; .python-version pins 3.12.12
+  python -m pytest tests/ -q                                          # expect ~179 passed
+  python -m eval.run_generation_eval --min-roundtrip 1.0 --max-violations 0
+  python -m eval.run_rn_eval
 
 ================================================================================
 OPEN QUEUE (human picks ONE chunk per session)
 ================================================================================
 
-Build candidates (see docs/START-HERE.md "Open queue" for the live table):
-  Q1  LLM progression L4+     docs/LLM-PROGRESSION-SPEC.md (+ steal from #01)
-  Q2  M4 POST /check          PartWise #03 UX + rules.py + #02 V/W
-  Q4  Analyzer A1/A2/A7       NCT / cadences / RN-agreement eval
-  Q5  Docs / PR polish
-
-Research default (if human says continue research):
-  See docs/RESEARCH-QUEUE.md — next up: git-scarrow/music-arranger (Codeberg,
-  CP-SAT solver twin to the realizer) or thiri-mcp + music21-mcp (MCP pair).
-  Paste: docs/NEXT-RESEARCH-PASTE.txt
-
-Optional later ideas from research (not scheduled):
-  Best-effort generate mode + residual flags (#04)
-  Cadence phrase chunking for long paths (#04)
-  N6 / Ger6 vocabulary when fixtures exist (#04, #06, #08 — augmented 6ths
-  now flagged by two independent peers)
+See docs/START-HERE.md "Open queue" for the live table. Highlights:
+  Q1  LLM progression L4+        docs/LLM-PROGRESSION-SPEC.md (+ research #01)
+  Q2  M4 POST /check             research #03 PartWise UX + rules.py + #02 V/W
+  Q5  Docs / PR polish           PR #1 may need refresh
+  Q6  Raise A7 RN-agreement      42%/38% baseline, no work scoped yet
+  Q7  "More options" (soprano)   spec approved, PLAN NOT WRITTEN — see above
+  Q8  Soprano-options UX polish  two Minor findings, not requested yet
 
 Rules: AGENTS.md — ask before big spends; small chunks; never edit
-tests/test_partwriting.py; commit/push at stops.
+tests/test_partwriting.py; commit/push at stops; this project uses the
+superpowers brainstorm -> spec -> plan -> subagent-driven-development flow
+for feature work (see the two specs/plans above for the pattern to follow).
 
 ================================================================================
 END

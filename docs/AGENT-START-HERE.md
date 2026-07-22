@@ -27,7 +27,9 @@ Branch: `claude/harmonic-analysis-api-loc82f` (confirm `git status` / `git log`)
 - Grand staff SATB layout (SA treble, TB bass, correct stems)
 - Soprano-line alternatives — `soprano_alternatives()` + `POST /generate/soprano-options`
   (`app/generation/realize.py`, `app/main.py`) and a Generate-tab "Soprano options"
-  preview-card row wired to it (`app/static/index.html`)
+  preview-card row wired to it (`app/static/index.html`). Final whole-branch
+  review clean/shipped; two Minor UX findings logged, not fixed (see
+  `docs/START-HERE.md` "Not broken — but known limits").
 
 ### L1–L3 (do not re-do)
 
@@ -78,6 +80,16 @@ default research chunk queued; human names next candidate or revisits Tier 4.
 - LLM L4+ → `docs/LLM-PROGRESSION-SPEC.md`
 - M4 `POST /check`
 - Q6: raise A7's RN-agreement baseline (42%/38%) — no work scoped yet
+- **Q7: "More options" for the soprano-options row** — spec approved:
+  `docs/superpowers/specs/2026-07-22-more-soprano-options-design.md`.
+  **Next step is writing the implementation plan** (`superpowers:writing-plans`),
+  not implementing directly — no plan exists yet for this one. Small scope:
+  add a bounded `count` field to `SopranoOptionsRequest`/the endpoint
+  (`app/models.py`, `app/main.py`) and a "More options" button in the
+  frontend (`app/static/index.html`); no new endpoint, no algorithm change
+  (`soprano_alternatives()` is already deterministic/prefix-stable).
+- Q8: soprano-options UX robustness (Minor, from final review, not requested
+  yet) — see `docs/START-HERE.md` "Not broken — but known limits."
 
 Verify if needed:
 

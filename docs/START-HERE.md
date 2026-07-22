@@ -11,7 +11,7 @@ see `AGENTS.md` at the repo root.
 2. **Generate** — Roman-numeral progression → four-part SATB hymn (MusicXML),
    with optional propose / edit / lock / play in the browser.
 
-## Where things stand (2026-07-21)
+## Where things stand (2026-07-22)
 
 ### Done on branch `claude/harmonic-analysis-api-loc82f`
 
@@ -30,7 +30,8 @@ see `AGENTS.md` at the repo root.
   `POST /generate/soprano-options` (up to 3 melodic options per progression), and
   a Generate-tab "Soprano options" row of preview cards (▶ to hear the line
   alone, click to re-finalize the score with that soprano) — `app/static/index.html`.
-  This was the last task of its 4-task plan; **good point to suggest a chat reset.**
+  Final whole-branch review: clean, shipped. Two Minor findings logged but not
+  fixed (human triage) — see "Not broken — but known limits" below.
 
 **Richer rule grammar (Q3 — done)**
 
@@ -74,6 +75,13 @@ Confirm `git log` / `git status` before assuming push state.
   A MIDI source has no fermata data, so it still falls back to checking
   every adjacent chord pair for cadences (the pre-A2 behavior).
 - Playback is intentionally low-fi (not SoundFont / no score cursor).
+- Soprano-options UX: if you edit an RN chord *after* Realize but *before*
+  clicking a soprano preview card, the click can throw a `422
+  soprano_length_mismatch` instead of failing gracefully (stale soprano
+  array vs. edited-length progression). If the soprano-options fetch itself
+  fails, you'll see an empty "Soprano options 0" heading rather than the
+  section just not appearing. Both logged in the final review, not fixed —
+  not requested yet.
 
 ## Open queue (do not forget)
 
@@ -85,6 +93,8 @@ Priority is a **human choice** each session. Candidates:
 | Q2 | **M4 `POST /check`** | Upload score → part-writing violations. Blueprint: research #03 PartWise. |
 | Q5 | Docs / PR polish | PR #1 may need refresh. |
 | Q6 | Raise A7's RN-agreement above baseline | 42%/38% is a first measurement, not a target; no work scoped yet. |
+| Q7 | **"More options" for soprano-options row** | Spec approved: `docs/superpowers/specs/2026-07-22-more-soprano-options-design.md`. **Plan not yet written — this is the next step.** Small: parameterize existing `count` field, no new endpoint/algorithm. |
+| Q8 | Soprano-options UX robustness (Minor, from final review) | Stale-progression-on-late-click and empty-header-on-fetch-failure, see "Not broken" above. Not requested; only do if asked. |
 
 **Research peers (01–15 done):** notes under `docs/research/`. Tier 1, Tier 2,
 and Tier 3 of `docs/RESEARCH-QUEUE.md` are all now closed in full. Only
