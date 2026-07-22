@@ -13,7 +13,13 @@ see `AGENTS.md` at the repo root.
 
 ## Where things stand (2026-07-22)
 
-### Done on branch `claude/harmonic-analysis-api-loc82f`
+**Branch note:** the long-running branch `claude/harmonic-analysis-api-loc82f`
+(everything below, plus Q7) was merged to `main` and deleted. Current work
+(RN-alternatives, see Open queue) is on a new branch,
+`claude/roman-numeral-alternatives`. `main` is ahead of `origin/main` —
+not pushed yet.
+
+### Done (merged to `main`)
 
 **Core product (earlier)**
 
@@ -32,6 +38,17 @@ see `AGENTS.md` at the repo root.
   alone, click to re-finalize the score with that soprano) — `app/static/index.html`.
   Final whole-branch review: clean, shipped. Two Minor findings logged but not
   fixed (human triage) — see "Not broken — but known limits" below.
+- **"More options" for soprano options (Q7 — done)** — bounded `count` field
+  on `SopranoOptionsRequest` (`app/models.py`, `ge=1,le=10`, default 3),
+  wired through `POST /generate/soprano-options` (`app/main.py`), and a
+  Generate-tab "More options" button (`app/static/index.html`) that grows
+  the soprano-option card row or shows an exhausted state. Final
+  whole-branch review caught and fixed a real bug (frontend's `+3` growth
+  could overshoot the backend's `le=10` bound and 422-loop instead of
+  exhausting gracefully — fixed by clamping). Minor findings logged, not
+  fixed (human triage) — see "Not broken — but known limits" below. **No
+  real browser click-through was ever performed** (no browser available to
+  the build agents) — do that before trusting the UX fully.
 
 **Richer rule grammar (Q3 — done)**
 
@@ -82,6 +99,9 @@ Confirm `git log` / `git status` before assuming push state.
   fails, you'll see an empty "Soprano options 0" heading rather than the
   section just not appearing. Both logged in the final review, not fixed —
   not requested yet.
+- Q7's "More options" button has never been clicked through in a real
+  browser (build environment had none) — verify manually before relying on
+  it, especially the exhaustion state at the 10-option cap.
 
 ## Open queue (do not forget)
 
@@ -93,7 +113,7 @@ Priority is a **human choice** each session. Candidates:
 | Q2 | **M4 `POST /check`** | Upload score → part-writing violations. Blueprint: research #03 PartWise. |
 | Q5 | Docs / PR polish | PR #1 may need refresh. |
 | Q6 | Raise A7's RN-agreement above baseline | 42%/38% is a first measurement, not a target; no work scoped yet. |
-| Q7 | **"More options" for soprano-options row** | Spec approved: `docs/superpowers/specs/2026-07-22-more-soprano-options-design.md`. **Plan not yet written — this is the next step.** Small: parameterize existing `count` field, no new endpoint/algorithm. |
+| Q9 | **Roman-numeral alternatives for one progression slot** | Spec + plan approved and ready: `docs/superpowers/specs/2026-07-22-roman-numeral-alternatives-design.md`, `docs/superpowers/plans/2026-07-22-roman-numeral-alternatives.md`. **This is the next step — start Task 1 on branch `claude/roman-numeral-alternatives`.** RN logic only, no melody. |
 | Q8 | Soprano-options UX robustness (Minor, from final review) | Stale-progression-on-late-click and empty-header-on-fetch-failure, see "Not broken" above. Not requested; only do if asked. |
 
 **Research peers (01–15 done):** notes under `docs/research/`. Tier 1, Tier 2,
