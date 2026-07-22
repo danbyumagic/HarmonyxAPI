@@ -157,6 +157,27 @@
     }
     .rn-slot .lock:hover { color: var(--fg); background: var(--card); }
     .rn-slot.locked .lock { color: var(--accent-2); font-weight: 650; }
+    .rn-slot { position: relative; }
+    .rn-slot .alts-btn {
+      font-size: .78rem; padding: .15rem .5rem; margin-top: .3rem;
+      border-radius: 6px; border: 1px solid var(--border); background: var(--card);
+      color: var(--faint); cursor: pointer;
+    }
+    .rn-slot .alts-btn:hover:not(:disabled) { color: var(--fg); background: var(--card-2); }
+    .rn-slot .alts-btn:disabled { opacity: .4; cursor: default; }
+    .alts-popover {
+      position: absolute; top: 100%; left: 0; z-index: 20; margin-top: .3rem;
+      background: var(--card); border: 1px solid var(--border); border-radius: 8px;
+      box-shadow: 0 6px 20px rgba(0,0,0,.15); padding: .4rem; min-width: 180px;
+    }
+    .alts-popover .alt-row {
+      display: block; width: 100%; text-align: left; padding: .35rem .5rem;
+      border: none; background: none; border-radius: 6px; cursor: pointer; font-size: .85rem;
+    }
+    .alts-popover .alt-row:hover { background: var(--card-2); }
+    .alts-popover .alt-empty, .alts-popover .alt-error {
+      padding: .35rem .5rem; font-size: .82rem; color: var(--faint);
+    }
 
     .empty-hint {
       color: var(--faint); font-size: .9rem; margin-top: .85rem; padding: .9rem 1rem;
@@ -658,6 +679,9 @@
           <button type="button" class="lock" data-i="${i}" title="Lock this chord when regenerating">
             ${s.locked ? '🔒 locked' : '🔓 lock'}
           </button>
+          <button type="button" class="alts-btn" data-i="${i}" ${s.locked ? 'disabled' : ''} title="Show valid alternatives for this chord">
+            💡 alts
+          </button>
         </div>`).join('');
 
       rnGrid.querySelectorAll('.lock').forEach((btn) => {
@@ -668,9 +692,86 @@
           renderSlots();
         });
       });
+      rnGrid.querySelectorAll('.alts-btn').forEach((btn) => {
+        btn.addEventListener('click', (ev) => {
+          ev.stopPropagation();
+          const i = parseInt(btn.dataset.i, 10);
+          toggleAltsPopover(i, btn);
+        });
+      });
       btnRegen.disabled = false;
       btnRealize.disabled = false;
     }
+
+    let openAltsPopover = null;
+
+    function closeAltsPopover() {
+      if (openAltsPopover) {
+        openAltsPopover.remove();
+        openAltsPopover = null;
+      }
+    }
+
+    async function toggleAltsPopover(index, btn) {
+      if (openAltsPopover) {
+        const wasForThisSlot = openAltsPopover.dataset.i === String(index);
+        closeAltsPopover();
+        if (wasForThisSlot) return;
+      }
+
+      readSlotsFromDom();
+      const progression = slots.map((s) => s.figure.trim());
+      const locked = lockedMapFromSlots();
+
+      const pop = document.createElement('div');
+      pop.className = 'alts-popover';
+      pop.dataset.i = String(index);
+      pop.innerHTML = '<div class="alt-empty">Loading…</div>';
+      btn.closest('.rn-slot').appendChild(pop);
+      openAltsPopover = pop;
+
+      try {
+        const body = { key: genKey(), progression, index };
+        if (locked) body.locked = locked;
+        const cadence = genCadence();
+        if (cadence) body.cadence = cadence;
+
+        const res = await fetch('/generate/roman-alternatives', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(formatDetail(data.detail) || `HTTP ${res.status}`);
+
+        const alts = data.alternatives || [];
+        if (!alts.length) {
+          pop.innerHTML = '<div class="alt-empty">No valid alternatives for this chord.</div>';
+          return;
+        }
+        pop.innerHTML = alts.map((a) =>
+          `<button type="button" class="alt-row" data-figure="${escapeAttr(a.figure)}">${escapeHtml(a.figure)} <span style="color:var(--faint)">— ${escapeHtml(a.label)}</span></button>`
+        ).join('');
+        pop.querySelectorAll('.alt-row').forEach((row) => {
+          row.addEventListener('click', () => {
+            slots[index].figure = row.dataset.figure;
+            closeAltsPopover();
+            renderSlots();
+          });
+        });
+      } catch (err) {
+        pop.innerHTML = `<div class="alt-error">Could not load alternatives.</div>`;
+      }
+    }
+
+    document.addEventListener('click', (ev) => {
+      if (openAltsPopover && !openAltsPopover.contains(ev.target) && !ev.target.closest('.alts-btn')) {
+        closeAltsPopover();
+      }
+    });
+    document.addEventListener('keydown', (ev) => {
+      if (ev.key === 'Escape') closeAltsPopover();
+    });
 
     async function proposeProgression(respectLocks) {
       readSlotsFromDom();
