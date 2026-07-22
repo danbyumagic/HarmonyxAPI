@@ -4,6 +4,9 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Harmonyx — Analyze &amp; Generate</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Spectral:wght@500;600;700&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
   <style>
     :root {
       --bg: #f4f2ec;
@@ -21,6 +24,8 @@
       --major: #b4551f;
       --minor: #6a5794;
       --dim: #4f7a6a;
+      --font-serif: "Spectral", Georgia, "Times New Roman", serif;
+      --font-sans: "Work Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, sans-serif;
     }
     @media (prefers-color-scheme: dark) {
       :root {
@@ -50,14 +55,14 @@
     body {
       margin: 0; min-height: 100vh; color: var(--fg);
       background: var(--bg-grad), var(--bg); background-attachment: fixed;
-      font: 16px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, sans-serif;
+      font: 16px/1.55 var(--font-sans);
     }
     .wrap { max-width: 940px; margin: 0 auto; padding: 2.5rem 1.25rem 4rem; }
 
     header { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
     .brand { display: flex; align-items: baseline; gap: .6rem; }
     .brand .mark {
-      font-family: Georgia, "Times New Roman", serif; font-size: 1.5rem; font-weight: 700;
+      font-family: var(--font-serif); font-size: 1.5rem; font-weight: 700;
       letter-spacing: -.01em;
     }
     .brand .mark b { color: var(--accent); }
@@ -79,7 +84,7 @@
     }
     .modes button[aria-selected="true"] { background: var(--accent); color: #fff; font-weight: 600; }
 
-    h1 { font-family: Georgia, serif; font-size: 2.15rem; line-height: 1.1; margin: 1.1rem 0 .3rem; font-weight: 700; }
+    h1 { font-family: var(--font-serif); font-size: 2.15rem; line-height: 1.1; margin: 1.1rem 0 .3rem; font-weight: 700; }
     .lede { color: var(--muted); margin: 0 0 1.5rem; max-width: 48ch; }
 
     /* Drop zone */
@@ -147,7 +152,7 @@
     .rn-slot.locked { border-color: var(--accent-2); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent-2) 40%, transparent); }
     .rn-slot .idx { font-size: .68rem; color: var(--faint); letter-spacing: .04em; margin-bottom: .2rem; }
     .rn-slot input {
-      width: 100%; text-align: center; font-family: Georgia, serif; font-size: 1.15rem; font-weight: 700;
+      width: 100%; text-align: center; font-family: var(--font-serif); font-size: 1.15rem; font-weight: 700;
       border: 0; background: transparent; color: var(--major); padding: .15rem 0;
     }
     .rn-slot input:focus { outline: none; color: var(--accent); }
@@ -228,7 +233,7 @@
       background: var(--card); border: 1px solid var(--border); border-radius: 16px;
       box-shadow: var(--shadow); padding: 1.25rem 1.4rem;
     }
-    .hero .keyname { font-family: Georgia, serif; font-size: 1.9rem; font-weight: 700; letter-spacing: -.01em; }
+    .hero .keyname { font-family: var(--font-serif); font-size: 1.9rem; font-weight: 700; letter-spacing: -.01em; }
     .hero .fname { color: var(--faint); font-size: .82rem; margin-top: .15rem; word-break: break-word; }
     .hero .conf { text-align: right; }
     .hero .conf .num { font-size: 1.5rem; font-weight: 700; font-variant-numeric: tabular-nums; }
@@ -283,7 +288,7 @@
     .chord { padding: .6rem .7rem; border-top: 1px solid var(--border); }
     .chord:first-of-type { border-top: 0; }
     .chord .rn {
-      font-family: Georgia, serif; font-size: 1.35rem; font-weight: 700; line-height: 1;
+      font-family: var(--font-serif); font-size: 1.35rem; font-weight: 700; line-height: 1;
     }
     .chord.major .rn { color: var(--major); }
     .chord.minor .rn { color: var(--minor); }
@@ -306,7 +311,7 @@
 
     .chip-row { display: flex; flex-wrap: wrap; gap: .4rem; }
     .chip {
-      font-family: Georgia, serif; font-weight: 700; font-size: 1.05rem;
+      font-family: var(--font-serif); font-weight: 700; font-size: 1.05rem;
       padding: .35rem .65rem; border-radius: 10px; background: var(--card);
       border: 1px solid var(--border); color: var(--major);
     }
@@ -337,7 +342,7 @@
   <div class="wrap">
     <header>
       <div class="brand">
-        <span class="mark">Harmon<b>yx</b></span>
+        <span class="mark">Harmony<b>x</b></span>
         <span class="sub">Analyze &amp; Generate</span>
       </div>
       <button class="themebtn" id="themebtn" type="button">◐ theme</button>
@@ -1136,7 +1141,6 @@
           drawComposer: false,
           drawLyricist: false,
           drawPartNames: true,
-          drawingParameters: 'compacttight',
         });
         await osmdInstance.load(musicxml);
         osmdInstance.render();
