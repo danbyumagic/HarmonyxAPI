@@ -49,13 +49,25 @@ Default propose stays student-safe (`spice=0`). Opt in with `spice` or `style`
 | **L3** deterministic fixer | Done | `app/generation/fix.py` |
 | **L4–L7** LLM client / API / UI | **Not started** | see LLM spec |
 
+**Analyzer improvements (Q4 — done)**
+
+| Chunk | Status | What |
+|-------|--------|------|
+| **A1** | Done | NCT filtering — passing/neighbor tones classified by melodic step + weak beat, neutralized before chordify. |
+| **A2** | Done | Fermata-based phrase segmentation (cadences checked only at phrase ends) + PAC/IAC refinement of authentic cadences. |
+| **A7** | Done | `eval/run_rn_eval.py` — chord-by-chord RN-agreement vs. music21's bundled Riemenschneider chorale analyses. 42% primary / 38% strict baseline (949 events, 17 chorales); wired into CI as visibility-only, not yet a gate. |
+
 Confirm `git log` / `git status` before assuming push state.
 
 ### Not broken — but known limits
 
 - Grammar is richer when opted in; **default** is still homework-safe.
 - L1–L3 validate/fix spicy RNs; Propose uses the rule grammar (not LLM yet).
-- Analyzer still has NCT noise, eager cadences, ~65% key eval (unchanged).
+- Analyzer: NCT filtering + fermata-gated cadences landed (A1/A2); ~65% key
+  eval unchanged (A1/A2 don't touch key detection); RN-agreement now
+  measured at 42%/38% (A7) — was previously unmeasured, not a regression.
+  A MIDI source has no fermata data, so it still falls back to checking
+  every adjacent chord pair for cadences (the pre-A2 behavior).
 - Playback is intentionally low-fi (not SoundFont / no score cursor).
 
 ## Open queue (do not forget)
@@ -66,8 +78,8 @@ Priority is a **human choice** each session. Candidates:
 |----|------|--------|
 | Q1 | LLM progression L4+ | L1–L3 done; next is L4 client — `docs/LLM-PROGRESSION-SPEC.md` (+ research #01). |
 | Q2 | **M4 `POST /check`** | Upload score → part-writing violations. Blueprint: research #03 PartWise. |
-| Q4 | Analyzer A1/A2/A7 | NCT filter, fermata cadences, RN-agreement eval. |
 | Q5 | Docs / PR polish | PR #1 may need refresh. |
+| Q6 | Raise A7's RN-agreement above baseline | 42%/38% is a first measurement, not a target; no work scoped yet. |
 
 **Research peers (01–15 done):** notes under `docs/research/`. Tier 1, Tier 2,
 and Tier 3 of `docs/RESEARCH-QUEUE.md` are all now closed in full. Only

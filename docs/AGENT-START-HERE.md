@@ -39,6 +39,12 @@ Branch: `claude/harmonic-analysis-api-loc82f` (confirm `git status` / `git log`)
 - Q3c `style` presets + PARTWRITING-RULES §9b
 - Frontend spice/style controls — `app/static/index.html`
 
+### Q4 / Analyzer A1, A2, A7 (do not re-do)
+
+- A1 NCT filtering — `_is_passing_or_neighbor_tone`, `_neutralize_non_chord_tones` in `app/analyzer.py`
+- A2 fermata phrase segmentation + PAC/IAC — `_segment_phrases`, `_classify_authentic` in `app/analyzer.py`; `fermata` field threaded through `ChordAnalysis` and the `ChordOut`/`CadenceOut` API models
+- A7 RN-agreement eval — `eval/run_rn_eval.py` + `eval/expected/rn_corpus.json`; 42% primary / 38% strict baseline; CI visibility-only, not a gate
+
 ### Research (done — notes only; not a build queue)
 
 | # | Notes | Use when building |
@@ -68,16 +74,18 @@ default research chunk queued; human names next candidate or revisits Tier 4.
 
 - LLM L4+ → `docs/LLM-PROGRESSION-SPEC.md`
 - M4 `POST /check`
-- Analyzer A1/A2/A7
+- Q6: raise A7's RN-agreement baseline (42%/38%) — no work scoped yet
 
 Verify if needed:
 
 ```bash
 python -m pytest tests/ -q
 python -m eval.run_generation_eval --min-roundtrip 1.0 --max-violations 0
+python -m eval.run_rn_eval
 ```
 
-Expect on the order of **~155** tests after Q3 (count may drift).
+Expect on the order of **~171** tests after Q4 (count may drift). Needs
+Python **3.11+** (`.python-version` pins 3.12.12) — music21 10.5.0 requires it.
 
 ---
 
@@ -97,7 +105,8 @@ They will name **one** chunk. Examples of open work (human picks):
    patterns from research #01 (not Resonance product copy).
 2. M4 `POST /check` — UX/API from research #03; rule depth from our `rules.py`;
    V/W thinking from #02.
-3. Analyzer improvements (NCT / cadences / RN eval).
+3. Raise the A7 RN-agreement baseline (Q6) — analyzer improvements beyond
+   A1/A2/A7, which are done.
 4. Docs / PR polish.
 5. Research (next item in `docs/RESEARCH-QUEUE.md`) only if they paste
    research mode or say "continue research."

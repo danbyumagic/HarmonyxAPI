@@ -156,7 +156,9 @@ See [`START-HERE.md`](START-HERE.md). Headline leftovers:
 1. **Q3 richer rule grammar** — implement from `RICH-GRAMMAR-SPEC.md` (Q3a first).
 2. LLM L4+ — client / endpoint / UI.
 3. M4 `POST /check`.
-4. Analyzer A1 / A2 / A7.
+4. ~~Analyzer A1 / A2 / A7.~~ Done — NCT filtering, fermata phrase
+   segmentation + PAC/IAC, RN-agreement eval (`eval/run_rn_eval.py`, 42%
+   primary / 38% strict baseline, CI visibility-only).
 5. Push/PR polish if L1–L3 commits are still local-only.
 
 ## Suggested next session shape
