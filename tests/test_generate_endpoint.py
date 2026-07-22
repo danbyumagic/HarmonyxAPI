@@ -128,3 +128,48 @@ def test_soprano_options_chosen_option_feeds_generate_successfully():
         },
     )
     assert gen_resp.status_code == 200, gen_resp.text
+
+
+def test_soprano_options_count_returns_more_options():
+    # This progression has enough chord-tone variety that count=6 finds
+    # more distinct soprano lines than the count=3 default.
+    prog = ["I", "IV", "V", "I", "vi", "IV", "V", "I"]
+    resp3 = client.post(
+        "/generate/soprano-options",
+        json={"key": "C major", "progression": prog, "count": 3},
+    )
+    resp6 = client.post(
+        "/generate/soprano-options",
+        json={"key": "C major", "progression": prog, "count": 6},
+    )
+    assert resp3.status_code == 200, resp3.text
+    assert resp6.status_code == 200, resp6.text
+    opts3 = resp3.json()["options"]
+    opts6 = resp6.json()["options"]
+    assert len(opts6) >= len(opts3)
+    # Prefix guarantee: the first len(opts3) entries of the count=6
+    # response must equal the count=3 response exactly.
+    assert opts6[: len(opts3)] == opts3
+
+
+def test_soprano_options_default_count_is_three():
+    resp = client.post(
+        "/generate/soprano-options",
+        json={"key": "C major", "progression": ["I", "IV", "V", "I"]},
+    )
+    assert resp.status_code == 200, resp.text
+    assert 0 < len(resp.json()["options"]) <= 3
+
+
+def test_soprano_options_count_out_of_bounds_returns_422():
+    resp_zero = client.post(
+        "/generate/soprano-options",
+        json={"key": "C major", "progression": ["I", "V", "I"], "count": 0},
+    )
+    assert resp_zero.status_code == 422, resp_zero.text
+
+    resp_high = client.post(
+        "/generate/soprano-options",
+        json={"key": "C major", "progression": ["I", "V", "I"], "count": 11},
+    )
+    assert resp_high.status_code == 422, resp_high.text

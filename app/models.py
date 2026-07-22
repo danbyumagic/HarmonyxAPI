@@ -176,6 +176,15 @@ class SopranoOptionsRequest(BaseModel):
         min_length=1,
         description="Roman-numeral figures in order, e.g. ['I', 'IV', 'V', 'I'].",
     )
+    count: int = Field(
+        3,
+        ge=1,
+        le=10,
+        description=(
+            "Number of distinct soprano-line options to return "
+            "(default 3, max 10)."
+        ),
+    )
 
     @field_validator("progression")
     @classmethod
