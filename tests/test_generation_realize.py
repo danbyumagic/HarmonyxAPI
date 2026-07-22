@@ -16,6 +16,7 @@ from app.generation.realize import (
     path_violations,
     realize,
     satb_voicings_from_score,
+    soprano_alternatives,
 )
 from app.generation.voicing import Voicing
 
@@ -129,3 +130,42 @@ def test_check_soprano_skips_none_entries():
 def test_check_soprano_length_mismatch_raises():
     with pytest.raises(ValueError):
         check_soprano(["I", "V"], KEY, [60])
+
+
+# --- soprano_alternatives -----------------------------------------------
+
+
+def test_soprano_alternatives_first_option_matches_realize_default():
+    # Option 1 must be byte-for-byte what realize() already produces today
+    # -- anyone who ignores the new options sees no behavior change.
+    progression = ["I", "IV", "V", "I"]
+    score = realize(progression, KEY)
+    expected_soprano = [v.s for v in satb_voicings_from_score(score)]
+
+    options = soprano_alternatives(progression, KEY)
+
+    assert options[0] == expected_soprano
+
+
+def test_soprano_alternatives_returns_distinct_options():
+    progression = ["I", "IV", "V", "I"]
+    options = soprano_alternatives(progression, KEY, n=3)
+
+    assert len(options) >= 2
+    assert all(len(o) == len(progression) for o in options)
+    assert len(set(tuple(o) for o in options)) == len(options)  # all distinct
+
+
+def test_soprano_alternatives_degrades_gracefully_past_available_options():
+    # Requesting far more options than actually exist must never error or
+    # loop forever -- it should just stop once no new distinct line is found.
+    progression = ["I", "IV", "V", "I"]
+    options = soprano_alternatives(progression, KEY, n=50)
+
+    assert 0 < len(options) <= 50
+    assert len(set(tuple(o) for o in options)) == len(options)
+
+
+def test_soprano_alternatives_raises_on_empty_progression():
+    with pytest.raises(RealizationError):
+        soprano_alternatives([], KEY)
