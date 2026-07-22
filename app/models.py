@@ -167,6 +167,52 @@ class GenerateResponse(BaseModel):
     }
 
 
+class SopranoOptionsRequest(BaseModel):
+    """Body for ``POST /generate/soprano-options``."""
+
+    key: str = Field(..., description="Key, e.g. 'C major' or 'A minor'.", examples=["C major"])
+    progression: List[str] = Field(
+        ...,
+        min_length=1,
+        description="Roman-numeral figures in order, e.g. ['I', 'IV', 'V', 'I'].",
+    )
+
+    @field_validator("progression")
+    @classmethod
+    def _figures_nonempty(cls, value: List[str]) -> List[str]:
+        if any(not (f and str(f).strip()) for f in value):
+            raise ValueError("progression figures must be non-empty strings")
+        return value
+
+    model_config = {
+        "json_schema_extra": {
+            "example": {"key": "C major", "progression": ["I", "IV", "V", "I"]}
+        }
+    }
+
+
+class SopranoOption(BaseModel):
+    soprano: List[int] = Field(..., description="MIDI pitches, one per chord.")
+    pitches: List[str] = Field(..., description="Same pitches as spelled names, e.g. 'C5'.")
+
+
+class SopranoOptionsResponse(BaseModel):
+    """Up to 3 distinct soprano-line options, best (lowest-cost) first."""
+
+    options: List[SopranoOption]
+
+    model_config = {
+        "json_schema_extra": {
+            "example": {
+                "options": [
+                    {"soprano": [72, 72, 71, 72], "pitches": ["C5", "C5", "B4", "C5"]},
+                    {"soprano": [64, 65, 62, 64], "pitches": ["E4", "F4", "D4", "E4"]},
+                ]
+            }
+        }
+    }
+
+
 class ProgressionRequest(BaseModel):
     """Body for ``POST /progression``: idiomatic Roman-numeral list (Layer 1)."""
 

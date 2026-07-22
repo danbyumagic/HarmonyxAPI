@@ -27,7 +27,9 @@ from .generation.realize import (
     playback_from_voicings,
     realize,
     satb_voicings_from_score,
+    soprano_alternatives,
 )
+from .generation.chords import midi_to_name
 from .models import (
     AnalysisResponse,
     GenerateRequest,
@@ -35,6 +37,8 @@ from .models import (
     PlaybackPayload,
     ProgressionRequest,
     ProgressionResponse,
+    SopranoOptionsRequest,
+    SopranoOptionsResponse,
 )
 
 app = FastAPI(
@@ -202,6 +206,38 @@ async def generate(body: GenerateRequest) -> GenerateResponse:
         time_signature=body.time_signature,
         musicxml=musicxml,
         playback=playback,
+    )
+
+
+@app.post(
+    "/generate/soprano-options",
+    response_model=SopranoOptionsResponse,
+    tags=["generation"],
+)
+async def generate_soprano_options(body: SopranoOptionsRequest) -> SopranoOptionsResponse:
+    """Up to 3 distinct soprano-line options for a progression, best first.
+
+    Lightweight preview (pitches only, no MusicXML) -- finalize a chosen
+    option into a full score via ``POST /generate``'s ``soprano`` param.
+    """
+    try:
+        options = soprano_alternatives(body.progression, body.key, n=3)
+    except RealizationError as exc:
+        raise HTTPException(
+            status_code=422,
+            detail={"error": "realization_failed", "message": str(exc)},
+        ) from exc
+    except Exception as exc:  # music21 / RN parse failures, etc.
+        raise HTTPException(
+            status_code=422,
+            detail={"error": "realization_failed", "message": str(exc)},
+        ) from exc
+
+    return SopranoOptionsResponse(
+        options=[
+            {"soprano": s, "pitches": [midi_to_name(m) for m in s]}
+            for s in options
+        ]
     )
 
 
