@@ -7,6 +7,7 @@ from app.generation.chords import (
     chord_pitch_classes,
     is_chord_tone,
     leading_tone_pitch_class,
+    midi_to_name,
     normalize_rn,
     rn_agreement,
     tonic_pitch_class,
@@ -84,3 +85,8 @@ def test_rn_agreement_primary_ignores_inversion_and_seventh():
 
 def test_rn_agreement_different_quality_disagrees():
     assert rn_agreement("V", "v") is False  # major vs minor dominant
+
+
+def test_midi_to_name_returns_pitch_name_with_octave():
+    assert midi_to_name(72) == "C5"
+    assert midi_to_name(61) == "C#4"

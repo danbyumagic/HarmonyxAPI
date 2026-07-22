@@ -26,6 +26,11 @@ def to_key(key_like: KeyLike) -> m21key.Key:
     return m21key.Key(tonic, mode)
 
 
+def midi_to_name(midi: int) -> str:
+    """MIDI pitch number -> spelled pitch name with octave (e.g. 72 -> 'C5')."""
+    return m21pitch.Pitch(midi=midi).nameWithOctave
+
+
 def tonic_pitch_class(key_like: KeyLike) -> int:
     return to_key(key_like).tonic.pitchClass
 
