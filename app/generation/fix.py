@@ -468,6 +468,69 @@ def _alternatives_for_slot(
     return ordered[:_MAX_SINGLE_SLOT_ALTS]
 
 
+def roman_alternatives_for_slot(
+    progression: Sequence[str],
+    key_like: _chords.KeyLike,
+    index: int,
+    *,
+    locked: Optional[Mapping[int, str]] = None,
+    cadence: Optional[str] = None,
+    max_alternatives: int = 6,
+) -> List[Dict[str, str]]:
+    """Up to ``max_alternatives`` theory-valid replacement figures for
+    ``progression[index]``.
+
+    Each candidate from ``_alternatives_for_slot`` (already filtered for
+    forbidden transitions into/out of the immediate neighbors) is swapped in
+    and re-checked against the *whole* progression via
+    ``validate_progression`` (theory gate only, ``check_engine=False``) --
+    this also catches cadence-shape and non-adjacent forbidden-edge
+    violations that a neighbor-only check would miss.
+
+    Returns ``[]`` if ``index`` is locked (nothing to suggest) or if no
+    candidate keeps the progression valid. Raises ``ValueError`` if
+    ``index`` is out of range.
+    """
+    figures = [str(f).strip() for f in progression]
+    if index < 0 or index >= len(figures):
+        raise ValueError(
+            f"index {index} out of range for progression of length {len(figures)}"
+        )
+
+    locked_map = _safe_locked(locked, len(figures))
+    if index in locked_map:
+        return []
+
+    cadence_arg = cadence
+    if cadence is not None:
+        c = str(cadence).strip().upper()
+        cadence_arg = c if c in ("PAC", "HC") else None
+
+    current = figures[index]
+    out: List[Dict[str, str]] = []
+    for fig in _alternatives_for_slot(figures, index, key_like):
+        if fig == current:
+            continue
+        trial = list(figures)
+        trial[index] = fig
+        result = validate_progression(
+            trial,
+            key_like,
+            cadence=cadence_arg,
+            locked=locked_map or None,
+            check_engine=False,
+            suggest=False,
+        )
+        if not result.ok:
+            continue
+        out.append(
+            {"figure": fig, "label": _label_for_edit(index, current, fig, key_like)}
+        )
+        if len(out) >= max_alternatives:
+            break
+    return out
+
+
 def _label_for_edit(
     index: int,
     old: str,

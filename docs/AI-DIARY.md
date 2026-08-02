@@ -1076,3 +1076,57 @@ default queued). This closes **Tier 3 in full**, and with it Tiers 1–3 of
 product decision) remains logged but not recommended. Per AGENTS.md Rule
 2b: good point for a chat
 reset before naming the next task — no build chunk implied by any of this.
+
+## Entry 32 — Q7 shipped + merged to main; RN-alternatives spec'd, planned, next (2026-07-22)
+
+Human named two chunks in one session: Q7 ("More options" for the
+soprano-options row) plus a new feature — Roman-numeral alternatives for a
+single progression slot, so a user who wants to change one or two chords
+gets valid RN suggestions without the whole progression needing to be
+invalid first (RN logic only, no melody).
+
+**Q7 — built via `superpowers:subagent-driven-development`, 3 tasks:**
+`count` field on `SopranoOptionsRequest` (`app/models.py`, bounded
+`ge=1,le=10`, default 3) → wired through `POST /generate/soprano-options`
+(`app/main.py`) → frontend "More options" button (`app/static/index.html`)
+that re-fetches with `count = sopranoOptions.length + 3` and either grows
+the card row or shows an exhausted state. Each task got an individual
+spec+quality review (all approved, only Minor findings: stale schema
+example, stale docstring, one `readSlotsFromDom()` omission — left for
+human triage). The **final whole-branch review caught a real Important
+bug** the per-task reviews couldn't see: the frontend's uncapped `+3`
+growth (3→6→9→**12**) collided with the backend's `le=10` bound, so any
+option-rich progression would hit a repeatable 422 instead of the intended
+exhausted state. Fixed by clamping `nextCount` to 10 and short-circuiting
+to the exhausted state once no room remains — verified by trace-through +
+`node --check` + full pytest (182 passed), no browser available in this
+environment so a **human should still click through it once** before
+trusting the UX end to end.
+
+Branch `claude/harmonic-analysis-api-loc82f` (70 commits — the entire
+project's history; `main` had only the initial stub commit) was fast-
+forward merged into `main` locally per `superpowers:finishing-a-
+development-branch`, tests re-verified green on `main` (182 passed), then
+the old branch was force-deleted after confirming `git diff` between the
+branch tip and `main` was empty (nothing lost — the `-d` safety check was
+only tripping on the origin remote being 6 commits behind, not on
+merge completeness). `main` is now 70 commits ahead of `origin/main`,
+**not pushed** — human hasn't asked for that yet.
+
+**RN-alternatives — spec'd and planned, not yet built.** Design:
+`docs/superpowers/specs/2026-07-22-roman-numeral-alternatives-design.md`.
+Shape: new `roman_alternatives_for_slot()` in `app/generation/fix.py`
+(reuses the existing private `_alternatives_for_slot` candidate pool +
+`_label_for_edit` labeling, but additionally re-validates each candidate
+against the *whole* progression via `validate_progression(...,
+check_engine=False)` — not just the two neighbor edges — theory-only, no
+engine/melody involvement anywhere). New endpoint `POST
+/generate/roman-alternatives`. Frontend: a `💡 alts` button per `.rn-slot`
+in the pre-Realize RN editor opens a popover of up to 6 valid swaps,
+click-to-replace, no auto-Realize. Full task-by-task plan (already
+verified against the real running code during planning, not guessed) is at
+`docs/superpowers/plans/2026-07-22-roman-numeral-alternatives.md`.
+
+New branch cut for this work: `claude/roman-numeral-alternatives`, off the
+now-updated `main`. Per AGENTS.md Rule 2b, chat reset suggested before
+starting Task 1 of that plan.

@@ -287,9 +287,9 @@ def _build_score(voicings: List[Voicing], key_like: _chords.KeyLike, time_signat
     k = _chords.to_key(key_like)
 
     treble = m21stream.PartStaff(id="Treble")
-    treble.partName = "Soprano / Alto"
+    treble.partName = "SATB"
     bass_staff = m21stream.PartStaff(id="Bass")
-    bass_staff.partName = "Tenor / Bass"
+    bass_staff.partName = "SATB"
 
     v_s = m21stream.Voice(id="Soprano")
     v_a = m21stream.Voice(id="Alto")
@@ -326,7 +326,23 @@ def _build_score(voicings: List[Voicing], key_like: _chords.KeyLike, time_signat
             barTogether=True,
         ),
     )
-    return score.makeMeasures(inPlace=False)
+    made = score.makeMeasures(inPlace=False)
+    _renumber_voices_from_one(made)
+    return made
+
+
+def _renumber_voices_from_one(score: m21stream.Score) -> None:
+    """``makeMeasures`` resets voice ids to 0-indexed integers per staff.
+
+    Voice ``0`` is outside the MusicXML convention (voices are 1-based) and
+    MuseScore silently drops notes in a voice numbered ``0`` on import, even
+    though other MusicXML readers tolerate it. Shift each staff's voice ids
+    up by one so nothing is ever left in voice ``0``.
+    """
+    for part in score.parts:
+        for measure in part.getElementsByClass(m21stream.Measure):
+            for voice in measure.voices:
+                voice.id = int(voice.id) + 1
 
 
 def _note(midi: int, stem_direction: str) -> m21note.Note:

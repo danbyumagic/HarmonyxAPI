@@ -14,7 +14,10 @@ Paste-ready prompts:
 
 ## Project snapshot (do not re-build)
 
-Branch: `claude/harmonic-analysis-api-loc82f` (confirm `git status` / `git log`).
+Branch: `claude/roman-numeral-alternatives`, cut from `main` (confirm
+`git status` / `git log`). The old long-running branch
+`claude/harmonic-analysis-api-loc82f` was merged to `main` and deleted —
+everything below is on `main` now, plus Q7.
 
 ### Product (implemented)
 
@@ -30,6 +33,12 @@ Branch: `claude/harmonic-analysis-api-loc82f` (confirm `git status` / `git log`)
   preview-card row wired to it (`app/static/index.html`). Final whole-branch
   review clean/shipped; two Minor UX findings logged, not fixed (see
   `docs/START-HERE.md` "Not broken — but known limits").
+- Q7 "More options" for soprano options — bounded `count` field
+  (`app/models.py`), wired through `POST /generate/soprano-options`
+  (`app/main.py`), "More options" button (`app/static/index.html`). Final
+  review caught + fixed a real bug (uncapped growth vs. backend's `le=10`
+  bound). Never browser-tested (no browser in build env) — verify before
+  trusting the exhaustion-state UX.
 
 ### L1–L3 (do not re-do)
 
@@ -80,14 +89,16 @@ default research chunk queued; human names next candidate or revisits Tier 4.
 - LLM L4+ → `docs/LLM-PROGRESSION-SPEC.md`
 - M4 `POST /check`
 - Q6: raise A7's RN-agreement baseline (42%/38%) — no work scoped yet
-- **Q7: "More options" for the soprano-options row** — spec approved:
-  `docs/superpowers/specs/2026-07-22-more-soprano-options-design.md`.
-  **Next step is writing the implementation plan** (`superpowers:writing-plans`),
-  not implementing directly — no plan exists yet for this one. Small scope:
-  add a bounded `count` field to `SopranoOptionsRequest`/the endpoint
-  (`app/models.py`, `app/main.py`) and a "More options" button in the
-  frontend (`app/static/index.html`); no new endpoint, no algorithm change
-  (`soprano_alternatives()` is already deterministic/prefix-stable).
+- **Q9: Roman-numeral alternatives for one progression slot** — spec +
+  plan both approved and ready, nothing built yet:
+  `docs/superpowers/specs/2026-07-22-roman-numeral-alternatives-design.md`,
+  `docs/superpowers/plans/2026-07-22-roman-numeral-alternatives.md`.
+  **This is the named next step** — on branch
+  `claude/roman-numeral-alternatives`, start Task 1 via
+  `superpowers:subagent-driven-development`. New
+  `roman_alternatives_for_slot()` in `app/generation/fix.py`, new
+  `POST /generate/roman-alternatives`, and a `💡 alts` popover per RN slot
+  in `app/static/index.html`. RN logic only, no melody/engine involvement.
 - Q8: soprano-options UX robustness (Minor, from final review, not requested
   yet) — see `docs/START-HERE.md` "Not broken — but known limits."
 
@@ -99,7 +110,7 @@ python -m eval.run_generation_eval --min-roundtrip 1.0 --max-violations 0
 python -m eval.run_rn_eval
 ```
 
-Expect on the order of **~171** tests after Q4 (count may drift). Needs
+Expect on the order of **182** tests after Q7 (count may drift). Needs
 Python **3.11+** (`.python-version` pins 3.12.12) — music21 10.5.0 requires it.
 
 ---
