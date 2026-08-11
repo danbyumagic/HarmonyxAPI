@@ -1,147 +1,170 @@
-# Harmonyx API
+# Harmonyx
 
-**Send it a score, get back a chord-by-chord Roman numeral analysis as structured JSON.**
+**Two-way harmony for the browser and the API.**
 
-`POST /analyze` with a MusicXML or MIDI file →
+Upload a chorale → get Roman numerals.  
+Propose a progression → get a four-part SATB MusicXML you can preview, play, and download.
 
-```json
-{
-  "key": "G major",
-  "confidence": 0.91,
-  "chords": [
-    {"measure": 1, "beat": 1, "pitches": ["G3", "B3", "D4"],
-     "roman": "I", "quality": "major", "inversion": 0},
-    {"measure": 1, "beat": 3, "pitches": ["C4", "E4", "G4"],
-     "roman": "IV", "quality": "major", "inversion": 0}
-  ],
-  "cadences": [{"measure": 8, "type": "authentic"}]
-}
-```
+Deterministic core (music21 + a clean-room part-writing engine). Optional LLM walkthrough on analyze. No model required for the main loop.
 
-Interactive Swagger UI at `/docs`. A drop-zone frontend at `/`.
+[![CI](https://github.com/danbyumagic/HarmonyxAPI/actions/workflows/ci.yml/badge.svg)](https://github.com/danbyumagic/HarmonyxAPI/actions/workflows/ci.yml)
+[![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://www.python.org/downloads/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.139-009688.svg)](https://fastapi.tiangolo.com/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 ---
 
-## How it works
+## What you get
 
-The pipeline is deliberately small — [`app/analyzer.py`](app/analyzer.py) is the core:
+| Analyze | Generate |
+|--------|----------|
+| MusicXML / MIDI in | Roman numerals in |
+| Key, RNs, cadences out | Grand-staff SATB MusicXML out |
+| Drop-zone UI | Propose · edit · lock · realize · play |
+| Optional plain-English explainer | Spice / style for richer grammar |
+| | Soprano-line alternatives |
 
-1. **Parse** the uploaded score (`music21.converter.parse`).
-2. **Detect the key** (`score.analyze('key')`, Krumhansl-Schmuckler).
-3. **Chordify** — collapse the multi-voice texture into vertical sonorities.
-4. **Label** each sonority with a Roman numeral (`roman.romanNumeralFromChord`).
-5. **Clean up** — this is where the craft is. `chordify()` produces a lot of
-   junk: passing tones and suspensions momentarily spell "chords" no analyst
-   would label. The cleanup pass:
-   - drops slices shorter than a duration threshold (passing motion), and
-   - merges repeated adjacent chords (a harmony held or re-struck across beats).
-6. **Detect cadences** from adjacent Roman-numeral pairs (authentic, plagal,
-   half, deceptive).
-
-## The AI part
-
-`music21` alone is deterministic, rule-based analysis. The optional **LLM
-explainer** ([`app/explainer.py`](app/explainer.py)) keeps that analysis
-authoritative and adds a plain-English walkthrough of the progression on top —
-the lower-risk of the two AI angles in the design. It never changes a Roman
-numeral or a key.
-
-Pass `?explain=true` and set `ANTHROPIC_API_KEY`. Without a key the field is
-simply omitted; the core `/analyze` endpoint stays fully deterministic and has
-no LLM dependency. The explainer uses `claude-opus-4-8` with adaptive thinking.
-
-## The eval number
-
-> A single number turns a demo into evidence.
-
-[`eval/run_eval.py`](eval/run_eval.py) runs the analyzer over 20 Bach chorales
-from the `music21` corpus and reports the percentage whose detected key matches
-the ground truth in [`eval/expected/keys.json`](eval/expected/keys.json).
-
-```
-$ python -m eval.run_eval
-...
-Agreement: 13/20 = 65%
-```
-
-**Current key-detection agreement: 65% (13/20).** The ground truth is derived
-transparently — each chorale's key signature gives the mode, its final chord
-root gives the tonic — so Picardy-third endings are labelled by their true
-minor key rather than the major final chord. Most misses are relative
-major/minor confusions in `music21`'s global key analysis (e.g. F♯ major vs.
-its relative B minor), which is exactly the kind of ambiguity a single honest
-number surfaces. It doubles as a CI regression gate: `python -m eval.run_eval
---min 0.6` exits non-zero if agreement drops below 60%.
-
-## Scope discipline (v1)
-
-V1 handles **four-part chorale texture in a single major/minor key, no
-modulation.** Modulation detection is the thing most likely to stall this
-project, so it's deliberately out of scope. Chromatic chords are labelled as
-best `music21` can within the detected key.
+**Live UI** at `/` · **Swagger** at `/docs` · **health** at `/health`
 
 ---
 
-## Running locally
+## Quick start
 
 ```bash
-pip install -r requirements.txt
-uvicorn app.main:app --reload
-# open http://localhost:8000  (frontend)  or  /docs  (Swagger)
-```
-
-Analyze a file:
-
-```bash
-curl -F "file=@chorale.musicxml" "http://localhost:8000/analyze"
-# with the LLM walkthrough:
-curl -F "file=@chorale.musicxml" "http://localhost:8000/analyze?explain=true"
-```
-
-### Query parameters
-
-| Param                | Default | Meaning                                                        |
-| -------------------- | ------- | -------------------------------------------------------------- |
-| `duration_threshold` | `0.5`   | Minimum slice length (quarter notes) to keep; below = passing. |
-| `explain`            | `false` | Add an LLM walkthrough (needs `ANTHROPIC_API_KEY`).            |
-
-Accepted uploads: `.musicxml`, `.xml`, `.mxl`, `.mid`, `.midi`.
-
-## Tests & eval
-
-```bash
+# Python ≥ 3.11 (music21 10.x)
+python -m venv .venv && source .venv/bin/activate
 pip install -r requirements-dev.txt
-python -m pytest tests/      # unit + endpoint tests
-python -m eval.run_eval      # key-detection agreement
+
+uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
+# → http://127.0.0.1:8000
 ```
-
-## Deploy
-
-Container-first, so it drops onto Railway or Fly.io with a live URL:
 
 ```bash
-# Docker
-docker build -t harmonyx . && docker run -p 8000:8000 harmonyx
+# Analyze a score
+curl -s -F "file=@chorale.musicxml" "http://127.0.0.1:8000/analyze" | jq .
 
-# Fly.io
-fly launch --no-deploy && fly deploy
+# Propose a progression (student-safe by default)
+curl -s -X POST "http://127.0.0.1:8000/progression" \
+  -H "Content-Type: application/json" \
+  -d '{"key":"C major","length":8,"cadence":"PAC"}' | jq .
 
-# Railway: point a new service at this repo — railway.json handles the rest.
+# Realize it as SATB MusicXML + playback events
+curl -s -X POST "http://127.0.0.1:8000/generate" \
+  -H "Content-Type: application/json" \
+  -d '{"key":"C major","progression":["I","IV","V","I"]}' | jq '{keys: keys, playback: .playback.tempo_bpm}'
 ```
 
-Both platforms inject `$PORT`; the health check is `GET /health`.
+Optional LLM walkthrough on analyze (never rewrites RNs or key):
+
+```bash
+export ANTHROPIC_API_KEY=sk-...
+curl -s -F "file=@chorale.musicxml" "http://127.0.0.1:8000/analyze?explain=true" | jq .explanation
+```
+
+---
+
+## API
+
+| Method | Path | What it does |
+|--------|------|----------------|
+| `POST` | `/analyze` | Score file → key, chords (RN), cadences; `?explain=true` for LLM text |
+| `POST` | `/progression` | `{key, length?, locked?, cadence?, seed?, spice?, style?}` → RN list |
+| `POST` | `/generate` | `{key, progression, time_signature?, soprano?}` → MusicXML + playback |
+| `POST` | `/generate/soprano-options` | Up to N distinct soprano lines for a progression |
+| `GET`  | `/health` | Liveness |
+| `GET`  | `/` | Frontend |
+| `GET`  | `/docs` | OpenAPI / Swagger |
+
+**Accepted uploads:** `.musicxml` · `.xml` · `.mxl` · `.mid` · `.midi`
+
+**Spice / style** (propose only): default `spice=0` (homework-safe).  
+`style`: `student` → 0 · `hymnal` → 1 · `spicy` → 2 (style wins if both set).  
+Integer `spice=3` is max color (extra applied dominants).
+
+---
+
+## How generation works
+
+```
+RN progression
+      │
+      ▼
+ candidate SATB voicings   (ranges, spacing, doubling)
+      │
+      ▼
+ DP / Viterbi search       (smoothness + hard rule costs)
+      │
+      ▼
+ grand-staff MusicXML      + block-chord playback events
+```
+
+Rules live in [`docs/PARTWRITING-RULES.md`](docs/PARTWRITING-RULES.md).  
+Fixtures in [`tests/test_partwriting.py`](tests/test_partwriting.py) are a **locked spec** — the engine is built to satisfy them, not the other way around.
+
+Progression propose uses a weighted functional-harmony grammar ([`app/generation/grammar.py`](app/generation/grammar.py)). A corpus + validator + fixer stack is in place for a future optional LLM proposer; that path is **not** wired to the API yet.
+
+---
+
+## Evidence, not vibes
+
+| Check | Result |
+|-------|--------|
+| Key detection (20 Bach chorales) | **~65%** (CI gate ≥ 60%) |
+| Generation round-trip (fixtures) | **100%** primary RN agreement |
+| Hard part-writing violations (fixtures) | **0** |
+| RN agreement vs labelled corpus | **~42%** primary · **~38%** strict *(visibility only)* |
+
+```bash
+pytest tests/ -q
+python -m eval.run_eval --min 0.6
+python -m eval.run_generation_eval --min-roundtrip 1.0 --max-violations 0
+```
+
+---
 
 ## Project layout
 
 ```
 app/
-  analyzer.py   music21 core + the cleanup pass (the craft)
-  explainer.py  optional LLM walkthrough (gated on ANTHROPIC_API_KEY)
-  models.py     Pydantic response models (drive /docs)
-  main.py       FastAPI app: /analyze, /health, static frontend
-  static/       drop-zone frontend + results table
-eval/
-  run_eval.py   key-detection agreement harness
-  expected/     ground-truth keys
-tests/          unit + endpoint tests
+  analyzer.py          score → RN / key / cadences
+  explainer.py         optional LLM walkthrough (API-key gated)
+  models.py            Pydantic request/response models
+  main.py              FastAPI routes
+  generation/          realizer, grammar, rules, corpus, validate, fix
+  static/index.html    Analyze + Generate UI (OSMD + play)
+data/progression_corpus.json
+eval/                  key, generation, RN-agreement harnesses
+tests/                 unit + endpoint + locked part-writing fixtures
+docs/                  specs, status, research notes (optional reading)
 ```
+
+---
+
+## Deploy
+
+Container-first:
+
+```bash
+docker build -t harmonyx . && docker run -p 8000:8000 harmonyx
+
+# Fly.io / Railway — fly.toml and railway.json are ready
+# Health check: GET /health   (platforms inject $PORT)
+```
+
+---
+
+## Scope & honesty
+
+**In scope (v1):** four-part chorale texture, single major/minor key, block-chord hymn style, browser playback (Web Audio, not SoundFonts).
+
+**Out of scope for now:** modulation tracking as a first-class feature, full contrapuntal NCTs/suspensions in the realizer, score → part-writing checker HTTP endpoint (`POST /check` planned), LLM-proposed progressions in the UI.
+
+The analyzer still confuses some relative major/minor keys; generation quality is measured and gated on fixtures, not claimed as “solved music theory.”
+
+---
+
+## License
+
+[MIT](LICENSE) — use it, fork it, teach with it.
+
+Agent / contributor workflow lives in [`AGENTS.md`](AGENTS.md) and [`docs/START-HERE.md`](docs/START-HERE.md) if you want the long form.
