@@ -24,3 +24,8 @@ env/
 *.mid
 *.midi
 !tests/**/*.mid
+
+# Private notes / agent docs — keep local, do not publish
+*.md
+!README.md
+.claude/

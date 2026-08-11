@@ -98,21 +98,20 @@ RN progression
  grand-staff MusicXML      + block-chord playback events
 ```
 
-Rules live in [`docs/PARTWRITING-RULES.md`](docs/PARTWRITING-RULES.md).  
-Fixtures in [`tests/test_partwriting.py`](tests/test_partwriting.py) are a **locked spec** — the engine is built to satisfy them, not the other way around.
+Part-writing constraints (ranges, spacing, doubling, parallels, leading-tone and seventh resolution) are enforced in the realizer. The locked fixtures in `tests/test_partwriting.py` define the hard contract.
 
-Progression propose uses a weighted functional-harmony grammar ([`app/generation/grammar.py`](app/generation/grammar.py)). A corpus + validator + fixer stack is in place for a future optional LLM proposer; that path is **not** wired to the API yet.
+Progression propose uses a weighted functional-harmony grammar (`app/generation/grammar.py`). A corpus + validator + fixer stack is prepared for an optional LLM proposer; that path is **not** wired to the API yet.
 
 ---
 
-## Evidence, not vibes
+## Evaluation
 
 | Check | Result |
 |-------|--------|
 | Key detection (20 Bach chorales) | **~65%** (CI gate ≥ 60%) |
 | Generation round-trip (fixtures) | **100%** primary RN agreement |
 | Hard part-writing violations (fixtures) | **0** |
-| RN agreement vs labelled corpus | **~42%** primary · **~38%** strict *(visibility only)* |
+| RN agreement vs labelled corpus | **~42%** primary · **~38%** strict *(reported in CI, not a gate)* |
 
 ```bash
 pytest tests/ -q
@@ -135,7 +134,6 @@ app/
 data/progression_corpus.json
 eval/                  key, generation, RN-agreement harnesses
 tests/                 unit + endpoint + locked part-writing fixtures
-docs/                  specs, status, research notes (optional reading)
 ```
 
 ---
@@ -153,18 +151,16 @@ docker build -t harmonyx . && docker run -p 8000:8000 harmonyx
 
 ---
 
-## Scope & honesty
+## Scope
 
 **In scope (v1):** four-part chorale texture, single major/minor key, block-chord hymn style, browser playback (Web Audio, not SoundFonts).
 
-**Out of scope for now:** modulation tracking as a first-class feature, full contrapuntal NCTs/suspensions in the realizer, score → part-writing checker HTTP endpoint (`POST /check` planned), LLM-proposed progressions in the UI.
+**Out of scope for now:** modulation tracking as a first-class feature, full contrapuntal NCTs/suspensions in the realizer, score → part-writing checker HTTP endpoint, LLM-proposed progressions in the UI.
 
-The analyzer still confuses some relative major/minor keys; generation quality is measured and gated on fixtures, not claimed as “solved music theory.”
+Key detection still confuses some relative major/minor cases. Generation quality is measured on curated fixtures and gated in CI.
 
 ---
 
 ## License
 
-[MIT](LICENSE) — use it, fork it, teach with it.
-
-Agent / contributor workflow lives in [`AGENTS.md`](AGENTS.md) and [`docs/START-HERE.md`](docs/START-HERE.md) if you want the long form.
+[MIT](LICENSE)
