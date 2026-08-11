@@ -108,14 +108,14 @@ Progression propose uses a weighted functional-harmony grammar (`app/generation/
 
 | Check | Result |
 |-------|--------|
-| Key detection (20 Bach chorales) | **~65%** (CI gate ≥ 60%) |
+| Key detection (20 Bach chorales) | **90%** (CI gate ≥ 85%) |
 | Generation round-trip (fixtures) | **100%** primary RN agreement |
 | Hard part-writing violations (fixtures) | **0** |
 | RN agreement vs labelled corpus | **~42%** primary · **~38%** strict *(reported in CI, not a gate)* |
 
 ```bash
 pytest tests/ -q
-python -m eval.run_eval --min 0.6
+python -m eval.run_eval --min 0.85
 python -m eval.run_generation_eval --min-roundtrip 1.0 --max-violations 0
 ```
 

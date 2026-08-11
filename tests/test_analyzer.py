@@ -11,6 +11,7 @@ from app.analyzer import (
     detect_cadences,
     _clean_slices,
     _degree,
+    _detect_key,
     _is_passing_or_neighbor_tone,
     _neutralize_non_chord_tones,
     _slice_chords,
@@ -201,6 +202,47 @@ def test_cadences_align_with_fermata_measures_on_real_chorale():
     fermata_measures = {1, 2, 3, 5, 7, 9}
     for cadence in result.cadences:
         assert cadence.measure in fermata_measures
+
+
+# --- key detection (A4) ----------------------------------------------------
+
+def test_key_picardy_third_keeps_notated_minor_mode():
+    """Final major triad on the minor tonic must not flip the mode to major."""
+    score = corpus.parse("bach/bwv7.7")  # B minor, ends on B major (Picardy)
+    analyzed, confidence = _detect_key(score)
+    assert f"{analyzed.tonic.name} {analyzed.mode}" == "B minor"
+    assert 0.0 <= confidence <= 1.0
+
+
+def test_key_does_not_retonicize_final_dominant_as_tonic():
+    """Phrases often end on V — final root alone must not become the key."""
+    score = corpus.parse("bach/bwv311")  # B minor chorale; often closes on F#
+    analyzed, _ = _detect_key(score)
+    assert f"{analyzed.tonic.name} {analyzed.mode}" == "B minor"
+
+
+def test_key_relative_major_minor_prefers_minor_when_notated():
+    """Ensemble + structure should not flip a clear G minor chorale to B♭ major."""
+    score = corpus.parse("bach/bwv273")
+    analyzed, _ = _detect_key(score)
+    assert f"{analyzed.tonic.name} {analyzed.mode}" == "G minor"
+
+
+def test_key_ensemble_fallback_on_unnotated_major_triads():
+    """No written Key — ensemble should still land on a major key for I–IV–V–I."""
+    s = stream.Stream()
+    s.append(meter.TimeSignature("4/4"))
+    for pitches in (
+        ["C4", "E4", "G4"],
+        ["F4", "A4", "C5"],
+        ["G4", "B4", "D5"],
+        ["C4", "E4", "G4"],
+    ):
+        s.append(chord.Chord(pitches, quarterLength=1.0))
+    analyzed, confidence = _detect_key(s)
+    assert analyzed.mode == "major"
+    assert analyzed.tonic.pitchClass == 0  # C
+    assert 0.0 <= confidence <= 1.0
 
 
 # --- full pipeline on a real chorale --------------------------------------

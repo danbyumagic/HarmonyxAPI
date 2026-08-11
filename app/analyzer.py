@@ -11,6 +11,10 @@ cleanup pass (`_clean_slices`) is where the deterministic analysis becomes
 usable -- it drops slices below a duration threshold and merges repeated
 adjacent chords.
 
+Key detection (A4) prefers notated key + final-chord tonic (Picardy-aware),
+with a multi-algorithm ensemble fallback when the score has no written key
+(e.g. MIDI).
+
 Scope (v1): four-part chorale texture in a single major/minor key, no
 modulation.  See the README for the honest list of what this does and does
 not handle.
@@ -19,10 +23,28 @@ not handle.
 from __future__ import annotations
 
 import copy
+from collections import defaultdict
 from dataclasses import dataclass, field
-from typing import List, Optional
+from typing import Dict, List, Optional, Tuple
 
 from music21 import chord, converter, expressions, key as m21key, pitch, roman, stream
+
+# Profile algorithms music21 ships for key estimation. Used when the score
+# has no written Key / when we need a fallback for unnotated input.
+_KEY_ALGORITHMS = (
+    "KrumhanslSchmuckler",
+    "AardenEssen",
+    "BellmanBudge",
+    "TemperleyKostkaPayne",
+    "SimpleWeights",
+)
+
+_PC_NAMES_SHARP = (
+    "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B",
+)
+_PC_NAMES_FLAT = (
+    "C", "D-", "D", "E-", "E", "F", "G-", "G", "A-", "A", "B-", "B",
+)
 
 
 # A note counts as metrically weak (and thus eligible to be a non-chord tone)
@@ -104,7 +126,7 @@ def analyze_score(
     ``"musicxml"``); music21 usually infers it from the file extension.
     """
     score = _parse(source, fmt)
-    analyzed_key = score.analyze("key")
+    analyzed_key, key_confidence = _detect_key(score)
 
     neutralized = _neutralize_non_chord_tones(score)
     raw = _slice_chords(neutralized, analyzed_key)
@@ -112,7 +134,7 @@ def analyze_score(
 
     return AnalysisResult(
         key=_key_name(analyzed_key),
-        confidence=_key_confidence(analyzed_key),
+        confidence=key_confidence,
         chords=cleaned,
         cadences=detect_cadences(cleaned, analyzed_key),
     )
@@ -431,3 +453,243 @@ def _key_confidence(analyzed_key: m21key.Key) -> float:
     if certainty is None:
         return 0.0
     return max(0.0, min(1.0, float(certainty)))
+
+
+def _detect_key(score: stream.Stream) -> Tuple[m21key.Key, float]:
+    """Choose a global key for the score (A4).
+
+    Always runs a multi-algorithm profile ensemble, then re-ranks with
+    structural evidence (first/last chord roots, raised leading tones). A
+    written ``Key``, when present, is a soft prior — enough to break ties and
+    favour the notated mode (Picardy-safe) without overriding clear pitch
+    evidence, and without re-tonicizing every phrase that ends on V.
+    """
+    first = _extreme_chord(score, which="first")
+    final = _extreme_chord(score, which="last")
+    return _ensemble_key(
+        score,
+        first=first,
+        final=final,
+        notated=_notated_key(score),
+    )
+
+
+def _notated_key(score: stream.Stream) -> Optional[m21key.Key]:
+    """First explicit Key in the score, if any.
+
+    music21 chorales typically carry ``key.Key`` objects (with mode). Plain
+    ``KeySignature`` objects alone are mode-ambiguous (D major vs B minor);
+    those are left to the ensemble unless a full Key is present.
+    """
+    keys = list(score.recurse().getElementsByClass(m21key.Key))
+    if keys:
+        return keys[0]
+    return None
+
+
+def _extreme_chord(
+    score: stream.Stream, *, which: str
+) -> Optional[chord.Chord]:
+    """First or last vertical sonority via chordify."""
+    chords = [
+        c
+        for c in score.chordify().recurse().getElementsByClass(chord.Chord)
+        if c.pitches
+    ]
+    if not chords:
+        return None
+    return chords[0] if which == "first" else chords[-1]
+
+
+def _chord_root_pc(c: chord.Chord) -> Optional[int]:
+    try:
+        return int(c.root().pitchClass)
+    except Exception:
+        try:
+            return int(c.bass().pitchClass)
+        except Exception:
+            if c.pitches:
+                return int(c.pitches[0].pitchClass)
+            return None
+
+
+def _triad_mode(c: chord.Chord) -> Optional[str]:
+    quality = c.quality
+    if quality in ("major", "minor"):
+        return quality
+    return None
+
+
+def _key_from_pc(
+    pc: int, mode: str, *, prefer_flats: bool = False
+) -> m21key.Key:
+    names = _PC_NAMES_FLAT if prefer_flats else _PC_NAMES_SHARP
+    return m21key.Key(names[pc % 12], mode)
+
+
+def _key_id(k: m21key.Key) -> Tuple[int, str]:
+    return (int(k.tonic.pitchClass), k.mode)
+
+
+# Soft prior for a written Key. Large enough to break near-ties and prefer
+# the notated mode, small enough that strong profile+structure evidence can
+# still win (important when the MusicXML Key disagrees with the sounding key).
+_NOTATED_KEY_PRIOR = 2.0
+
+
+def _ensemble_key(
+    score: stream.Stream,
+    *,
+    first: Optional[chord.Chord],
+    final: Optional[chord.Chord],
+    notated: Optional[m21key.Key] = None,
+) -> Tuple[m21key.Key, float]:
+    """Vote across profile algorithms; break ties with structural evidence."""
+    weights: Dict[Tuple[int, str], float] = defaultdict(float)
+    candidates: Dict[Tuple[int, str], m21key.Key] = {}
+
+    for alg in _KEY_ALGORITHMS:
+        try:
+            analyzed = score.analyze(alg)
+        except Exception:
+            continue
+        _accumulate_key_candidate(analyzed, weights, candidates, primary=True)
+        for alt in (getattr(analyzed, "alternateInterpretations", None) or [])[:3]:
+            if isinstance(alt, m21key.Key):
+                _accumulate_key_candidate(
+                    alt, weights, candidates, primary=False
+                )
+
+    if notated is not None:
+        kid = _key_id(notated)
+        weights[kid] += _NOTATED_KEY_PRIOR
+        candidates.setdefault(kid, notated)
+
+    # Bare key signatures (mode-ambiguous) contribute mild major/minor priors.
+    for ks in score.recurse().getElementsByClass(m21key.KeySignature):
+        if isinstance(ks, m21key.Key):
+            continue  # already handled via notated Key
+        for mode in ("major", "minor"):
+            try:
+                k = ks.asKey(mode)
+            except Exception:
+                continue
+            kid = _key_id(k)
+            weights[kid] += 0.35
+            candidates.setdefault(kid, k)
+
+    if final is not None:
+        fpc = _chord_root_pc(final)
+        fmode = _triad_mode(final)
+        if fpc is not None:
+            for mode in ((fmode,) if fmode else ("major", "minor")):
+                k = _key_from_pc(fpc, mode)
+                kid = _key_id(k)
+                weights[kid] += 0.5
+                candidates.setdefault(kid, k)
+
+    if not candidates:
+        # Absolute last resort: music21 default.
+        fallback = score.analyze("key")
+        return fallback, _key_confidence(fallback)
+
+    best_key: Optional[m21key.Key] = None
+    best_score = float("-inf")
+    for kid, k in candidates.items():
+        total = weights[kid] + _structural_key_bonus(score, k, first, final)
+        if total > best_score:
+            best_score = total
+            best_key = k
+
+    assert best_key is not None
+    # Map the winning structural score into a rough [0, 1] confidence.
+    confidence = max(0.0, min(1.0, best_score / 12.0))
+    # Prefer music21's own correlation when the winner came from a profile.
+    profile_conf = _key_confidence(best_key)
+    return best_key, max(confidence, profile_conf * 0.9)
+
+
+def _accumulate_key_candidate(
+    k: m21key.Key,
+    weights: Dict[Tuple[int, str], float],
+    candidates: Dict[Tuple[int, str], m21key.Key],
+    *,
+    primary: bool,
+) -> None:
+    kid = _key_id(k)
+    corr = float(getattr(k, "correlationCoefficient", 0.0) or 0.0)
+    if primary:
+        weights[kid] += 1.0 + max(0.0, corr)
+    else:
+        weights[kid] += 0.35 + 0.35 * max(0.0, corr)
+    prev = candidates.get(kid)
+    if prev is None or corr >= float(
+        getattr(prev, "correlationCoefficient", 0.0) or 0.0
+    ):
+        candidates[kid] = k
+
+
+def _structural_key_bonus(
+    score: stream.Stream,
+    k: m21key.Key,
+    first: Optional[chord.Chord],
+    final: Optional[chord.Chord],
+) -> float:
+    """Extra weight from openings/closings and raised leading tones."""
+    bonus = 0.0
+    tonic_pc = int(k.tonic.pitchClass)
+
+    if final is not None:
+        fpc = _chord_root_pc(final)
+        if fpc == tonic_pc:
+            bonus += 4.0
+            fmode = _triad_mode(final)
+            if fmode == k.mode:
+                bonus += 0.75
+            elif k.mode == "minor" and fmode == "major":
+                bonus += 0.6  # Picardy third on the minor tonic
+            elif k.mode == "major" and fmode == "minor":
+                bonus -= 0.75
+
+    if first is not None:
+        if _chord_root_pc(first) == tonic_pc:
+            bonus += 1.75
+
+    # Raised leading tone supports minor; lots of subtonic without LT weakens it.
+    if k.mode == "minor":
+        raised, subtonic = _leading_tone_counts(score, tonic_pc)
+        if raised > subtonic:
+            bonus += 2.0
+        elif raised < subtonic:
+            bonus -= 0.75
+    else:
+        # If the relative minor's raised LT is common and we close on that
+        # minor tonic, prefer the relative minor instead.
+        rel = k.relative
+        raised, _ = _leading_tone_counts(score, int(rel.tonic.pitchClass))
+        if (
+            final is not None
+            and _chord_root_pc(final) == int(rel.tonic.pitchClass)
+            and raised >= 3
+        ):
+            bonus -= 1.5
+
+    return bonus
+
+
+def _leading_tone_counts(
+    score: stream.Stream, tonic_pc: int
+) -> Tuple[int, int]:
+    """Counts of raised LT (tonic+11) vs natural subtonic (tonic+10)."""
+    lt_pc = (tonic_pc + 11) % 12
+    sub_pc = (tonic_pc + 10) % 12
+    raised = 0
+    subtonic = 0
+    for n in score.recurse().notes:
+        pitches = n.pitches if n.isChord else (n.pitch,)
+        for p in pitches:
+            if p.pitchClass == lt_pc:
+                raised += 1
+            elif p.pitchClass == sub_pc:
+                subtonic += 1
+    return raised, subtonic

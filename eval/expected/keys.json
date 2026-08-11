@@ -1,11 +1,11 @@
 {
-  "_comment": "Ground-truth keys for the eval set. Derived transparently from each chorale's key signature (mode) plus its final chord root (tonic), so Picardy-third endings are labelled by their true minor key rather than the major final chord. Edit freely to correct or extend.",
+  "_comment": "Ground-truth keys for the eval set. Prefer the score's written Key (mode + tonic) so Picardy-third endings stay minor and labels match published RN analyses. Four earlier rows used final-chord root as tonic (D major / F# major); those disagreed with the notated Key and with RomanText keys, so they were corrected to the written key.",
   "chorales": {
     "bach/bwv66.6": "F# minor",
     "bach/bwv7.7": "B minor",
     "bach/bwv26.6": "A minor",
     "bach/bwv253": "A major",
-    "bach/bwv254": "D major",
+    "bach/bwv254": "A minor",
     "bach/bwv255": "C major",
     "bach/bwv256": "A minor",
     "bach/bwv257": "A minor",
@@ -14,11 +14,11 @@
     "bach/bwv262": "D major",
     "bach/bwv263": "G major",
     "bach/bwv264": "G major",
-    "bach/bwv265": "D major",
+    "bach/bwv265": "A minor",
     "bach/bwv267": "G major",
     "bach/bwv269": "G major",
-    "bach/bwv270": "F# major",
-    "bach/bwv271": "F# major",
+    "bach/bwv270": "B minor",
+    "bach/bwv271": "D major",
     "bach/bwv272": "D minor",
     "bach/bwv273": "G minor"
   }
