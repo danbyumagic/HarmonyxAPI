@@ -377,7 +377,7 @@
 <body>
   <div class="wrap">
     <header>
-      <div class="eyebrow">Portfolio demo · Harmonyx API</div>
+      <div class="eyebrow">Demo · Harmonyx API</div>
       <h1>An API that reads and writes classical harmony</h1>
       <p class="lede">
         Analyze MusicXML/MIDI to Roman numerals, propose idiomatic progressions,
@@ -545,7 +545,7 @@ POST /generate
     </details>
 
     <footer>
-      <span>Harmonyx API · portfolio demo</span>
+      <span>Harmonyx API · demo</span>
       <span>
         <a href="/docs">OpenAPI</a>
         ·
@@ -592,6 +592,17 @@ POST /generate
       });
     }
 
+    function musicxmlForDemoDisplay(musicxml) {
+      // OSMD labels staves from MusicXML part-name; show a single SATB label.
+      return String(musicxml)
+        .replace(/<part-name[^>]*>Soprano\s*\/\s*Alto<\/part-name>/gi, "<part-name>SATB</part-name>")
+        .replace(/<part-name[^>]*>Tenor\s*\/\s*Bass<\/part-name>/gi, "<part-name></part-name>")
+        .replace(
+          /<part-abbreviation[^>]*>[^<]*<\/part-abbreviation>/gi,
+          "<part-abbreviation></part-abbreviation>"
+        );
+    }
+
     async function renderScore(musicxml) {
       const container = $("osmdContainer");
       if (!container || !musicxml) return;
@@ -609,7 +620,7 @@ POST /generate
           drawPartNames: true,
           drawingParameters: "compacttight",
         });
-        await state.osmd.load(musicxml);
+        await state.osmd.load(musicxmlForDemoDisplay(musicxml));
         state.osmd.render();
       } catch (err) {
         container.innerHTML =
@@ -713,7 +724,7 @@ POST /generate
             key: state.key,
             progression: state.progression,
             time_signature: "4/4",
-            quarter_length: 2.0, // half notes for a clearer portfolio read
+            quarter_length: 2.0, // half notes for a clearer demo read
           }),
         });
         if (!r.ok) throw new Error(await r.text());

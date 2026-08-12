@@ -288,9 +288,10 @@ async def index() -> FileResponse:
     return FileResponse(os.path.join(_STATIC_DIR, "index.html"))
 
 
+@app.get("/demo", include_in_schema=False)
 @app.get("/portfolio", include_in_schema=False)
-async def portfolio_demo() -> FileResponse:
-    """Plain-language interactive demo of the API (portfolio / non-technical visitors)."""
+async def demo_page() -> FileResponse:
+    """Interactive API demo page (static HTML + live endpoint calls)."""
     return FileResponse(os.path.join(_STATIC_DIR, "portfolio.html"))
 
 
