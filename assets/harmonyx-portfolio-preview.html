@@ -20,8 +20,8 @@
     height: 630px;
     padding: 52px 56px;
     display: grid;
-    grid-template-columns: 1.15fr 0.85fr;
-    gap: 36px;
+    grid-template-columns: 1.05fr 0.95fr;
+    gap: 40px;
     align-items: center;
   }
   .eyebrow {
@@ -67,130 +67,96 @@
     color: #0f6b5c;
   }
   .panel {
-    background: #fffcf7;
-    border: 1px solid #e4ddd0;
+    background: #1a1714;
     border-radius: 22px;
-    box-shadow: 0 1px 2px rgba(26,23,20,.04), 0 18px 50px rgba(26,23,20,.08);
-    padding: 28px 26px 24px;
-    height: 480px;
+    box-shadow: 0 1px 2px rgba(26,23,20,.06), 0 22px 55px rgba(26,23,20,.18);
+    padding: 26px 26px 22px;
+    height: 500px;
     display: flex;
     flex-direction: column;
+    color: #f2efe8;
   }
-  .panel-top {
+  .chrome {
     display: flex;
-    justify-content: space-between;
-    align-items: baseline;
+    align-items: center;
+    gap: 8px;
     margin-bottom: 18px;
   }
-  .panel-title {
-    font-size: 13px;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: #8a8378;
-    font-weight: 700;
+  .dot {
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    background: #3d3832;
   }
-  .api {
+  .dot.r { background: #c45c4a; }
+  .dot.y { background: #c9a227; }
+  .dot.g { background: #3d9b6e; }
+  .path {
+    margin-left: 10px;
     font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
     font-size: 13px;
-    color: #0f6b5c;
-    background: #d8efe9;
-    padding: 6px 10px;
-    border-radius: 8px;
-    font-weight: 600;
+    color: #a49e93;
   }
-  .rns {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-bottom: 22px;
+  .path strong { color: #6fb39a; font-weight: 600; }
+  .routes {
+    display: grid;
+    gap: 10px;
+    margin-bottom: 18px;
   }
-  .rn {
-    min-width: 44px;
-    text-align: center;
-    padding: 10px 12px;
-    border-radius: 10px;
-    background: #f0ebe1;
-    border: 1px solid #e4ddd0;
-    font-family: Georgia, serif;
-    font-size: 22px;
-    font-weight: 700;
+  .route {
+    display: grid;
+    grid-template-columns: 64px 1fr auto;
+    gap: 12px;
+    align-items: center;
+    padding: 12px 14px;
+    border-radius: 12px;
+    background: #26221d;
+    border: 1px solid #34302a;
   }
-  .rn.hi {
-    background: #d8efe9;
-    border-color: #b7ddd3;
-    color: #0f6b5c;
-  }
-  .staff {
-    flex: 1;
-    border-radius: 14px;
-    background: #fffdf9;
-    border: 1px solid #e8e2d6;
-    position: relative;
-    overflow: hidden;
-    padding: 28px 20px 18px;
-  }
-  .staff-label {
-    position: absolute;
-    left: 14px;
-    top: 12px;
+  .method {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
     font-size: 12px;
     font-weight: 700;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.04em;
     color: #0f6b5c;
+    background: #d8efe9;
+    color: #0f6b5c;
+    border-radius: 6px;
+    text-align: center;
+    padding: 5px 0;
   }
-  .lines {
-    margin-top: 18px;
-    display: grid;
-    gap: 14px;
+  .endpoint {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 16px;
+    color: #f2efe8;
+    font-weight: 600;
   }
-  .line {
-    height: 2px;
-    background: #1a1714;
-    opacity: 0.22;
-    border-radius: 1px;
+  .hint {
+    font-size: 13px;
+    color: #a49e93;
   }
-  .notes {
-    position: absolute;
-    left: 70px;
-    right: 24px;
-    top: 54px;
-    bottom: 28px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px;
-  }
-  .chord {
+  .json-wrap {
     flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
+    border-radius: 14px;
+    background: #120f0d;
+    border: 1px solid #2c2823;
+    padding: 16px 18px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 15px;
+    line-height: 1.55;
+    overflow: hidden;
   }
-  .dot {
-    width: 14px;
-    height: 14px;
-    border-radius: 50%;
-    background: #1a1714;
-  }
-  .dot.soft { background: #0f6b5c; }
-  .stem {
-    width: 2px;
-    height: 42px;
-    background: #1a1714;
-    margin-top: -4px;
-  }
+  .k { color: #a892d6; }
+  .s { color: #e58a4f; }
+  .n { color: #6fb39a; }
+  .p { color: #a49e93; }
   .foot {
-    margin-top: 16px;
-    font-size: 14px;
-    color: #8a8378;
+    margin-top: 14px;
+    font-size: 13px;
+    color: #756f65;
     display: flex;
     justify-content: space-between;
-  }
-  .brand {
-    font-weight: 700;
-    color: #5c564e;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   }
 </style>
 </head>
@@ -208,33 +174,39 @@
       </div>
     </div>
     <div class="panel">
-      <div class="panel-top">
-        <div class="panel-title">Live response shape</div>
-        <div class="api">JSON + MusicXML</div>
+      <div class="chrome">
+        <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+        <span class="path"><strong>POST</strong> /progression</span>
       </div>
-      <div class="rns">
-        <span class="rn">I</span>
-        <span class="rn">IV</span>
-        <span class="rn">ii6</span>
-        <span class="rn">V</span>
-        <span class="rn hi">V7</span>
-        <span class="rn hi">I</span>
+      <div class="routes">
+        <div class="route">
+          <div class="method">POST</div>
+          <div class="endpoint">/analyze</div>
+          <div class="hint">score → RN</div>
+        </div>
+        <div class="route">
+          <div class="method">POST</div>
+          <div class="endpoint">/progression</div>
+          <div class="hint">propose</div>
+        </div>
+        <div class="route">
+          <div class="method">POST</div>
+          <div class="endpoint">/generate</div>
+          <div class="hint">→ MusicXML</div>
+        </div>
       </div>
-      <div class="staff">
-        <div class="staff-label">SATB</div>
-        <div class="lines">
-          <div class="line"></div><div class="line"></div><div class="line"></div>
-          <div class="line"></div><div class="line"></div>
-        </div>
-        <div class="notes">
-          <div class="chord"><div class="dot"></div><div class="dot soft"></div><div class="dot"></div><div class="dot soft"></div></div>
-          <div class="chord"><div class="dot soft"></div><div class="dot"></div><div class="dot soft"></div><div class="dot"></div></div>
-          <div class="chord"><div class="dot"></div><div class="dot soft"></div><div class="dot"></div><div class="dot soft"></div></div>
-          <div class="chord"><div class="dot soft"></div><div class="dot"></div><div class="dot soft"></div><div class="dot"></div></div>
-        </div>
+      <div class="json-wrap">
+        <div><span class="p">{</span></div>
+        <div>&nbsp;&nbsp;<span class="k">"key"</span><span class="p">:</span> <span class="s">"C major"</span><span class="p">,</span></div>
+        <div>&nbsp;&nbsp;<span class="k">"cadence"</span><span class="p">:</span> <span class="s">"PAC"</span><span class="p">,</span></div>
+        <div>&nbsp;&nbsp;<span class="k">"spice"</span><span class="p">:</span> <span class="n">0</span><span class="p">,</span></div>
+        <div>&nbsp;&nbsp;<span class="k">"progression"</span><span class="p">:</span> <span class="p">[</span></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="s">"I"</span><span class="p">,</span> <span class="s">"IV"</span><span class="p">,</span> <span class="s">"ii6"</span><span class="p">,</span> <span class="s">"V7"</span><span class="p">,</span> <span class="s">"I"</span></div>
+        <div>&nbsp;&nbsp;<span class="p">]</span></div>
+        <div><span class="p">}</span></div>
       </div>
       <div class="foot">
-        <span class="brand">github.com/danbyumagic/HarmonyxAPI</span>
+        <span>github.com/danbyumagic/HarmonyxAPI</span>
         <span>Python · FastAPI</span>
       </div>
     </div>
