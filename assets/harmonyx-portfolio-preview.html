@@ -11,51 +11,59 @@
     font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
     color: #1a1714;
     background:
-      radial-gradient(900px 500px at 8% -10%, #efe6d4 0%, transparent 55%),
-      radial-gradient(700px 420px at 100% 0%, #cfe8e1 0%, transparent 50%),
+      radial-gradient(820px 420px at 12% 0%, #efe6d4 0%, transparent 58%),
+      radial-gradient(640px 380px at 100% 10%, #cfe8e1 0%, transparent 52%),
       #f7f3eb;
   }
+  /* Safe inset so rounded portfolio frames don't clip content */
   .frame {
     width: 1200px;
     height: 630px;
-    padding: 52px 56px;
+    padding: 48px 52px;
     display: grid;
-    grid-template-columns: 1.05fr 0.95fr;
-    gap: 40px;
+    grid-template-columns: 1fr 1fr;
+    gap: 36px;
     align-items: center;
   }
+  .left {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-width: 0;
+    padding-right: 8px;
+  }
   .eyebrow {
-    font-size: 15px;
-    letter-spacing: 0.16em;
+    font-size: 14px;
+    letter-spacing: 0.14em;
     text-transform: uppercase;
     color: #0f6b5c;
     font-weight: 700;
-    margin-bottom: 18px;
+    margin-bottom: 14px;
   }
   h1 {
     font-family: Georgia, "Iowan Old Style", "Palatino Linotype", serif;
-    font-size: 64px;
-    line-height: 1.05;
+    font-size: 56px;
+    line-height: 1.06;
     letter-spacing: -0.02em;
     font-weight: 650;
-    margin-bottom: 18px;
+    margin-bottom: 14px;
   }
   .lede {
-    font-size: 22px;
+    font-size: 19px;
     line-height: 1.45;
     color: #5c564e;
-    max-width: 28ch;
-    margin-bottom: 28px;
+    max-width: 30ch;
+    margin-bottom: 22px;
   }
   .pills {
     display: flex;
     flex-wrap: wrap;
-    gap: 10px;
+    gap: 8px;
   }
   .pill {
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 600;
-    padding: 10px 14px;
+    padding: 8px 12px;
     border-radius: 999px;
     background: #fffdf9;
     border: 1px solid #e4ddd0;
@@ -68,23 +76,26 @@
   }
   .panel {
     background: #1a1714;
-    border-radius: 22px;
-    box-shadow: 0 1px 2px rgba(26,23,20,.06), 0 22px 55px rgba(26,23,20,.18);
-    padding: 26px 26px 22px;
-    height: 500px;
+    border-radius: 20px;
+    box-shadow: 0 1px 2px rgba(26,23,20,.06), 0 18px 44px rgba(26,23,20,.16);
+    padding: 22px 22px 18px;
+    height: 100%;
+    max-height: 534px;
     display: flex;
     flex-direction: column;
     color: #f2efe8;
+    min-height: 0;
   }
   .chrome {
     display: flex;
     align-items: center;
-    gap: 8px;
-    margin-bottom: 18px;
+    gap: 7px;
+    margin-bottom: 14px;
+    flex-shrink: 0;
   }
   .dot {
-    width: 11px;
-    height: 11px;
+    width: 10px;
+    height: 10px;
     border-radius: 50%;
     background: #3d3832;
   }
@@ -92,33 +103,33 @@
   .dot.y { background: #c9a227; }
   .dot.g { background: #3d9b6e; }
   .path {
-    margin-left: 10px;
+    margin-left: 8px;
     font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-    font-size: 13px;
+    font-size: 12px;
     color: #a49e93;
   }
   .path strong { color: #6fb39a; font-weight: 600; }
   .routes {
     display: grid;
-    gap: 10px;
-    margin-bottom: 18px;
+    gap: 8px;
+    margin-bottom: 14px;
+    flex-shrink: 0;
   }
   .route {
     display: grid;
-    grid-template-columns: 64px 1fr auto;
-    gap: 12px;
+    grid-template-columns: 58px 1fr auto;
+    gap: 10px;
     align-items: center;
-    padding: 12px 14px;
-    border-radius: 12px;
+    padding: 10px 12px;
+    border-radius: 11px;
     background: #26221d;
     border: 1px solid #34302a;
   }
   .method {
     font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 700;
     letter-spacing: 0.04em;
-    color: #0f6b5c;
     background: #d8efe9;
     color: #0f6b5c;
     border-radius: 6px;
@@ -127,23 +138,24 @@
   }
   .endpoint {
     font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-    font-size: 16px;
+    font-size: 15px;
     color: #f2efe8;
     font-weight: 600;
   }
   .hint {
-    font-size: 13px;
+    font-size: 12px;
     color: #a49e93;
   }
   .json-wrap {
     flex: 1;
-    border-radius: 14px;
+    min-height: 0;
+    border-radius: 12px;
     background: #120f0d;
     border: 1px solid #2c2823;
-    padding: 16px 18px;
+    padding: 14px 16px;
     font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-    font-size: 15px;
-    line-height: 1.55;
+    font-size: 14px;
+    line-height: 1.5;
     overflow: hidden;
   }
   .k { color: #a892d6; }
@@ -151,18 +163,25 @@
   .n { color: #6fb39a; }
   .p { color: #a49e93; }
   .foot {
-    margin-top: 14px;
-    font-size: 13px;
+    margin-top: 12px;
+    font-size: 12px;
     color: #756f65;
     display: flex;
     justify-content: space-between;
+    gap: 12px;
     font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    flex-shrink: 0;
+  }
+  .foot span {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 </style>
 </head>
 <body>
   <div class="frame">
-    <div>
+    <div class="left">
       <div class="eyebrow">FastAPI · music21</div>
       <h1>Harmonyx API</h1>
       <p class="lede">Analyze scores, propose progressions, realize four-part SATB MusicXML — deterministic harmony endpoints.</p>
