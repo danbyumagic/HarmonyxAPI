@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    width: 1200px;
+    height: 630px;
+    overflow: hidden;
+    font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+    color: #1a1714;
+    background:
+      radial-gradient(900px 500px at 8% -10%, #efe6d4 0%, transparent 55%),
+      radial-gradient(700px 420px at 100% 0%, #cfe8e1 0%, transparent 50%),
+      #f7f3eb;
+  }
+  .frame {
+    width: 1200px;
+    height: 630px;
+    padding: 52px 56px;
+    display: grid;
+    grid-template-columns: 1.15fr 0.85fr;
+    gap: 36px;
+    align-items: center;
+  }
+  .eyebrow {
+    font-size: 15px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: #0f6b5c;
+    font-weight: 700;
+    margin-bottom: 18px;
+  }
+  h1 {
+    font-family: Georgia, "Iowan Old Style", "Palatino Linotype", serif;
+    font-size: 64px;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    font-weight: 650;
+    margin-bottom: 18px;
+  }
+  .lede {
+    font-size: 22px;
+    line-height: 1.45;
+    color: #5c564e;
+    max-width: 28ch;
+    margin-bottom: 28px;
+  }
+  .pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .pill {
+    font-size: 14px;
+    font-weight: 600;
+    padding: 10px 14px;
+    border-radius: 999px;
+    background: #fffdf9;
+    border: 1px solid #e4ddd0;
+    color: #3d3832;
+  }
+  .pill.accent {
+    background: #d8efe9;
+    border-color: #b7ddd3;
+    color: #0f6b5c;
+  }
+  .panel {
+    background: #fffcf7;
+    border: 1px solid #e4ddd0;
+    border-radius: 22px;
+    box-shadow: 0 1px 2px rgba(26,23,20,.04), 0 18px 50px rgba(26,23,20,.08);
+    padding: 28px 26px 24px;
+    height: 480px;
+    display: flex;
+    flex-direction: column;
+  }
+  .panel-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 18px;
+  }
+  .panel-title {
+    font-size: 13px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #8a8378;
+    font-weight: 700;
+  }
+  .api {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 13px;
+    color: #0f6b5c;
+    background: #d8efe9;
+    padding: 6px 10px;
+    border-radius: 8px;
+    font-weight: 600;
+  }
+  .rns {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 22px;
+  }
+  .rn {
+    min-width: 44px;
+    text-align: center;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: #f0ebe1;
+    border: 1px solid #e4ddd0;
+    font-family: Georgia, serif;
+    font-size: 22px;
+    font-weight: 700;
+  }
+  .rn.hi {
+    background: #d8efe9;
+    border-color: #b7ddd3;
+    color: #0f6b5c;
+  }
+  .staff {
+    flex: 1;
+    border-radius: 14px;
+    background: #fffdf9;
+    border: 1px solid #e8e2d6;
+    position: relative;
+    overflow: hidden;
+    padding: 28px 20px 18px;
+  }
+  .staff-label {
+    position: absolute;
+    left: 14px;
+    top: 12px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: #0f6b5c;
+  }
+  .lines {
+    margin-top: 18px;
+    display: grid;
+    gap: 14px;
+  }
+  .line {
+    height: 2px;
+    background: #1a1714;
+    opacity: 0.22;
+    border-radius: 1px;
+  }
+  .notes {
+    position: absolute;
+    left: 70px;
+    right: 24px;
+    top: 54px;
+    bottom: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .chord {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+  .dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #1a1714;
+  }
+  .dot.soft { background: #0f6b5c; }
+  .stem {
+    width: 2px;
+    height: 42px;
+    background: #1a1714;
+    margin-top: -4px;
+  }
+  .foot {
+    margin-top: 16px;
+    font-size: 14px;
+    color: #8a8378;
+    display: flex;
+    justify-content: space-between;
+  }
+  .brand {
+    font-weight: 700;
+    color: #5c564e;
+  }
+</style>
+</head>
+<body>
+  <div class="frame">
+    <div>
+      <div class="eyebrow">FastAPI · music21</div>
+      <h1>Harmonyx API</h1>
+      <p class="lede">Analyze scores, propose progressions, realize four-part SATB MusicXML — deterministic harmony endpoints.</p>
+      <div class="pills">
+        <span class="pill accent">POST /analyze</span>
+        <span class="pill accent">POST /progression</span>
+        <span class="pill accent">POST /generate</span>
+        <span class="pill">Open source · MIT</span>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-top">
+        <div class="panel-title">Live response shape</div>
+        <div class="api">JSON + MusicXML</div>
+      </div>
+      <div class="rns">
+        <span class="rn">I</span>
+        <span class="rn">IV</span>
+        <span class="rn">ii6</span>
+        <span class="rn">V</span>
+        <span class="rn hi">V7</span>
+        <span class="rn hi">I</span>
+      </div>
+      <div class="staff">
+        <div class="staff-label">SATB</div>
+        <div class="lines">
+          <div class="line"></div><div class="line"></div><div class="line"></div>
+          <div class="line"></div><div class="line"></div>
+        </div>
+        <div class="notes">
+          <div class="chord"><div class="dot"></div><div class="dot soft"></div><div class="dot"></div><div class="dot soft"></div></div>
+          <div class="chord"><div class="dot soft"></div><div class="dot"></div><div class="dot soft"></div><div class="dot"></div></div>
+          <div class="chord"><div class="dot"></div><div class="dot soft"></div><div class="dot"></div><div class="dot soft"></div></div>
+          <div class="chord"><div class="dot soft"></div><div class="dot"></div><div class="dot soft"></div><div class="dot"></div></div>
+        </div>
+      </div>
+      <div class="foot">
+        <span class="brand">github.com/danbyumagic/HarmonyxAPI</span>
+        <span>Python · FastAPI</span>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
