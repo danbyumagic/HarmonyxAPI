@@ -4,25 +4,37 @@
 <meta charset="utf-8" />
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    width: 1200px;
+  html, body {
+    width: 960px;
     height: 630px;
     overflow: hidden;
+  }
+  body {
     font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
     color: #1a1714;
     background:
-      radial-gradient(820px 420px at 12% 0%, #efe6d4 0%, transparent 58%),
-      radial-gradient(640px 380px at 100% 10%, #cfe8e1 0%, transparent 52%),
+      radial-gradient(700px 380px at 15% 0%, #efe6d4 0%, transparent 58%),
+      radial-gradient(560px 340px at 100% 15%, #cfe8e1 0%, transparent 52%),
       #f7f3eb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
-  /* Safe inset so rounded portfolio frames don't clip content */
+  /* ~10%+ of canvas as outer inset (96px ≈ 10% of 960) */
   .frame {
-    width: 1200px;
-    height: 630px;
-    padding: 48px 52px;
+    width: 100%;
+    height: 100%;
+    padding: 64px 72px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .inner {
+    width: 100%;
+    max-width: 816px; /* leaves room for the outer padding */
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 36px;
+    gap: 28px;
     align-items: center;
   }
   .left {
@@ -30,40 +42,39 @@
     flex-direction: column;
     justify-content: center;
     min-width: 0;
-    padding-right: 8px;
   }
   .eyebrow {
-    font-size: 14px;
+    font-size: 12px;
     letter-spacing: 0.14em;
     text-transform: uppercase;
     color: #0f6b5c;
     font-weight: 700;
-    margin-bottom: 14px;
+    margin-bottom: 12px;
   }
   h1 {
     font-family: Georgia, "Iowan Old Style", "Palatino Linotype", serif;
-    font-size: 56px;
-    line-height: 1.06;
+    font-size: 44px;
+    line-height: 1.08;
     letter-spacing: -0.02em;
     font-weight: 650;
-    margin-bottom: 14px;
+    margin-bottom: 12px;
   }
   .lede {
-    font-size: 19px;
+    font-size: 16px;
     line-height: 1.45;
     color: #5c564e;
-    max-width: 30ch;
-    margin-bottom: 22px;
+    max-width: 28ch;
+    margin-bottom: 18px;
   }
   .pills {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
+    gap: 7px;
   }
   .pill {
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 600;
-    padding: 8px 12px;
+    padding: 7px 11px;
     border-radius: 999px;
     background: #fffdf9;
     border: 1px solid #e4ddd0;
@@ -76,97 +87,92 @@
   }
   .panel {
     background: #1a1714;
-    border-radius: 20px;
-    box-shadow: 0 1px 2px rgba(26,23,20,.06), 0 18px 44px rgba(26,23,20,.16);
-    padding: 22px 22px 18px;
+    border-radius: 18px;
+    box-shadow: 0 1px 2px rgba(26,23,20,.06), 0 16px 40px rgba(26,23,20,.16);
+    padding: 18px 18px 14px;
     display: flex;
     flex-direction: column;
     color: #f2efe8;
-    align-self: center;
     width: 100%;
   }
   .chrome {
     display: flex;
     align-items: center;
-    gap: 7px;
-    margin-bottom: 14px;
-    flex-shrink: 0;
+    gap: 6px;
+    margin-bottom: 12px;
   }
   .dot {
-    width: 10px;
-    height: 10px;
+    width: 9px;
+    height: 9px;
     border-radius: 50%;
-    background: #3d3832;
   }
   .dot.r { background: #c45c4a; }
   .dot.y { background: #c9a227; }
   .dot.g { background: #3d9b6e; }
   .path {
-    margin-left: 8px;
+    margin-left: 6px;
     font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-    font-size: 12px;
+    font-size: 11px;
     color: #a49e93;
   }
   .path strong { color: #6fb39a; font-weight: 600; }
   .routes {
     display: grid;
-    gap: 8px;
-    margin-bottom: 14px;
-    flex-shrink: 0;
+    gap: 7px;
+    margin-bottom: 12px;
   }
   .route {
     display: grid;
-    grid-template-columns: 58px 1fr auto;
-    gap: 10px;
+    grid-template-columns: 52px 1fr auto;
+    gap: 8px;
     align-items: center;
-    padding: 10px 12px;
-    border-radius: 11px;
+    padding: 9px 10px;
+    border-radius: 10px;
     background: #26221d;
     border: 1px solid #34302a;
   }
   .method {
     font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-    font-size: 11px;
+    font-size: 10px;
     font-weight: 700;
     letter-spacing: 0.04em;
     background: #d8efe9;
     color: #0f6b5c;
-    border-radius: 6px;
+    border-radius: 5px;
     text-align: center;
-    padding: 5px 0;
+    padding: 4px 0;
   }
   .endpoint {
     font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-    font-size: 15px;
+    font-size: 13px;
     color: #f2efe8;
     font-weight: 600;
   }
   .hint {
-    font-size: 12px;
+    font-size: 11px;
     color: #a49e93;
   }
   .json-wrap {
-    border-radius: 12px;
+    border-radius: 11px;
     background: #120f0d;
     border: 1px solid #2c2823;
-    padding: 14px 16px;
+    padding: 12px 14px;
     font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-    font-size: 14px;
-    line-height: 1.5;
+    font-size: 12.5px;
+    line-height: 1.48;
   }
   .k { color: #a892d6; }
   .s { color: #e58a4f; }
   .n { color: #6fb39a; }
   .p { color: #a49e93; }
   .foot {
-    margin-top: 12px;
-    font-size: 12px;
+    margin-top: 11px;
+    font-size: 10.5px;
     color: #756f65;
     display: flex;
     justify-content: space-between;
-    gap: 12px;
+    gap: 8px;
     font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-    flex-shrink: 0;
   }
   .foot span {
     white-space: nowrap;
@@ -177,52 +183,54 @@
 </head>
 <body>
   <div class="frame">
-    <div class="left">
-      <div class="eyebrow">FastAPI · music21</div>
-      <h1>Harmonyx API</h1>
-      <p class="lede">Analyze scores, propose progressions, realize four-part SATB MusicXML — deterministic harmony endpoints.</p>
-      <div class="pills">
-        <span class="pill accent">POST /analyze</span>
-        <span class="pill accent">POST /progression</span>
-        <span class="pill accent">POST /generate</span>
-        <span class="pill">Open source · MIT</span>
-      </div>
-    </div>
-    <div class="panel">
-      <div class="chrome">
-        <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
-        <span class="path"><strong>POST</strong> /progression</span>
-      </div>
-      <div class="routes">
-        <div class="route">
-          <div class="method">POST</div>
-          <div class="endpoint">/analyze</div>
-          <div class="hint">score → RN</div>
-        </div>
-        <div class="route">
-          <div class="method">POST</div>
-          <div class="endpoint">/progression</div>
-          <div class="hint">propose</div>
-        </div>
-        <div class="route">
-          <div class="method">POST</div>
-          <div class="endpoint">/generate</div>
-          <div class="hint">→ MusicXML</div>
+    <div class="inner">
+      <div class="left">
+        <div class="eyebrow">FastAPI · music21</div>
+        <h1>Harmonyx API</h1>
+        <p class="lede">Analyze scores, propose progressions, realize four-part SATB MusicXML — deterministic harmony endpoints.</p>
+        <div class="pills">
+          <span class="pill accent">POST /analyze</span>
+          <span class="pill accent">POST /progression</span>
+          <span class="pill accent">POST /generate</span>
+          <span class="pill">Open source · MIT</span>
         </div>
       </div>
-      <div class="json-wrap">
-        <div><span class="p">{</span></div>
-        <div>&nbsp;&nbsp;<span class="k">"key"</span><span class="p">:</span> <span class="s">"C major"</span><span class="p">,</span></div>
-        <div>&nbsp;&nbsp;<span class="k">"cadence"</span><span class="p">:</span> <span class="s">"PAC"</span><span class="p">,</span></div>
-        <div>&nbsp;&nbsp;<span class="k">"spice"</span><span class="p">:</span> <span class="n">0</span><span class="p">,</span></div>
-        <div>&nbsp;&nbsp;<span class="k">"progression"</span><span class="p">:</span> <span class="p">[</span></div>
-        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="s">"I"</span><span class="p">,</span> <span class="s">"IV"</span><span class="p">,</span> <span class="s">"ii6"</span><span class="p">,</span> <span class="s">"V7"</span><span class="p">,</span> <span class="s">"I"</span></div>
-        <div>&nbsp;&nbsp;<span class="p">]</span></div>
-        <div><span class="p">}</span></div>
-      </div>
-      <div class="foot">
-        <span>github.com/danbyumagic/HarmonyxAPI</span>
-        <span>Python · FastAPI</span>
+      <div class="panel">
+        <div class="chrome">
+          <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+          <span class="path"><strong>POST</strong> /progression</span>
+        </div>
+        <div class="routes">
+          <div class="route">
+            <div class="method">POST</div>
+            <div class="endpoint">/analyze</div>
+            <div class="hint">score → RN</div>
+          </div>
+          <div class="route">
+            <div class="method">POST</div>
+            <div class="endpoint">/progression</div>
+            <div class="hint">propose</div>
+          </div>
+          <div class="route">
+            <div class="method">POST</div>
+            <div class="endpoint">/generate</div>
+            <div class="hint">→ MusicXML</div>
+          </div>
+        </div>
+        <div class="json-wrap">
+          <div><span class="p">{</span></div>
+          <div>&nbsp;&nbsp;<span class="k">"key"</span><span class="p">:</span> <span class="s">"C major"</span><span class="p">,</span></div>
+          <div>&nbsp;&nbsp;<span class="k">"cadence"</span><span class="p">:</span> <span class="s">"PAC"</span><span class="p">,</span></div>
+          <div>&nbsp;&nbsp;<span class="k">"spice"</span><span class="p">:</span> <span class="n">0</span><span class="p">,</span></div>
+          <div>&nbsp;&nbsp;<span class="k">"progression"</span><span class="p">:</span> <span class="p">[</span></div>
+          <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="s">"I"</span><span class="p">,</span> <span class="s">"IV"</span><span class="p">,</span> <span class="s">"ii6"</span><span class="p">,</span> <span class="s">"V7"</span><span class="p">,</span> <span class="s">"I"</span></div>
+          <div>&nbsp;&nbsp;<span class="p">]</span></div>
+          <div><span class="p">}</span></div>
+        </div>
+        <div class="foot">
+          <span>github.com/danbyumagic/HarmonyxAPI</span>
+          <span>Python · FastAPI</span>
+        </div>
       </div>
     </div>
   </div>
