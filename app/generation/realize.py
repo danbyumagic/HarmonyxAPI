@@ -74,6 +74,7 @@ def realize(
     *,
     soprano: Optional[List[Optional[int]]] = None,
     time_signature: str = "4/4",
+    quarter_length: float = 1.0,
 ) -> m21stream.Score:
     """Realize a Roman-numeral progression as a 4-voice SATB ``music21.Score``.
 
@@ -113,8 +114,13 @@ def realize(
             raise RealizationError(f"no legal voicings for chord {i} ('{figure}'){detail}")
         candidate_lists.append(cands)
 
+    if quarter_length <= 0:
+        raise RealizationError("quarter_length must be positive")
+
     voicings = _best_path(progression, candidate_lists, contexts)
-    return _build_score(voicings, key_like, time_signature)
+    return _build_score(
+        voicings, key_like, time_signature, quarter_length=quarter_length
+    )
 
 
 def soprano_alternatives(
@@ -199,11 +205,12 @@ def playback_from_voicings(
     ``events`` entries are ``{beat, midi, duration}`` with ``duration`` in beats.
     """
     events: List[dict] = []
+    step = float(beat_duration)
     for i, v in enumerate(voicings):
-        beat = float(i)
+        beat = float(i) * step
         for midi in (v.s, v.a, v.t, v.b):
             events.append(
-                {"beat": beat, "midi": int(midi), "duration": float(beat_duration)}
+                {"beat": beat, "midi": int(midi), "duration": step}
             )
     return {"tempo_bpm": int(tempo_bpm), "events": events}
 
@@ -282,7 +289,13 @@ def path_violations(voicings: List[Voicing], progression: List[str], key_like: _
     return out
 
 
-def _build_score(voicings: List[Voicing], key_like: _chords.KeyLike, time_signature: str) -> m21stream.Score:
+def _build_score(
+    voicings: List[Voicing],
+    key_like: _chords.KeyLike,
+    time_signature: str,
+    *,
+    quarter_length: float = 1.0,
+) -> m21stream.Score:
     """Pack SATB into a braced grand staff with correct stem directions."""
     k = _chords.to_key(key_like)
 
@@ -297,10 +310,10 @@ def _build_score(voicings: List[Voicing], key_like: _chords.KeyLike, time_signat
     v_b = m21stream.Voice(id="Bass")
 
     for v in voicings:
-        v_s.append(_note(v.s, _STEM_UP))
-        v_a.append(_note(v.a, _STEM_DOWN))
-        v_t.append(_note(v.t, _STEM_UP))
-        v_b.append(_note(v.b, _STEM_DOWN))
+        v_s.append(_note(v.s, _STEM_UP, quarter_length))
+        v_a.append(_note(v.a, _STEM_DOWN, quarter_length))
+        v_t.append(_note(v.t, _STEM_UP, quarter_length))
+        v_b.append(_note(v.b, _STEM_DOWN, quarter_length))
 
     treble.append(m21clef.TrebleClef())
     treble.append(m21meter.TimeSignature(time_signature))
@@ -329,10 +342,10 @@ def _build_score(voicings: List[Voicing], key_like: _chords.KeyLike, time_signat
     return score.makeMeasures(inPlace=False)
 
 
-def _note(midi: int, stem_direction: str) -> m21note.Note:
+def _note(midi: int, stem_direction: str, quarter_length: float = 1.0) -> m21note.Note:
     n = m21note.Note()
     n.pitch.midi = midi
-    n.quarterLength = 1.0
+    n.quarterLength = float(quarter_length)
     n.stemDirection = stem_direction
     return n
 

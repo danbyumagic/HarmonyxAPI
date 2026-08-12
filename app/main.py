@@ -183,6 +183,7 @@ async def generate(body: GenerateRequest) -> GenerateResponse:
             body.key,
             soprano=body.soprano,
             time_signature=body.time_signature,
+            quarter_length=body.quarter_length,
         )
     except RealizationError as exc:
         raise HTTPException(
@@ -198,7 +199,11 @@ async def generate(body: GenerateRequest) -> GenerateResponse:
     musicxml = _score_to_musicxml_text(score)
     voicings = satb_voicings_from_score(score)
     playback = PlaybackPayload(
-        **playback_from_voicings(voicings, tempo_bpm=DEFAULT_PLAYBACK_TEMPO_BPM)
+        **playback_from_voicings(
+            voicings,
+            tempo_bpm=DEFAULT_PLAYBACK_TEMPO_BPM,
+            beat_duration=body.quarter_length,
+        )
     )
     return GenerateResponse(
         key=body.key,
@@ -281,6 +286,12 @@ _STATIC_DIR = os.path.join(os.path.dirname(__file__), "static")
 @app.get("/", include_in_schema=False)
 async def index() -> FileResponse:
     return FileResponse(os.path.join(_STATIC_DIR, "index.html"))
+
+
+@app.get("/portfolio", include_in_schema=False)
+async def portfolio_demo() -> FileResponse:
+    """Plain-language interactive demo of the API (portfolio / non-technical visitors)."""
+    return FileResponse(os.path.join(_STATIC_DIR, "portfolio.html"))
 
 
 app.mount("/static", StaticFiles(directory=_STATIC_DIR), name="static")

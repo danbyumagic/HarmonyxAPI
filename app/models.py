@@ -96,6 +96,15 @@ class GenerateRequest(BaseModel):
         "4/4",
         description="Time signature for the realized score.",
     )
+    quarter_length: float = Field(
+        1.0,
+        gt=0,
+        le=4,
+        description=(
+            "Duration of each chord in quarter notes "
+            "(1.0 = quarter, 2.0 = half, etc.)."
+        ),
+    )
     soprano: Optional[List[Optional[int]]] = Field(
         None,
         description=(

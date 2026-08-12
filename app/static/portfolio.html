@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Harmonyx API — What it does</title>
+  <style>
+    :root {
+      --ink: #1a1714;
+      --muted: #5c564e;
+      --faint: #8a8378;
+      --paper: #f7f3eb;
+      --card: #fffcf7;
+      --line: #e4ddd0;
+      --accent: #0f6b5c;
+      --accent-soft: #d8efe9;
+      --warm: #b45309;
+      --warm-soft: #f5e6d3;
+      --danger: #9b2c2c;
+      --shadow: 0 1px 2px rgba(26,23,20,.04), 0 12px 40px rgba(26,23,20,.07);
+      --radius: 16px;
+      --font: "Segoe UI", system-ui, -apple-system, sans-serif;
+      --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      background:
+        radial-gradient(900px 480px at 10% -10%, #efe6d4 0%, transparent 55%),
+        radial-gradient(700px 400px at 100% 0%, #ddeee8 0%, transparent 50%),
+        var(--paper);
+      font: 17px/1.55 var(--font);
+    }
+
+    .wrap { max-width: 920px; margin: 0 auto; padding: 2.25rem 1.25rem 4rem; }
+
+    header {
+      display: grid;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid var(--line);
+    }
+    .eyebrow {
+      font-size: .78rem;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--accent);
+      font-weight: 650;
+    }
+    h1 {
+      margin: 0;
+      font-family: var(--serif);
+      font-size: clamp(1.85rem, 4vw, 2.45rem);
+      font-weight: 650;
+      letter-spacing: -.02em;
+      line-height: 1.15;
+    }
+    .lede {
+      margin: 0;
+      max-width: 38rem;
+      color: var(--muted);
+      font-size: 1.05rem;
+    }
+    .header-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .6rem;
+      align-items: center;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: .4rem;
+      padding: .35rem .7rem;
+      border-radius: 999px;
+      background: var(--card);
+      border: 1px solid var(--line);
+      color: var(--muted);
+      font-size: .82rem;
+    }
+    .pill.ok::before {
+      content: "";
+      width: .55rem; height: .55rem;
+      border-radius: 50%;
+      background: #16a34a;
+      box-shadow: 0 0 0 3px rgba(22,163,74,.18);
+    }
+    .pill.bad::before {
+      content: "";
+      width: .55rem; height: .55rem;
+      border-radius: 50%;
+      background: var(--danger);
+    }
+
+    .intro {
+      margin-bottom: 1.75rem;
+      padding: 1.15rem 1.25rem;
+      background: var(--accent-soft);
+      border: 1px solid #b7ddd3;
+      border-radius: var(--radius);
+      color: #1e4d44;
+    }
+    .intro p { margin: 0; }
+
+    .steps {
+      display: grid;
+      gap: 1.25rem;
+    }
+    @media (min-width: 720px) {
+      .steps { gap: 1.5rem; }
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    .card-head {
+      display: flex;
+      gap: 1rem;
+      align-items: flex-start;
+      padding: 1.25rem 1.35rem 0;
+    }
+    .num {
+      flex: 0 0 auto;
+      width: 2.1rem; height: 2.1rem;
+      border-radius: 10px;
+      display: grid; place-items: center;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-weight: 700;
+      font-size: .95rem;
+    }
+    .card-head h2 {
+      margin: 0 0 .25rem;
+      font-family: var(--serif);
+      font-size: 1.35rem;
+      font-weight: 650;
+    }
+    .card-head .plain {
+      margin: 0;
+      color: var(--muted);
+      font-size: .95rem;
+    }
+    .api-tag {
+      margin-left: auto;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: .72rem;
+      color: var(--accent);
+      background: var(--accent-soft);
+      border-radius: 8px;
+      padding: .3rem .5rem;
+      white-space: nowrap;
+    }
+    .card-body { padding: 1.15rem 1.35rem 1.35rem; }
+
+    .row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .65rem;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    button, .btn {
+      appearance: none;
+      border: none;
+      cursor: pointer;
+      font: inherit;
+      font-weight: 600;
+      font-size: .92rem;
+      border-radius: 12px;
+      padding: .65rem 1.05rem;
+      background: var(--accent);
+      color: #fff;
+      transition: transform .12s ease, filter .12s ease, opacity .12s ease;
+    }
+    button:hover { filter: brightness(1.06); }
+    button:active { transform: translateY(1px); }
+    button:disabled {
+      opacity: .55;
+      cursor: not-allowed;
+      transform: none;
+      filter: none;
+    }
+    button.secondary {
+      background: transparent;
+      color: var(--ink);
+      border: 1px solid var(--line);
+    }
+    button.ghost {
+      background: var(--warm-soft);
+      color: #7c3d0a;
+    }
+
+    .hint {
+      font-size: .88rem;
+      color: var(--faint);
+    }
+
+    .rn-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .45rem;
+      min-height: 2.5rem;
+      align-items: center;
+    }
+    .rn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 2.4rem;
+      padding: .45rem .65rem;
+      border-radius: 10px;
+      background: #f0ebe1;
+      border: 1px solid var(--line);
+      font-family: var(--serif);
+      font-weight: 650;
+      font-size: 1.05rem;
+    }
+    .rn.cadence {
+      background: var(--accent-soft);
+      border-color: #b7ddd3;
+      color: var(--accent);
+    }
+
+    .result-panel {
+      margin-top: .85rem;
+      padding: 1rem 1.1rem;
+      border-radius: 12px;
+      background: #f3f0e8;
+      border: 1px dashed #d4cdbf;
+    }
+    .result-panel h3 {
+      margin: 0 0 .5rem;
+      font-size: .78rem;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--faint);
+      font-weight: 700;
+    }
+    .kv {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: .35rem .85rem;
+      font-size: .95rem;
+    }
+    .kv dt { color: var(--faint); }
+    .kv dd { margin: 0; font-weight: 600; }
+
+    .chord-list {
+      margin: .85rem 0 0;
+      padding: 0;
+      list-style: none;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(11.5rem, 1fr));
+      gap: .5rem;
+    }
+    .chord-list li {
+      display: flex;
+      flex-direction: column;
+      gap: .15rem;
+      padding: .65rem .75rem;
+      background: var(--card);
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      font-size: .9rem;
+    }
+    .chord-list .fig {
+      font-family: var(--serif);
+      font-weight: 700;
+      font-size: 1.15rem;
+      color: var(--accent);
+    }
+    .chord-list .meta { color: var(--muted); font-size: .85rem; }
+    .chord-list .bar { color: var(--faint); font-size: .78rem; }
+
+    .score-panel {
+      margin-top: 1rem;
+      background: #fffdf9;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      overflow: auto;
+      color: #1d1b19;
+      min-height: 120px;
+    }
+    .score-panel .osmd-host {
+      padding: .5rem .75rem 1rem;
+      min-height: 100px;
+    }
+    .score-fallback {
+      padding: 1rem;
+      color: var(--muted);
+      font-size: .9rem;
+    }
+
+    .status {
+      min-height: 1.3rem;
+      font-size: .88rem;
+      color: var(--muted);
+    }
+    .status.err { color: var(--danger); }
+    .status.ok { color: var(--accent); }
+
+    .meter {
+      display: flex;
+      gap: .35rem;
+      align-items: flex-end;
+      height: 48px;
+      margin-top: .75rem;
+    }
+    .meter span {
+      flex: 1;
+      border-radius: 4px 4px 2px 2px;
+      background: linear-gradient(180deg, #2a9d8f, #0f6b5c);
+      opacity: .85;
+      transform-origin: bottom;
+      transition: height .35s ease;
+    }
+    .meter.playing span {
+      animation: bounce 0.45s ease-in-out infinite alternate;
+    }
+    .meter.playing span:nth-child(2) { animation-delay: .08s; }
+    .meter.playing span:nth-child(3) { animation-delay: .16s; }
+    .meter.playing span:nth-child(4) { animation-delay: .24s; }
+    @keyframes bounce {
+      from { transform: scaleY(.45); opacity: .55; }
+      to { transform: scaleY(1); opacity: 1; }
+    }
+
+    footer {
+      margin-top: 2.5rem;
+      padding-top: 1.25rem;
+      border-top: 1px solid var(--line);
+      color: var(--faint);
+      font-size: .88rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: .75rem 1.25rem;
+      justify-content: space-between;
+    }
+    footer a { color: var(--accent); }
+
+    .tech-note {
+      margin-top: 1.5rem;
+      padding: 1rem 1.15rem;
+      border-radius: var(--radius);
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.45);
+      font-size: .88rem;
+      color: var(--muted);
+    }
+    .tech-note summary {
+      cursor: pointer;
+      font-weight: 650;
+      color: var(--ink);
+    }
+    .tech-note pre {
+      margin: .75rem 0 0;
+      padding: .75rem;
+      overflow: auto;
+      background: #1a1714;
+      color: #f0ebe1;
+      border-radius: 10px;
+      font-size: .78rem;
+      line-height: 1.45;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="eyebrow">Portfolio demo · Harmonyx API</div>
+      <h1>An API that reads and writes classical harmony</h1>
+      <p class="lede">
+        Analyze MusicXML/MIDI to Roman numerals, propose idiomatic progressions,
+        and realize four-part SATB scores — deterministic FastAPI endpoints with
+        live responses below.
+      </p>
+      <div class="header-actions">
+        <span class="pill" id="healthPill">Checking server…</span>
+        <span class="pill">Local demo · no auth</span>
+        <a class="btn secondary" href="/docs" style="text-decoration:none;display:inline-flex">OpenAPI /docs</a>
+      </div>
+    </header>
+
+    <section class="intro" aria-label="How to use">
+      <p>
+        Work top to bottom: each step calls a real endpoint on this server.
+        After generate, the MusicXML is rendered as notation in the browser
+        (OpenSheetMusicDisplay).
+      </p>
+    </section>
+
+    <div class="steps">
+
+      <!-- 1 PROPOSE -->
+      <article class="card" id="step-propose">
+        <div class="card-head">
+          <div class="num">1</div>
+          <div>
+            <h2>Propose a chord progression</h2>
+            <p class="plain">
+              Weighted functional-harmony grammar → Roman-numeral list with
+              cadence control, locks, seed, and spice/style.
+            </p>
+          </div>
+          <span class="api-tag">POST /progression</span>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <button type="button" id="btnPropose">POST /progression</button>
+            <button type="button" class="secondary" id="btnProposeSpicy">With style: spicy</button>
+            <span class="hint">Default spice=0 · style spicy → richer secondaries</span>
+          </div>
+          <div class="result-panel" id="proposePanel" hidden>
+            <h3>Response · progression</h3>
+            <div class="rn-row" id="rnChips" aria-live="polite"></div>
+            <p class="hint" id="proposeMeta" style="margin:.75rem 0 0"></p>
+          </div>
+          <p class="status" id="proposeStatus"></p>
+        </div>
+      </article>
+
+      <!-- 2 GENERATE -->
+      <article class="card" id="step-generate">
+        <div class="card-head">
+          <div class="num">2</div>
+          <div>
+            <h2>Realize SATB MusicXML</h2>
+            <p class="plain">
+              DP voice-leading over candidate voicings → grand-staff MusicXML
+              plus a playback event list.
+            </p>
+          </div>
+          <span class="api-tag">POST /generate</span>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <button type="button" id="btnGenerate" disabled>POST /generate</button>
+            <button type="button" class="ghost" id="btnPlay" disabled>Play</button>
+          </div>
+          <div class="result-panel" id="generatePanel" hidden>
+            <h3>Response · score</h3>
+            <dl class="kv">
+              <dt>musicxml</dt><dd id="xmlSize">—</dd>
+              <dt>playback</dt><dd id="playMeta">—</dd>
+            </dl>
+            <div class="score-panel" id="scorePanel">
+              <div class="osmd-host" id="osmdContainer"></div>
+            </div>
+            <div class="meter" id="meter" aria-hidden="true">
+              <span style="height:40%"></span>
+              <span style="height:70%"></span>
+              <span style="height:55%"></span>
+              <span style="height:85%"></span>
+            </div>
+          </div>
+          <p class="status" id="generateStatus"></p>
+        </div>
+      </article>
+
+      <!-- 3 ANALYZE -->
+      <article class="card" id="step-analyze">
+        <div class="card-head">
+          <div class="num">3</div>
+          <div>
+            <h2>Analyze a score</h2>
+            <p class="plain">
+              Multipart upload → key, chord-by-chord Roman numerals, and cadences
+              as structured JSON.
+            </p>
+          </div>
+          <span class="api-tag">POST /analyze</span>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <button type="button" id="btnAnalyzeGenerated" disabled>Analyze generated MusicXML</button>
+            <label class="btn secondary" style="display:inline-flex;align-items:center;cursor:pointer">
+              Upload file
+              <input type="file" id="fileInput" accept=".musicxml,.xml,.mxl,.mid,.midi" hidden />
+            </label>
+          </div>
+          <div class="result-panel" id="analyzePanel" hidden>
+            <h3>Response · analysis</h3>
+            <dl class="kv">
+              <dt>key</dt><dd id="aKey">—</dd>
+              <dt>confidence</dt><dd id="aConf">—</dd>
+              <dt>chords</dt><dd id="aCount">—</dd>
+              <dt>cadences</dt><dd id="aCad">—</dd>
+            </dl>
+            <ul class="chord-list" id="chordList"></ul>
+          </div>
+          <p class="status" id="analyzeStatus"></p>
+        </div>
+      </article>
+
+      <!-- 4 SOPRANO -->
+      <article class="card" id="step-soprano">
+        <div class="card-head">
+          <div class="num">4</div>
+          <div>
+            <h2>Soprano-line options</h2>
+            <p class="plain">
+              Distinct melodic candidates for the same progression (MIDI +
+              spelled pitch names).
+            </p>
+          </div>
+          <span class="api-tag">POST /generate/soprano-options</span>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <button type="button" id="btnSoprano" disabled>POST /generate/soprano-options</button>
+            <span class="hint">Uses progression from step 1</span>
+          </div>
+          <div class="result-panel" id="sopranoPanel" hidden>
+            <h3>Response · options</h3>
+            <ul class="chord-list" id="sopranoList"></ul>
+          </div>
+          <p class="status" id="sopranoStatus"></p>
+        </div>
+      </article>
+    </div>
+
+    <details class="tech-note">
+      <summary>Sample request / response shapes</summary>
+      <pre>POST /progression
+Content-Type: application/json
+
+{ "key": "C major", "length": 8, "cadence": "PAC", "seed": 42 }
+
+→ { "progression": ["I", "IV", …], "spice": 0, … }
+
+POST /generate
+{ "key": "C major", "progression": ["I","IV","V","I"] }
+
+→ { "musicxml": "&lt;?xml …", "playback": { "tempo_bpm": 75, "events": […] } }</pre>
+    </details>
+
+    <footer>
+      <span>Harmonyx API · portfolio demo</span>
+      <span>
+        <a href="/docs">OpenAPI</a>
+        ·
+        <a href="https://github.com/danbyumagic/HarmonyxAPI">GitHub</a>
+      </span>
+    </footer>
+  </div>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+
+    let state = {
+      key: "C major",
+      progression: null,
+      musicxml: null,
+      playback: null,
+      audioCtx: null,
+      osmd: null,
+    };
+
+    function setStatus(el, msg, kind) {
+      el.textContent = msg || "";
+      el.className = "status" + (kind ? " " + kind : "");
+    }
+
+    function ensureOsmdLoaded() {
+      if (window.opensheetmusicdisplay && window.opensheetmusicdisplay.OpenSheetMusicDisplay) {
+        return Promise.resolve(window.opensheetmusicdisplay);
+      }
+      return new Promise((resolve, reject) => {
+        const existing = document.querySelector("script[data-osmd]");
+        if (existing) {
+          existing.addEventListener("load", () => resolve(window.opensheetmusicdisplay));
+          existing.addEventListener("error", () => reject(new Error("Failed to load OpenSheetMusicDisplay")));
+          return;
+        }
+        const s = document.createElement("script");
+        s.src = "https://cdn.jsdelivr.net/npm/opensheetmusicdisplay@1.8.9/build/opensheetmusicdisplay.min.js";
+        s.async = true;
+        s.dataset.osmd = "1";
+        s.onload = () => resolve(window.opensheetmusicdisplay);
+        s.onerror = () => reject(new Error("Failed to load OpenSheetMusicDisplay from CDN"));
+        document.head.appendChild(s);
+      });
+    }
+
+    async function renderScore(musicxml) {
+      const container = $("osmdContainer");
+      if (!container || !musicxml) return;
+      container.innerHTML = "";
+      try {
+        const lib = await ensureOsmdLoaded();
+        const OSMD = lib.OpenSheetMusicDisplay;
+        state.osmd = new OSMD(container, {
+          autoResize: true,
+          backend: "svg",
+          drawTitle: false,
+          drawSubtitle: false,
+          drawComposer: false,
+          drawLyricist: false,
+          drawPartNames: true,
+          drawingParameters: "compacttight",
+        });
+        await state.osmd.load(musicxml);
+        state.osmd.render();
+      } catch (err) {
+        container.innerHTML =
+          `<div class="score-fallback">Could not render notation (${err.message}).</div>`;
+      }
+    }
+
+    function clearScore() {
+      const container = $("osmdContainer");
+      if (container) container.innerHTML = "";
+      state.osmd = null;
+    }
+
+    async function checkHealth() {
+      const pill = $("healthPill");
+      try {
+        const r = await fetch("/health");
+        const j = await r.json();
+        if (j.status === "ok") {
+          pill.textContent = "API online";
+          pill.classList.add("ok");
+        } else throw new Error("bad");
+      } catch {
+        pill.textContent = "API offline — start uvicorn";
+        pill.classList.add("bad");
+      }
+    }
+
+    function renderRNs(list, cadence) {
+      const box = $("rnChips");
+      box.innerHTML = "";
+      list.forEach((fig, i) => {
+        const span = document.createElement("span");
+        span.className = "rn" + (cadence === "PAC" && i >= list.length - 2 ? " cadence" : "");
+        span.textContent = fig;
+        box.appendChild(span);
+      });
+    }
+
+    $("btnPropose").onclick = () => propose({ spice: 0, label: "spice 0" });
+    $("btnProposeSpicy").onclick = () => propose({ style: "spicy", label: "style spicy" });
+
+    async function propose(opts) {
+      setStatus($("proposeStatus"), "POST /progression…");
+      $("btnPropose").disabled = true;
+      $("btnProposeSpicy").disabled = true;
+      try {
+        const body = {
+          key: state.key,
+          length: 8,
+          cadence: "PAC",
+          seed: Math.floor(Math.random() * 10000),
+        };
+        if (opts.spice !== undefined) body.spice = opts.spice;
+        if (opts.style) body.style = opts.style;
+
+        const r = await fetch("/progression", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+        });
+        if (!r.ok) throw new Error(await r.text());
+        const data = await r.json();
+        state.progression = data.progression;
+        state.key = data.key;
+        state.musicxml = null;
+        state.playback = null;
+        clearScore();
+        $("btnGenerate").disabled = false;
+        $("btnSoprano").disabled = false;
+        $("btnPlay").disabled = true;
+        $("btnAnalyzeGenerated").disabled = true;
+        $("generatePanel").hidden = true;
+        $("analyzePanel").hidden = true;
+        $("sopranoPanel").hidden = true;
+
+        $("proposePanel").hidden = false;
+        renderRNs(data.progression, data.cadence);
+        $("proposeMeta").textContent =
+          `${data.key} · ${data.progression.length} chords · ${data.cadence}` +
+          (data.style ? ` · style=${data.style}` : ` · spice=${data.spice}`) +
+          ` · seed=${data.seed} · (${opts.label})`;
+        setStatus($("proposeStatus"), "OK", "ok");
+      } catch (e) {
+        setStatus($("proposeStatus"), e.message, "err");
+      } finally {
+        $("btnPropose").disabled = false;
+        $("btnProposeSpicy").disabled = false;
+      }
+    }
+
+    $("btnGenerate").onclick = async () => {
+      if (!state.progression) return;
+      setStatus($("generateStatus"), "POST /generate…");
+      $("btnGenerate").disabled = true;
+      try {
+        const r = await fetch("/generate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            key: state.key,
+            progression: state.progression,
+            time_signature: "4/4",
+            quarter_length: 2.0, // half notes for a clearer portfolio read
+          }),
+        });
+        if (!r.ok) throw new Error(await r.text());
+        const data = await r.json();
+        state.musicxml = data.musicxml;
+        state.playback = data.playback;
+        $("generatePanel").hidden = false;
+        $("xmlSize").textContent =
+          `${Math.round(data.musicxml.length / 1024)} KB · half notes (quarter_length=2)`;
+        $("playMeta").textContent =
+          `${data.playback.tempo_bpm} BPM · ${data.playback.events.length} events`;
+        $("btnPlay").disabled = false;
+        $("btnAnalyzeGenerated").disabled = false;
+        setStatus($("generateStatus"), "Rendering notation…");
+        await renderScore(data.musicxml);
+        setStatus($("generateStatus"), "OK — MusicXML rendered below", "ok");
+      } catch (e) {
+        setStatus($("generateStatus"), e.message, "err");
+      } finally {
+        $("btnGenerate").disabled = false;
+      }
+    };
+
+    $("btnPlay").onclick = async () => {
+      if (!state.playback) return;
+      const meter = $("meter");
+      meter.classList.add("playing");
+      setStatus($("generateStatus"), "Playing block-chord preview…");
+      try {
+        await playPlayback(state.playback);
+        setStatus($("generateStatus"), "Playback finished.", "ok");
+      } catch (e) {
+        setStatus($("generateStatus"), "Playback error: " + e.message, "err");
+      } finally {
+        meter.classList.remove("playing");
+      }
+    };
+
+    async function playPlayback(payload) {
+      const Ctx = window.AudioContext || window.webkitAudioContext;
+      if (!state.audioCtx) state.audioCtx = new Ctx();
+      const ctx = state.audioCtx;
+      if (ctx.state === "suspended") await ctx.resume();
+      const bpm = payload.tempo_bpm || 75;
+      const beatSec = 60 / bpm;
+      const t0 = ctx.currentTime + 0.05;
+      for (const ev of payload.events) {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = "triangle";
+        osc.frequency.value = 440 * Math.pow(2, (ev.midi - 69) / 12);
+        const start = t0 + ev.beat * beatSec;
+        const dur = (ev.duration || 1) * beatSec * 0.9;
+        gain.gain.setValueAtTime(0.0001, start);
+        gain.gain.exponentialRampToValueAtTime(0.08, start + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.0001, start + dur);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(start);
+        osc.stop(start + dur + 0.02);
+      }
+      const last = payload.events.reduce((m, e) => Math.max(m, e.beat + (e.duration || 1)), 0);
+      await new Promise((res) => setTimeout(res, last * beatSec * 1000 + 200));
+    }
+
+    async function analyzeFile(file) {
+      setStatus($("analyzeStatus"), "POST /analyze…");
+      const fd = new FormData();
+      fd.append("file", file, file.name || "score.musicxml");
+      const r = await fetch("/analyze", { method: "POST", body: fd });
+      if (!r.ok) throw new Error(await r.text());
+      return r.json();
+    }
+
+    function showAnalysis(data) {
+      $("analyzePanel").hidden = false;
+      $("aKey").textContent = data.key;
+      $("aConf").textContent = (data.confidence ?? 0).toFixed(3);
+      $("aCount").textContent = String(data.chords.length);
+      $("aCad").textContent = data.cadences.length
+        ? data.cadences.map((c) => `${c.type} @ m.${c.measure}`).join(", ")
+        : "—";
+      const ul = $("chordList");
+      ul.innerHTML = "";
+      data.chords.forEach((c) => {
+        const li = document.createElement("li");
+        li.innerHTML =
+          `<span class="fig">${c.roman}</span>` +
+          `<span class="meta">${c.quality}${c.inversion ? " · inv " + c.inversion : ""}</span>` +
+          `<span class="bar">m.${c.measure} · beat ${c.beat}</span>`;
+        ul.appendChild(li);
+      });
+    }
+
+    $("btnAnalyzeGenerated").onclick = async () => {
+      if (!state.musicxml) return;
+      try {
+        const file = new File([state.musicxml], "generated.musicxml", {
+          type: "application/vnd.recordare.musicxml+xml",
+        });
+        const data = await analyzeFile(file);
+        showAnalysis(data);
+        setStatus($("analyzeStatus"), "OK — round-trip on generated MusicXML", "ok");
+      } catch (e) {
+        setStatus($("analyzeStatus"), e.message, "err");
+      }
+    };
+
+    $("fileInput").onchange = async (ev) => {
+      const file = ev.target.files && ev.target.files[0];
+      if (!file) return;
+      try {
+        const data = await analyzeFile(file);
+        showAnalysis(data);
+        setStatus($("analyzeStatus"), `OK — ${file.name}`, "ok");
+      } catch (e) {
+        setStatus($("analyzeStatus"), e.message, "err");
+      }
+    };
+
+    $("btnSoprano").onclick = async () => {
+      if (!state.progression) return;
+      setStatus($("sopranoStatus"), "POST /generate/soprano-options…");
+      $("btnSoprano").disabled = true;
+      try {
+        const r = await fetch("/generate/soprano-options", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            key: state.key,
+            progression: state.progression,
+            count: 3,
+          }),
+        });
+        if (!r.ok) throw new Error(await r.text());
+        const data = await r.json();
+        $("sopranoPanel").hidden = false;
+        const ul = $("sopranoList");
+        ul.innerHTML = "";
+        (data.options || []).forEach((opt, i) => {
+          const li = document.createElement("li");
+          li.innerHTML =
+            `<span class="fig">#${i + 1}</span>` +
+            `<span class="meta">${(opt.pitches || []).join(" → ")}</span>` +
+            `<span class="bar">soprano</span>`;
+          ul.appendChild(li);
+        });
+        setStatus($("sopranoStatus"), "OK", "ok");
+      } catch (e) {
+        setStatus($("sopranoStatus"), e.message, "err");
+      } finally {
+        $("btnSoprano").disabled = false;
+      }
+    };
+
+    checkHealth();
+  </script>
+</body>
+</html>

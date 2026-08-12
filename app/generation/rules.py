@@ -231,6 +231,13 @@ def rule_violations(prev: Optional[Voicing], cur: Voicing, ctx: dict) -> list[Ru
 # Soft preferences: doubling conventions (§7 soft half) + cost (§8)
 # --------------------------------------------------------------------------
 
+# Tenor–bass open spacing (soft only; hard §1 still allows T–B > octave).
+# Band B: free ≤12, light 13–15, firm ≥16.
+_TB_SPACING_FREE = 12  # semitones
+_TB_SPACING_LIGHT_MAX = 15
+_TB_SPACING_LIGHT_PER_SEMI = 1.0  # gap 13→1, 14→2, 15→3
+_TB_SPACING_FIRM_PER_SEMI = 2.5  # added per semi past 15 (16→5.5, …)
+
 
 def _expected_doubled_pc(cur_roman: str, key_like) -> Optional[int]:
     """The conventionally-preferred doubled pitch class for this chord/inversion
@@ -292,6 +299,27 @@ def _frustrated_leading_tone_cost(prev: Optional[Voicing], cur: Voicing, ctx: di
     return cost
 
 
+def _tb_open_spacing_cost(cur: Voicing) -> float:
+    """Soft penalty when tenor sits more than an octave above bass.
+
+    Hard rules still allow T–B > octave (PARTWRITING-RULES §1). This only
+    ranks denser voicings ahead of habitually hollow ones:
+
+    * gap ≤ 12: free
+    * 13–15: light ramp (1 per semitone over 12)
+    * ≥ 16: firm ramp (light cost at 15, then +2.5 per extra semitone)
+    """
+    gap = cur.t - cur.b
+    if gap <= _TB_SPACING_FREE:
+        return 0.0
+    if gap <= _TB_SPACING_LIGHT_MAX:
+        return _TB_SPACING_LIGHT_PER_SEMI * (gap - _TB_SPACING_FREE)
+    light_cap = _TB_SPACING_LIGHT_PER_SEMI * (
+        _TB_SPACING_LIGHT_MAX - _TB_SPACING_FREE
+    )
+    return light_cap + _TB_SPACING_FIRM_PER_SEMI * (gap - _TB_SPACING_LIGHT_MAX)
+
+
 def transition_cost(prev: Optional[Voicing], cur: Voicing, ctx: dict) -> float:
     """Voice-leading cost of moving from ``prev`` to ``cur`` (PARTWRITING-RULES §8).
 
@@ -315,4 +343,5 @@ def transition_cost(prev: Optional[Voicing], cur: Voicing, ctx: dict) -> float:
             cost += 2.0  # all four voices move in the same direction
         cost += _frustrated_leading_tone_cost(prev, cur, ctx)
     cost += _doubling_deviation_cost(cur, ctx)
+    cost += _tb_open_spacing_cost(cur)
     return cost
