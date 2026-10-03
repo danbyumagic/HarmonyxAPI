@@ -1,7 +1,7 @@
 # Harmony Studio implementation plan
 
 Prepared 2026-10-02 from `HARMONY-STUDIO-REBRAND.md` and the current frontend.
-Status: chunks 1–4 complete (2026-10-02); release verification being recorded.
+Status: all five chunks complete and verified (2026-10-02).
 
 Chunk 1 verification: browser confirmed Create selected on fresh load,
 Analyze/Create switching, progression proposal and score generation with
@@ -47,7 +47,34 @@ showcase aliases returned identical HTML. README now leads with browser setup
 and workflows, followed by the developer reference. Its link targets and code
 fences were checked. Local START-HERE, STATUS, and a new diary entry were
 updated; their existing private/ignored-file policy is retained. The tracked
-plan records release verification for the remote handoff.
+plan records release verification for the remote handoff. The README rendered
+on GitHub with Harmony Studio and the browser quick start/workflows preceding
+the API reference.
+
+Chunk 5 release checks:
+
+- `python -m pytest tests/ -q`: **191 passed** (one existing TestClient
+  deprecation warning).
+- `python -m eval.run_eval --min 0.85`: **18/20 = 90%**, gate passed.
+- `python -m eval.run_generation_eval --min-roundtrip 1.0 --max-violations 0`:
+  **27/27 = 100%** primary and strict round-trip, **0 hard violations**.
+- `python -m eval.run_rn_eval --min 0.0`: **397/949 = 42%** primary and
+  **359/949 = 38%** strict; visibility-only check passed.
+- Both frontend scripts parsed; `git diff --check` passed; locked
+  `tests/test_partwriting.py` was unchanged.
+- Integrated browser workflows, keyboard focus/navigation, mobile containment,
+  light/dark themes, developer links/aliases and live examples passed as
+  recorded above. Failure and delayed-response checks used injected responses
+  and load events rather than external provider outages.
+
+Limits: playback controls and scheduled audio state were checked, but audio
+quality was not subjectively evaluated. Exported Blob bytes were parsed and
+re-analyzed in-browser; no external notation-app import was performed. No
+hosted deployment or repository/domain rename was part of this release.
+
+Implementation commits: `0663fb4` (chunk 1), `33f237a` (chunk 2), `2dc86a6`
+(chunk 3), and `0495cdb` (chunk 4). This final verification record completes
+chunk 5. No unrelated roadmap work remains authorized by this release plan.
 
 ## Outcome and scope
 
