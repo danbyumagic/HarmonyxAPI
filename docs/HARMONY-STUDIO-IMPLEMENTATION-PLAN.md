@@ -1,7 +1,7 @@
 # Harmony Studio implementation plan
 
 Prepared 2026-10-02 from `HARMONY-STUDIO-REBRAND.md` and the current frontend.
-Status: chunks 1–2 complete (2026-10-02); chunks 3–5 pending.
+Status: chunks 1–3 complete (2026-10-02); chunks 4–5 being finalized.
 
 Chunk 1 verification: browser confirmed Create selected on fresh load,
 Analyze/Create switching, progression proposal and score generation with
@@ -22,7 +22,22 @@ notation; previewing and selecting another soprano worked; Play/Stop controls
 and export naming passed. No automatic generation was added. Export was
 checked through its anchor, not a downloaded-file import. No backend changes
 or new test framework; `git diff --check` passed. Next chunk: Analyze and
-shared workspace behavior.
+shared workspace behavior (now completed below).
+
+Chunk 3 verification: reproduced the empty-options heading and old soprano
+cards surviving edited harmony, then verified key/chord edits remove old
+output. Generation actions now serialize requests and discard stale responses;
+Analyze displays only its latest response. Browser checks passed for invalid
+and empty chord input, failed options with a successful score, More options
+failure/retry, delayed generation after an edit, delayed older analysis,
+unavailable walkthrough feedback, keyboard tab navigation and lock/soprano
+focus, and stopping playback when leaving Create. Valid MusicXML upload
+through the file-input change handler and generated MIDI analysis passed.
+The export Blob parsed as MusicXML and round-tripped through Analyze.
+Notation-loader failure/reset/retry passed with injected load events.
+Narrow viewport checks confirmed contained score/cards and no page overflow;
+light/dark appearances were inspected. No musical engine or API contract
+changes were made. Frontend JavaScript parsing and diff checks passed.
 
 ## Outcome and scope
 

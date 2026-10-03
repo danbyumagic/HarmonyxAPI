@@ -94,7 +94,15 @@
     #drop .big { display: block; font-weight: 650; margin-top: .35rem; font-size: 1.05rem; }
     #drop .big em { color: var(--accent); font-style: normal; }
     #drop small { display: block; color: var(--faint); margin-top: .35rem; font-size: .82rem; }
-    input[type=file] { display: none; }
+    input[type=file] {
+      position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+      overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0;
+    }
+    #drop:has(+ input:focus-visible), :focus-visible {
+      outline: 3px solid var(--accent-2); outline-offset: 3px;
+    }
+    .brand { flex-wrap: wrap; }
+    .field, .field input, .field select { max-width: 100%; }
 
     /* Controls */
     .controls {
@@ -314,6 +322,23 @@
     .legend { display: flex; gap: 1rem; flex-wrap: wrap; margin-top: .4rem; font-size: .76rem; color: var(--faint); }
     .legend i { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: .3rem; vertical-align: middle; }
 
+    .soprano-select {
+      font: inherit; color: inherit; background: transparent; border: 0; text-align: left;
+      padding: .2rem; cursor: pointer;
+    }
+    button:disabled { cursor: not-allowed; }
+    @media (max-width: 540px) {
+      .wrap { padding: 1.25rem .85rem 2rem; }
+      .brand .sub { font-size: .7rem; }
+      .panel { padding: 1rem; }
+      .form-row > .field { flex: 1 1 130px; min-width: 0; }
+      .form-row > .field-wide { flex-basis: 100%; }
+      .hero { grid-template-columns: minmax(0, 1fr) auto; padding: 1rem; }
+      .soprano-option { max-width: 100%; }
+      .soprano-option .notes { overflow-wrap: anywhere; }
+    }
+
+    .rn-slot input:focus-visible { outline: 3px solid var(--accent-2); outline-offset: 3px; }
     .panel-hidden { display: none !important; }
   </style>
 </head>
@@ -328,12 +353,12 @@
     </header>
 
     <div class="modes" role="tablist" aria-label="Mode">
-      <button type="button" id="tabGenerate" role="tab" aria-selected="true" data-mode="generate">Create</button>
-      <button type="button" id="tabAnalyze" role="tab" aria-selected="false" data-mode="analyze">Analyze</button>
+      <button type="button" id="tabGenerate" role="tab" aria-controls="generatePanel" tabindex="0" aria-selected="true" data-mode="generate">Create</button>
+      <button type="button" id="tabAnalyze" role="tab" aria-controls="analyzePanel" tabindex="-1" aria-selected="false" data-mode="analyze">Analyze</button>
     </div>
 
     <!-- ========== ANALYZE ========== -->
-    <section id="analyzePanel" class="panel-hidden">
+    <section id="analyzePanel" class="panel-hidden" role="tabpanel" aria-labelledby="tabAnalyze">
       <h1>Analyze a score</h1>
       <p class="lede">Drop a MusicXML or MIDI file and get a chord-by-chord Roman numeral
         analysis — key, harmonies, and cadences.</p>
@@ -343,25 +368,27 @@
         <span class="big"><em>Choose a file</em> or drag it here</span>
         <small>.musicxml · .xml · .mxl · .mid · .midi</small>
       </label>
-      <input type="file" id="fileInput" accept=".xml,.musicxml,.mxl,.mid,.midi" />
+      <input type="file" id="fileInput" aria-label="Upload a score" accept=".xml,.musicxml,.mxl,.mid,.midi" />
 
       <div class="controls">
-        <span>Resolution</span>
-        <span class="seg" id="resSeg" role="group" aria-label="Analysis resolution">
+        <span id="resolutionLabel">Analysis detail</span>
+        <span class="seg" id="resSeg" role="group" aria-labelledby="resolutionLabel" aria-describedby="resolutionHelp">
           <button type="button" data-thr="0.25">Detailed</button>
           <button type="button" data-thr="0.5" aria-pressed="true">Standard</button>
           <button type="button" data-thr="1.0">Reduced</button>
         </span>
         <label><input type="checkbox" id="explain" /> Plain-English walkthrough</label>
-        <span class="hint">(needs an LLM key on the server)</span>
+        <span class="hint">Walkthroughs appear when available on this server.</span>
       </div>
 
-      <div id="status" class="status"></div>
+      <p class="workflow-help" id="resolutionHelp">Detailed includes shorter harmony changes;
+        Reduced focuses on longer ones. Your file is analyzed again when you change the detail level.</p>
+      <div id="status" class="status" role="status" aria-live="polite"></div>
       <div id="results"></div>
     </section>
 
     <!-- ========== GENERATE ========== -->
-    <section id="generatePanel">
+    <section id="generatePanel" role="tabpanel" aria-labelledby="tabGenerate">
       <h1>Create a four-part score</h1>
       <p class="lede">Shape a chord progression into a score for soprano, alto, tenor,
         and bass (SATB). Edit the harmony, hear melodic options, and download your score.</p>
@@ -441,7 +468,7 @@
         <div id="rnGrid" class="rn-grid" hidden></div>
       </div>
 
-      <div id="genStatus" class="status"></div>
+      <div id="genStatus" class="status" role="status" aria-live="polite"></div>
       <div id="genResults"></div>
     </section>
 
@@ -478,6 +505,9 @@
 
     function setMode(mode) {
       const isAnalyze = mode === 'analyze';
+      stopPlayback();
+      tabAnalyze.tabIndex = isAnalyze ? 0 : -1;
+      tabGenerate.tabIndex = isAnalyze ? -1 : 0;
       tabAnalyze.setAttribute('aria-selected', String(isAnalyze));
       tabGenerate.setAttribute('aria-selected', String(!isAnalyze));
       analyzePanel.classList.toggle('panel-hidden', !isAnalyze);
@@ -485,6 +515,15 @@
     }
     tabAnalyze.addEventListener('click', () => setMode('analyze'));
     tabGenerate.addEventListener('click', () => setMode('generate'));
+    [tabGenerate, tabAnalyze].forEach((tab, index, tabs) => {
+      tab.addEventListener('keydown', (event) => {
+        if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+        event.preventDefault();
+        const next = event.key === 'Home' ? tabs[0] : event.key === 'End' ? tabs[1] : tabs[1 - index];
+        setMode(next.dataset.mode);
+        next.focus();
+      });
+    });
 
     // ---- Analyze (existing) ----
     const drop = $('drop'), fileInput = $('fileInput'), statusEl = $('status'),
@@ -492,6 +531,7 @@
 
     let threshold = 0.5;
     let lastFile = null;
+    let analysisRequest = 0;
 
     resSeg.addEventListener('click', (e) => {
       const btn = e.target.closest('button'); if (!btn) return;
@@ -508,6 +548,8 @@
     fileInput.addEventListener('change', () => { if (fileInput.files.length) analyze(fileInput.files[0]); });
 
     async function analyze(file) {
+      const request = ++analysisRequest;
+      const requestedWalkthrough = explainEl.checked;
       lastFile = file;
       resultsEl.className = '';
       statusEl.className = 'status';
@@ -521,9 +563,12 @@
         const res = await fetch(url, { method: 'POST', body: form });
         const data = await res.json();
         if (!res.ok) throw new Error(formatDetail(data.detail) || `HTTP ${res.status}`);
+        if (request !== analysisRequest) return;
         renderAnalysis(data, file.name);
-        statusEl.textContent = '';
+        statusEl.textContent = requestedWalkthrough && !data.explanation
+          ? 'Analysis complete. A walkthrough is unavailable; your harmonic analysis is ready below.' : '';
       } catch (err) {
+        if (request !== analysisRequest) return;
         statusEl.className = 'status err';
         statusEl.textContent = `Error: ${err.message}`;
         resultsEl.className = '';
@@ -581,6 +626,9 @@
     let slots = [];
     let lastMusicXml = null;
     let lastPlayback = null;
+    let lastScoreKey = null;
+    let generationRevision = 0;
+    let generationBusy = false;
     /** @type {{ soprano: number[], pitches: string[] }[]} */
     let sopranoOptions = [];
     let selectedSopranoIndex = 0;
@@ -590,6 +638,7 @@
     /** @type {OscillatorNode[]} */
     let activeOscs = [];
     let playStopTimer = null;
+    let playbackRevision = 0;
 
     const rnGrid = $('rnGrid');
     const rnEmpty = $('rnEmpty');
@@ -602,6 +651,35 @@
     btnPropose.addEventListener('click', () => proposeProgression(false));
     btnRegen.addEventListener('click', () => proposeProgression(true));
     btnRealize.addEventListener('click', realizeProgression);
+
+    function setGenerationBusy(busy) {
+      generationBusy = busy;
+      generatePanel.setAttribute('aria-busy', String(busy));
+      generatePanel.querySelectorAll('input, select, #genStylePills button, .lock, .play-mini, .soprano-select').forEach((el) => {
+        el.disabled = busy;
+      });
+      btnPropose.disabled = busy;
+      btnRegen.disabled = busy || !slots.length;
+      btnRealize.disabled = busy || !slots.length;
+      const more = $('btnMoreSoprano');
+      if (more) more.disabled = busy || sopranoOptionsExhausted;
+    }
+
+    function invalidateScore() {
+      generationRevision++;
+      stopPlayback();
+      lastMusicXml = null;
+      lastPlayback = null;
+      lastScoreKey = null;
+      sopranoOptions = [];
+      selectedSopranoIndex = 0;
+      sopranoOptionsExhausted = false;
+      genResults.className = '';
+      genResults.innerHTML = '';
+      setGenStatus('Harmony changed. Generate a new score to hear it.');
+    }
+    rnGrid.addEventListener('input', () => { readSlotsFromDom(); invalidateScore(); });
+    $('genKey').addEventListener('change', invalidateScore);
 
     const SPICE_NAMES = { 0: 'Student', 1: 'Hymnal', 2: 'Spicy', 3: 'Max' };
 
@@ -684,6 +762,7 @@
           const i = parseInt(btn.dataset.i, 10);
           slots[i].locked = !slots[i].locked;
           renderSlots();
+          rnGrid.querySelector(`.lock[data-i="${i}"]`).focus();
         });
       });
       btnRegen.disabled = false;
@@ -691,6 +770,7 @@
     }
 
     async function proposeProgression(respectLocks) {
+      if (generationBusy) return;
       readSlotsFromDom();
       const length = genLength();
       const spice = genSpice();
@@ -713,11 +793,10 @@
         if (locked) body.locked = locked;
       }
 
-      genResults.className = '';
-      lastMusicXml = null;
-      lastPlayback = null;
+      invalidateScore();
+      const revision = generationRevision;
+      setGenerationBusy(true);
       osmdInstance = null;
-      stopPlayback();
       setGenStatus(`<span class="spinner"></span> Suggesting ${SPICE_NAMES[spice].toLowerCase()} harmony…`);
 
       try {
@@ -729,6 +808,7 @@
         const data = await res.json();
         if (!res.ok) throw new Error(formatDetail(data.detail) || `HTTP ${res.status}`);
 
+        if (revision !== generationRevision) return;
         const prevLocks = respectLocks
           ? slots.map((s) => s.locked)
           : data.progression.map(() => false);
@@ -745,7 +825,9 @@
             (hasSecondary ? ' Includes secondary dominants: chords that lead toward another chord.' : '')
         );
       } catch (err) {
-        setGenStatus(`Error: ${err.message}`, true);
+        if (revision === generationRevision) setGenStatus(`Could not suggest a progression: ${escapeHtml(err.message)}`, true);
+      } finally {
+        setGenerationBusy(false);
       }
     }
 
@@ -759,7 +841,7 @@
       container.innerHTML = sopranoOptions.map((opt, i) => `
         <div class="soprano-option ${i === selectedSopranoIndex ? 'selected' : ''}" data-i="${i}">
           <button type="button" class="play-mini" data-i="${i}" title="Preview this soprano line" aria-label="Preview option ${i + 1}">▶</button>
-          <span class="notes">${opt.pitches.map(escapeHtml).join(' · ')}</span>
+          <button type="button" class="soprano-select notes" data-i="${i}" aria-pressed="${i === selectedSopranoIndex}" aria-label="Use soprano option ${i + 1}">${opt.pitches.map(escapeHtml).join(' · ')}</button>
         </div>`).join('');
 
       container.querySelectorAll('.play-mini').forEach((btn) => {
@@ -769,18 +851,18 @@
           playSopranoPreview(sopranoOptions[i].soprano, (lastPlayback && lastPlayback.tempo_bpm) || 75);
         });
       });
-      container.querySelectorAll('.soprano-option').forEach((card) => {
+      container.querySelectorAll('.soprano-select').forEach((card) => {
         card.addEventListener('click', () => {
           const i = parseInt(card.dataset.i, 10);
-          if (i === selectedSopranoIndex) return;
-          selectedSopranoIndex = i;
-          renderSopranoOptions();
-          finalizeRealization(sopranoOptions[i].soprano);
+          if (generationBusy || i === selectedSopranoIndex) return;
+          finalizeRealization(sopranoOptions[i].soprano, null, i);
         });
       });
     }
 
     async function fetchMoreSopranoOptions() {
+      if (generationBusy) return;
+      const revision = generationRevision;
       const progression = slots.map((s) => s.figure.trim()).filter(Boolean);
       const nextCount = Math.min(sopranoOptions.length + 3, 10);
       const btn = $('btnMoreSoprano');
@@ -796,6 +878,7 @@
         return;
       }
 
+      setGenerationBusy(true);
       try {
         const res = await fetch('/generate/soprano-options', {
           method: 'POST',
@@ -805,6 +888,8 @@
         const data = await res.json();
         if (!res.ok) throw new Error(formatDetail(data.detail) || `HTTP ${res.status}`);
 
+        if (revision !== generationRevision) return;
+        setGenStatus('');
         const newOptions = data.options || [];
         if (newOptions.length > sopranoOptions.length) {
           sopranoOptions = newOptions;
@@ -818,21 +903,25 @@
           if (note) note.hidden = false;
         }
       } catch (err) {
-        setGenStatus(`Error: ${err.message}`, true);
-        if (btn) btn.disabled = sopranoOptionsExhausted;
+        if (revision === generationRevision) setGenStatus(`Could not load more soprano options: ${escapeHtml(err.message)}. Your score is still ready.`, true);
+      } finally {
+        setGenerationBusy(false);
       }
     }
 
     async function realizeProgression() {
+      if (generationBusy) return;
       readSlotsFromDom();
-      const progression = slots.map((s) => s.figure.trim()).filter(Boolean);
-      if (!progression.length) {
-        setGenStatus('Add at least one chord first, such as I in a major key.', true);
+      const progression = slots.map((s) => s.figure.trim());
+      if (!progression.length || progression.some((figure) => !figure)) {
+        setGenStatus('Fill every chord slot before generating your score, such as I in a major key.', true);
         return;
       }
 
+      invalidateScore();
+      const revision = generationRevision;
+      setGenerationBusy(true);
       setGenStatus(`<span class="spinner"></span> Generating your four-part score…`);
-      genResults.className = '';
       sopranoOptions = [];
       selectedSopranoIndex = 0;
       sopranoOptionsExhausted = false;
@@ -844,6 +933,7 @@
           body: JSON.stringify({ key: genKey(), progression }),
         });
         const optData = await optRes.json();
+        if (revision !== generationRevision) { setGenerationBusy(false); return; }
         if (optRes.ok) sopranoOptions = optData.options || [];
         // A soprano-options failure isn't fatal -- fall through and let
         // /generate below report the real error (or succeed without
@@ -852,11 +942,19 @@
         sopranoOptions = [];
       }
 
-      await finalizeRealization(sopranoOptions.length ? sopranoOptions[0].soprano : null, progression);
+      if (revision !== generationRevision) { setGenerationBusy(false); return; }
+      await finalizeRealization(sopranoOptions.length ? sopranoOptions[0].soprano : null, progression, 0, revision);
     }
 
-    async function finalizeRealization(soprano, progressionOverride) {
-      const progression = progressionOverride || slots.map((s) => s.figure.trim()).filter(Boolean);
+    async function finalizeRealization(soprano, progressionOverride, optionIndex, revisionOverride) {
+      if (generationBusy && revisionOverride == null) return;
+      const revision = revisionOverride == null ? generationRevision : revisionOverride;
+      const progression = progressionOverride || slots.map((s) => s.figure.trim());
+      setGenerationBusy(true);
+      stopPlayback();
+      genResults.className = '';
+      lastMusicXml = null;
+      lastPlayback = null;
       setGenStatus(`<span class="spinner"></span> Generating your four-part score…`);
 
       try {
@@ -871,8 +969,11 @@
         const data = await res.json();
         if (!res.ok) throw new Error(formatDetail(data.detail) || `HTTP ${res.status}`);
 
+        if (revision !== generationRevision) return;
         lastMusicXml = data.musicxml;
+        lastScoreKey = data.key;
         lastPlayback = data.playback || null;
+        selectedSopranoIndex = optionIndex == null ? 0 : optionIndex;
         const chips = progression.map((f) =>
           `<span class="chip">${escapeHtml(f)}</span>`).join('');
         const tempo = (lastPlayback && lastPlayback.tempo_bpm) || 75;
@@ -887,7 +988,7 @@
           </div>
           <div class="section-title"><h2>Progression</h2><span class="count">${progression.length}</span></div>
           <div class="chip-row">${chips}</div>
-          <div class="section-title"><h2>Soprano options</h2><span class="count" id="sopranoOptionsCount">${sopranoOptions.length}</span></div>
+          ${sopranoOptions.length ? `<div class="section-title"><h2>Soprano options</h2><span class="count" id="sopranoOptionsCount">${sopranoOptions.length}</span></div>
           <p class="workflow-help">The soprano is the top melody. Use ▶ to hear a line on its own;
             select its card to generate the full score with that melody.</p>
           <div class="soprano-options" id="sopranoOptions"></div>
@@ -895,6 +996,7 @@
             <button type="button" class="btn" id="btnMoreSoprano">More options</button>
             <span class="soprano-more-note" id="sopranoMoreNote" hidden>No more distinct soprano lines for this progression.</span>
           </div>
+          ` : ''}
           <div class="section-title"><h2>Score</h2><span class="count">MusicXML preview</span></div>
           <div class="score-panel">
             <div id="osmdContainer"><div class="score-fallback">Loading notation…</div></div>
@@ -907,16 +1009,27 @@
           </div>`;
         genResults.className = 'show';
         renderSopranoOptions();
-        $('btnMoreSoprano').addEventListener('click', fetchMoreSopranoOptions);
-        $('btnMoreSoprano').disabled = sopranoOptionsExhausted;
-        $('sopranoMoreNote').hidden = !sopranoOptionsExhausted;
+        if ($('btnMoreSoprano')) {
+          $('btnMoreSoprano').addEventListener('click', fetchMoreSopranoOptions);
+          $('btnMoreSoprano').disabled = sopranoOptionsExhausted;
+          $('sopranoMoreNote').hidden = !sopranoOptionsExhausted;
+        }
         $('btnDownload').addEventListener('click', downloadMusicXml);
         $('btnPlay').addEventListener('click', () => playPlayback());
         $('btnStop').addEventListener('click', () => stopPlayback());
         setGenStatus('');
         await renderOsmdPreview(lastMusicXml);
+        if (optionIndex != null && progressionOverride == null) {
+          genResults.querySelector(`.soprano-select[data-i="${optionIndex}"]`)?.focus();
+        }
       } catch (err) {
-        setGenStatus(`Error: ${err.message}`, true);
+        if (revision === generationRevision) {
+          genResults.className = '';
+          genResults.innerHTML = '';
+          setGenStatus(`Could not generate your score: ${escapeHtml(err.message)}. Check the chords and try again.`, true);
+        }
+      } finally {
+        setGenerationBusy(false);
       }
     }
 
@@ -924,7 +1037,7 @@
       if (!lastMusicXml) return;
       const blob = new Blob([lastMusicXml], { type: 'application/vnd.recordare.musicxml+xml' });
       const a = document.createElement('a');
-      const keySlug = genKey().replace(/\s+/g, '_');
+      const keySlug = lastScoreKey.replace(/\s+/g, '_');
       a.href = URL.createObjectURL(blob);
       a.download = `harmony-studio_${keySlug}.musicxml`;
       a.click();
@@ -943,6 +1056,7 @@
     }
 
     function stopPlayback() {
+      playbackRevision++;
       if (playStopTimer != null) {
         clearTimeout(playStopTimer);
         playStopTimer = null;
@@ -957,6 +1071,7 @@
     async function playNotes(events, tempoBpm) {
       if (!events || !events.length) return;
       stopPlayback();
+      const revision = playbackRevision;
 
       const AC = window.AudioContext || window.webkitAudioContext;
       if (!AC) {
@@ -965,6 +1080,7 @@
       }
       if (!audioCtx) audioCtx = new AC();
       if (audioCtx.state === 'suspended') await audioCtx.resume();
+      if (revision !== playbackRevision) return;
 
       const tempo = tempoBpm || 75;
       const beatSec = 60 / tempo;
@@ -1018,25 +1134,36 @@
     /** Phase A: OpenSheetMusicDisplay — view only (no audio). */
     let osmdInstance = null;
 
+    let osmdLoadPromise = null;
     function ensureOsmdLoaded() {
       if (window.opensheetmusicdisplay && window.opensheetmusicdisplay.OpenSheetMusicDisplay) {
         return Promise.resolve(window.opensheetmusicdisplay);
       }
-      return new Promise((resolve, reject) => {
-        const existing = document.querySelector('script[data-osmd]');
-        if (existing) {
-          existing.addEventListener('load', () => resolve(window.opensheetmusicdisplay));
-          existing.addEventListener('error', () => reject(new Error('Failed to load OpenSheetMusicDisplay')));
-          return;
+      if (osmdLoadPromise) return osmdLoadPromise;
+      osmdLoadPromise = new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        const timer = setTimeout(() => fail('Notation preview took too long to load'), 12000);
+        function fail(message) {
+          clearTimeout(timer);
+          script.remove();
+          osmdLoadPromise = null;
+          reject(new Error(message));
         }
-        const s = document.createElement('script');
-        s.src = 'https://cdn.jsdelivr.net/npm/opensheetmusicdisplay@1.8.9/build/opensheetmusicdisplay.min.js';
-        s.async = true;
-        s.dataset.osmd = '1';
-        s.onload = () => resolve(window.opensheetmusicdisplay);
-        s.onerror = () => reject(new Error('Failed to load OpenSheetMusicDisplay from CDN'));
-        document.head.appendChild(s);
+        script.src = 'https://cdn.jsdelivr.net/npm/opensheetmusicdisplay@1.8.9/build/opensheetmusicdisplay.min.js';
+        script.async = true;
+        script.dataset.osmd = '1';
+        script.onload = () => {
+          clearTimeout(timer);
+          if (!window.opensheetmusicdisplay?.OpenSheetMusicDisplay) {
+            fail('Notation preview is unavailable');
+            return;
+          }
+          resolve(window.opensheetmusicdisplay);
+        };
+        script.onerror = () => fail('Could not load notation preview');
+        document.head.appendChild(script);
       });
+      return osmdLoadPromise;
     }
 
     async function renderOsmdPreview(musicxml) {
@@ -1056,9 +1183,12 @@
           drawPartNames: true,
           drawingParameters: 'compacttight',
         });
-        await osmdInstance.load(musicxml);
-        osmdInstance.render();
+        const preview = osmdInstance;
+        await preview.load(musicxml);
+        if (!container.isConnected) return;
+        preview.render();
       } catch (err) {
+        if (!container.isConnected) return;
         container.innerHTML =
           `<div class="score-fallback">Could not render notation preview (${escapeHtml(err.message)}). ` +
           `You can still download the MusicXML file.</div>`;
