@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Harmonyx API — What it does</title>
+  <title>Harmony Studio API — Developer demo</title>
   <style>
     :root {
       --ink: #1a1714;
@@ -377,14 +377,16 @@
 <body>
   <div class="wrap">
     <header>
-      <div class="eyebrow">Demo · Harmonyx API</div>
-      <h1>An API that reads and writes classical harmony</h1>
+      <div class="eyebrow">Developer demo · Harmony Studio API</div>
+      <h1>The API behind Harmony Studio</h1>
       <p class="lede">
-        Analyze MusicXML/MIDI to Roman numerals, propose idiomatic progressions,
-        and realize four-part SATB scores — deterministic FastAPI endpoints with
-        live responses below.
+        Integrate Harmony Studio's tools into your own workflow: analyze
+        MusicXML/MIDI to Roman numerals, propose idiomatic progressions, and
+        realize four-part SATB scores. Try the deterministic endpoints with
+        live responses below, or open the studio to create and explore in the browser.
       </p>
       <div class="header-actions">
+        <a class="btn" href="/" style="text-decoration:none;display:inline-flex">Open Harmony Studio</a>
         <span class="pill" id="healthPill">Checking server…</span>
         <span class="pill">Local demo · no auth</span>
         <a class="btn secondary" href="/docs" style="text-decoration:none;display:inline-flex">OpenAPI /docs</a>
@@ -545,8 +547,10 @@ POST /generate
     </details>
 
     <footer>
-      <span>Harmonyx API · demo</span>
+      <span>Harmony Studio API · developer demo</span>
       <span>
+        <a href="/">Harmony Studio</a>
+        ·
         <a href="/docs">OpenAPI</a>
         ·
         <a href="https://github.com/danbyumagic/HarmonyxAPI">GitHub</a>

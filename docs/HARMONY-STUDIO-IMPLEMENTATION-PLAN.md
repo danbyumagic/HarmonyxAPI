@@ -1,7 +1,17 @@
 # Harmony Studio implementation plan
 
 Prepared 2026-10-02 from `HARMONY-STUDIO-REBRAND.md` and the current frontend.
-Status: planning complete; implementation has not started.
+Status: chunk 1 complete (2026-10-02); chunks 2–5 pending.
+
+Chunk 1 verification: browser confirmed Create selected on fresh load,
+Analyze/Create switching, progression proposal and score generation with
+notation preview, Play/Stop controls, export filename
+`harmony-studio_C_major.musicxml`, and Developers → showcase → studio links.
+Export naming was checked by intercepting the browser download anchor; an
+actual file download/import was not checked in this chunk. Focused TestClient
+checks confirmed OpenAPI branding and identical `/demo` and `/portfolio`
+responses. Existing generate/progression endpoint tests: **22 passed**.
+`git diff --check` passed. Next chunk: Create workflow copy and guidance.
 
 ## Outcome and scope
 

@@ -42,10 +42,13 @@ from .models import (
 )
 
 app = FastAPI(
-    title="Harmonyx API",
+    title="Harmony Studio API",
     version="1.0.0",
     description=(
-        "Two-way harmony tool: **analyze** a score to Roman numerals "
+        "Programmatic access to the harmony tools powering **Harmony Studio**. "
+        "[Open Harmony Studio](/) to create, hear, and explore classical harmony "
+        "in the browser.\n\n"
+        "**Analyze** a score to Roman numerals "
         "(`POST /analyze`), **propose** an idiomatic progression "
         "(`POST /progression`), or **realize** RNs as four-part SATB MusicXML "
         "(`POST /generate`).\n\n"

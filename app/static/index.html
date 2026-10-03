@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Harmonyx — Analyze &amp; Generate</title>
+  <title>Harmony Studio — Create &amp; Analyze</title>
   <style>
     :root {
       --bg: #f4f2ec;
@@ -316,19 +316,19 @@
   <div class="wrap">
     <header>
       <div class="brand">
-        <span class="mark">Harmon<b>yx</b></span>
-        <span class="sub">Analyze &amp; Generate</span>
+        <span class="mark">Harmony <b>Studio</b></span>
+        <span class="sub">Create, hear, and explore classical harmony</span>
       </div>
       <button class="themebtn" id="themebtn" type="button">◐ theme</button>
     </header>
 
     <div class="modes" role="tablist" aria-label="Mode">
-      <button type="button" id="tabAnalyze" role="tab" aria-selected="true" data-mode="analyze">Analyze</button>
-      <button type="button" id="tabGenerate" role="tab" aria-selected="false" data-mode="generate">Generate</button>
+      <button type="button" id="tabGenerate" role="tab" aria-selected="true" data-mode="generate">Create</button>
+      <button type="button" id="tabAnalyze" role="tab" aria-selected="false" data-mode="analyze">Analyze</button>
     </div>
 
     <!-- ========== ANALYZE ========== -->
-    <section id="analyzePanel">
+    <section id="analyzePanel" class="panel-hidden">
       <h1>Analyze a score</h1>
       <p class="lede">Drop a MusicXML or MIDI file and get a chord-by-chord Roman numeral
         analysis — key, harmonies, and cadences.</p>
@@ -356,8 +356,8 @@
     </section>
 
     <!-- ========== GENERATE ========== -->
-    <section id="generatePanel" class="panel-hidden">
-      <h1>Generate a chorale</h1>
+    <section id="generatePanel">
+      <h1>Create a four-part score</h1>
       <p class="lede">Propose an idiomatic Roman-numeral progression, edit or lock chords,
         then realize a four-part SATB hymn as MusicXML.</p>
 
@@ -432,7 +432,7 @@
     <footer>
       v1 handles four-part chorale texture in a single major/minor key (no modulation).
       Deterministic core by <a href="https://www.music21.org/">music21</a> ·
-      <a href="/docs">API docs</a>.
+      <a href="/demo">Developers</a>.
       <div class="legend">
         <span><i style="background:var(--major)"></i>PAC</span>
         <span><i style="background:var(--major);opacity:.55"></i>IAC</span>
@@ -907,7 +907,7 @@
       const a = document.createElement('a');
       const keySlug = genKey().replace(/\s+/g, '_');
       a.href = URL.createObjectURL(blob);
-      a.download = `harmonyx_${keySlug}.musicxml`;
+      a.download = `harmony-studio_${keySlug}.musicxml`;
       a.click();
       URL.revokeObjectURL(a.href);
     }
