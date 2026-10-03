@@ -1,7 +1,7 @@
 # Harmony Studio implementation plan
 
 Prepared 2026-10-02 from `HARMONY-STUDIO-REBRAND.md` and the current frontend.
-Status: chunks 1–3 complete (2026-10-02); chunks 4–5 being finalized.
+Status: chunks 1–4 complete (2026-10-02); release verification being recorded.
 
 Chunk 1 verification: browser confirmed Create selected on fresh load,
 Analyze/Create switching, progression proposal and score generation with
@@ -39,6 +39,16 @@ Narrow viewport checks confirmed contained score/cards and no page overflow;
 light/dark appearances were inspected. No musical engine or API contract
 changes were made. Frontend JavaScript parsing and diff checks passed.
 
+Chunk 4 verification: developer showcase typography, palette, navigation,
+focus states, and mobile layout now align with the studio. Its live progression,
+generation, notation, analysis, and soprano-option examples passed browser
+checks. `/`, `/demo`, `/portfolio`, `/docs`, and `/openapi.json` returned 200;
+showcase aliases returned identical HTML. README now leads with browser setup
+and workflows, followed by the developer reference. Its link targets and code
+fences were checked. Local START-HERE, STATUS, and a new diary entry were
+updated; their existing private/ignored-file policy is retained. The tracked
+plan records release verification for the remote handoff.
+
 ## Outcome and scope
 
 Harmony Studio is the browser product for creating, hearing, and exploring
@@ -54,7 +64,10 @@ progression generation, and a full notation editor are future product work.
 
 Work one numbered chunk at a time. Each ends with verification, a focused
 commit and push, and a user check-in before starting the next chunk, following
-AGENTS.md. Do not execute the whole plan as one uninterrupted task.
+AGENTS.md. The user explicitly authorized completing chunks 3–5 together on
+2026-10-02, so those chunks proceed with separate verification/commit boundaries
+without waiting for additional approval. Future work returns to the normal
+small-chunk convention.
 
 ## Product decisions for this release
 

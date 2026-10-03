@@ -6,21 +6,37 @@
   <title>Harmony Studio API — Developer demo</title>
   <style>
     :root {
-      --ink: #1a1714;
-      --muted: #5c564e;
-      --faint: #8a8378;
-      --paper: #f7f3eb;
-      --card: #fffcf7;
-      --line: #e4ddd0;
-      --accent: #0f6b5c;
-      --accent-soft: #d8efe9;
-      --warm: #b45309;
-      --warm-soft: #f5e6d3;
-      --danger: #9b2c2c;
-      --shadow: 0 1px 2px rgba(26,23,20,.04), 0 12px 40px rgba(26,23,20,.07);
+      color-scheme: light dark;
+      --ink: #1d1b19;
+      --muted: #6d685f;
+      --faint: #6d685f;
+      --paper: #f4f2ec;
+      --card: #fffdf9;
+      --card-2: #f7f4ee;
+      --line: #e6e1d7;
+      --button-ink: #fff;
+      --accent: #b4551f;
+      --accent-2: #6a5794;
+      --accent-soft: color-mix(in srgb, var(--accent) 10%, var(--card));
+      --warm-soft: color-mix(in srgb, var(--accent-2) 10%, var(--card));
+      --danger: #b42318;
+      --shadow: 0 1px 2px rgba(40,32,20,.04), 0 8px 24px rgba(40,32,20,.06);
       --radius: 16px;
-      --font: "Segoe UI", system-ui, -apple-system, sans-serif;
-      --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+      --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, sans-serif;
+      --serif: Georgia, "Times New Roman", serif;
+      --bg-grad: radial-gradient(1200px 600px at 15% -5%, #efe9dc 0%, transparent 60%),
+                 radial-gradient(900px 500px at 100% 0%, #ece6f0 0%, transparent 55%);
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --ink: #f2efe8; --muted: #a49e93; --faint: #a49e93;
+        --paper: #171512; --card: #201d19; --card-2: #26221d; --line: #34302a;
+        --button-ink: #171512;
+        --accent: #e58a4f; --accent-2: #a892d6; --danger: #ff968a;
+        --shadow: 0 1px 2px rgba(0,0,0,.3), 0 10px 30px rgba(0,0,0,.35);
+        --bg-grad: radial-gradient(1200px 600px at 15% -5%, #221f1a 0%, transparent 60%),
+                   radial-gradient(900px 500px at 100% 0%, #1e1b24 0%, transparent 55%);
+      }
     }
 
     * { box-sizing: border-box; }
@@ -29,14 +45,12 @@
       margin: 0;
       min-height: 100vh;
       color: var(--ink);
-      background:
-        radial-gradient(900px 480px at 10% -10%, #efe6d4 0%, transparent 55%),
-        radial-gradient(700px 400px at 100% 0%, #ddeee8 0%, transparent 50%),
-        var(--paper);
-      font: 17px/1.55 var(--font);
+      background: var(--bg-grad), var(--paper);
+      background-attachment: fixed;
+      font: 16px/1.55 var(--font);
     }
 
-    .wrap { max-width: 920px; margin: 0 auto; padding: 2.25rem 1.25rem 4rem; }
+    .wrap { max-width: 940px; margin: 0 auto; padding: 2.5rem 1.25rem 4rem; }
 
     header {
       display: grid;
@@ -56,7 +70,7 @@
       margin: 0;
       font-family: var(--serif);
       font-size: clamp(1.85rem, 4vw, 2.45rem);
-      font-weight: 650;
+      font-weight: 700;
       letter-spacing: -.02em;
       line-height: 1.15;
     }
@@ -101,9 +115,9 @@
       margin-bottom: 1.75rem;
       padding: 1.15rem 1.25rem;
       background: var(--accent-soft);
-      border: 1px solid #b7ddd3;
+      border: 1px solid var(--line);
       border-radius: var(--radius);
-      color: #1e4d44;
+      color: var(--ink);
     }
     .intro p { margin: 0; }
 
@@ -176,13 +190,13 @@
       font: inherit;
       font-weight: 600;
       font-size: .92rem;
-      border-radius: 12px;
-      padding: .65rem 1.05rem;
+      border-radius: 999px;
+      padding: .5rem 1.05rem;
       background: var(--accent);
-      color: #fff;
+      color: var(--button-ink);
       transition: transform .12s ease, filter .12s ease, opacity .12s ease;
     }
-    button:hover { filter: brightness(1.06); }
+    button:hover, .btn:hover { filter: brightness(1.06); }
     button:active { transform: translateY(1px); }
     button:disabled {
       opacity: .55;
@@ -190,14 +204,14 @@
       transform: none;
       filter: none;
     }
-    button.secondary {
+    button.secondary, .btn.secondary {
       background: transparent;
       color: var(--ink);
       border: 1px solid var(--line);
     }
     button.ghost {
       background: var(--warm-soft);
-      color: #7c3d0a;
+      color: var(--accent-2);
     }
 
     .hint {
@@ -219,7 +233,7 @@
       min-width: 2.4rem;
       padding: .45rem .65rem;
       border-radius: 10px;
-      background: #f0ebe1;
+      background: var(--card-2);
       border: 1px solid var(--line);
       font-family: var(--serif);
       font-weight: 650;
@@ -227,7 +241,7 @@
     }
     .rn.cadence {
       background: var(--accent-soft);
-      border-color: #b7ddd3;
+      border-color: var(--line);
       color: var(--accent);
     }
 
@@ -235,8 +249,8 @@
       margin-top: .85rem;
       padding: 1rem 1.1rem;
       border-radius: 12px;
-      background: #f3f0e8;
-      border: 1px dashed #d4cdbf;
+      background: var(--card-2);
+      border: 1px dashed var(--line);
     }
     .result-panel h3 {
       margin: 0 0 .5rem;
@@ -297,7 +311,7 @@
     }
     .score-fallback {
       padding: 1rem;
-      color: var(--muted);
+      color: #6d685f;
       font-size: .9rem;
     }
 
@@ -319,7 +333,7 @@
     .meter span {
       flex: 1;
       border-radius: 4px 4px 2px 2px;
-      background: linear-gradient(180deg, #2a9d8f, #0f6b5c);
+      background: linear-gradient(180deg, var(--accent-2), var(--accent));
       opacity: .85;
       transform-origin: bottom;
       transition: height .35s ease;
@@ -353,7 +367,7 @@
       padding: 1rem 1.15rem;
       border-radius: var(--radius);
       border: 1px solid var(--line);
-      background: rgba(255,255,255,.45);
+      background: var(--card);
       font-size: .88rem;
       color: var(--muted);
     }
@@ -372,6 +386,32 @@
       font-size: .78rem;
       line-height: 1.45;
     }
+    a { color: var(--accent); }
+    .header-actions .btn { text-decoration: none; display: inline-flex; }
+    :is(a, button, summary, input):focus-visible,
+    .upload-btn:focus-within {
+      outline: 3px solid var(--accent-2);
+      outline-offset: 3px;
+    }
+    .upload-btn { position: relative; display: inline-flex; align-items: center; }
+    .upload-btn input {
+      position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer;
+    }
+    @media (max-width: 600px) {
+      .wrap { padding: 1.5rem .9rem 3rem; }
+      .card-head { flex-wrap: wrap; gap: .65rem; padding: 1rem 1rem 0; }
+      .card-head > div:not(.num) { flex: 1; min-width: 0; }
+      .api-tag { margin-left: 2.75rem; max-width: calc(100% - 2.75rem); white-space: normal; overflow-wrap: anywhere; }
+      .card-body { padding: 1rem; }
+      .row button { max-width: 100%; overflow-wrap: anywhere; }
+      .kv { grid-template-columns: 1fr; gap: .15rem; }
+      .kv dd { margin-bottom: .4rem; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after { animation: none !important; transition: none !important; }
+    }
+
   </style>
 </head>
 <body>
@@ -385,12 +425,12 @@
         realize four-part SATB scores. Try the deterministic endpoints with
         live responses below, or open the studio to create and explore in the browser.
       </p>
-      <div class="header-actions">
-        <a class="btn" href="/" style="text-decoration:none;display:inline-flex">Open Harmony Studio</a>
+      <nav class="header-actions" aria-label="Developer navigation">
+        <a class="btn" href="/">Open Harmony Studio</a>
         <span class="pill" id="healthPill">Checking server…</span>
         <span class="pill">Local demo · no auth</span>
-        <a class="btn secondary" href="/docs" style="text-decoration:none;display:inline-flex">OpenAPI /docs</a>
-      </div>
+        <a class="btn secondary" href="/docs">OpenAPI /docs</a>
+      </nav>
     </header>
 
     <section class="intro" aria-label="How to use">
@@ -427,7 +467,7 @@
             <div class="rn-row" id="rnChips" aria-live="polite"></div>
             <p class="hint" id="proposeMeta" style="margin:.75rem 0 0"></p>
           </div>
-          <p class="status" id="proposeStatus"></p>
+          <p class="status" role="status" id="proposeStatus"></p>
         </div>
       </article>
 
@@ -465,7 +505,7 @@
               <span style="height:85%"></span>
             </div>
           </div>
-          <p class="status" id="generateStatus"></p>
+          <p class="status" role="status" id="generateStatus"></p>
         </div>
       </article>
 
@@ -485,9 +525,9 @@
         <div class="card-body">
           <div class="row">
             <button type="button" id="btnAnalyzeGenerated" disabled>Analyze generated MusicXML</button>
-            <label class="btn secondary" style="display:inline-flex;align-items:center;cursor:pointer">
+            <label class="btn secondary upload-btn">
               Upload file
-              <input type="file" id="fileInput" accept=".musicxml,.xml,.mxl,.mid,.midi" hidden />
+              <input type="file" id="fileInput" accept=".musicxml,.xml,.mxl,.mid,.midi" aria-label="Upload score for analysis" />
             </label>
           </div>
           <div class="result-panel" id="analyzePanel" hidden>
@@ -500,7 +540,7 @@
             </dl>
             <ul class="chord-list" id="chordList"></ul>
           </div>
-          <p class="status" id="analyzeStatus"></p>
+          <p class="status" role="status" id="analyzeStatus"></p>
         </div>
       </article>
 
@@ -526,7 +566,7 @@
             <h3>Response · options</h3>
             <ul class="chord-list" id="sopranoList"></ul>
           </div>
-          <p class="status" id="sopranoStatus"></p>
+          <p class="status" role="status" id="sopranoStatus"></p>
         </div>
       </article>
     </div>

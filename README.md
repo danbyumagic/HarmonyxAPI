@@ -1,8 +1,18 @@
-# Harmonyx API
+# Harmony Studio
 
-**FastAPI service for tonal harmony: analyze scores to Roman numerals, propose progressions, and realize SATB chorales as MusicXML.**
+**Create, hear, and explore classical harmony in your browser.**
 
-Deterministic core (music21 + clean-room part-writing). Optional LLM explainer on analyze only — it never rewrites labels. Interactive OpenAPI at `/docs`; a thin demo UI at `/`.
+Harmony Studio opens directly into **Create**, where you can suggest and edit
+Roman-numeral progressions, generate four-part SATB scores, preview notation,
+listen, choose soprano alternatives, and export MusicXML. **Analyze** turns an
+uploaded MusicXML or MIDI score into key, Roman-numeral, and cadence results.
+
+The Harmony Studio API powers these workspaces and provides programmatic access
+for developers. The musical core is deterministic (music21 + clean-room
+part-writing); progression suggestions use a rule grammar. An optional
+server-configured explainer can add a walkthrough to analysis without changing
+its labels. Accounts, saved projects, and AI progression generation are not
+implemented.
 
 [![CI](https://github.com/danbyumagic/HarmonyxAPI/actions/workflows/ci.yml/badge.svg)](https://github.com/danbyumagic/HarmonyxAPI/actions/workflows/ci.yml)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://www.python.org/downloads/)
@@ -11,7 +21,53 @@ Deterministic core (music21 + clean-room part-writing). Optional LLM explainer o
 
 ---
 
-## Endpoints
+## Quick start: open the studio
+
+```bash
+python -m venv .venv && source .venv/bin/activate   # Python ≥ 3.11
+pip install -r requirements.txt
+uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
+```
+
+Open [Harmony Studio](http://127.0.0.1:8000/) in your browser. No API key is
+needed to create scores or run harmonic analysis.
+
+### Create a four-part score
+
+1. Choose a key, chord count, ending, and harmonic color, then **Suggest progression**.
+2. Edit individual Roman numerals and lock chords you want to keep. Use
+   **Suggest unlocked chords** to vary the rest; **Suggest progression** starts fresh.
+3. Select **Generate score** to see the SATB notation (soprano, alto, tenor, bass).
+4. Preview soprano alternatives and select a melody to regenerate the score.
+   **More options** requests additional alternatives when available.
+5. Use **Play / Stop** to hear the score and download MusicXML for a notation editor.
+
+Roman numerals describe chords relative to the selected key. Advanced settings
+include an optional seed for repeatable progression suggestions. Playback uses
+basic synthesized audio; score export uses a braced grand staff.
+
+### Analyze an existing score
+
+Switch to **Analyze**, choose or drop a `.musicxml`, `.xml`, `.mxl`, `.mid`, or
+`.midi` file, and run the analysis. Review the detected key, chord labels, and
+cadences. The duration threshold filters short vertical slices, measured in
+quarter notes. The optional plain-English walkthrough depends on server
+configuration and availability; the analysis itself needs no explainer key.
+
+### Developers
+
+The studio's **Developers** link opens the [API showcase](http://127.0.0.1:8000/demo)
+(`/demo`; `/portfolio` serves the same page). Open the
+[interactive API reference](http://127.0.0.1:8000/docs) for schemas and request
+examples. Both developer surfaces provide a path back to the studio.
+The repository remains [danbyumagic/HarmonyxAPI](https://github.com/danbyumagic/HarmonyxAPI).
+
+```bash
+curl -s http://127.0.0.1:8000/health
+# {"status":"ok"}
+```
+
+## API reference
 
 | Method | Path | Content type | Summary |
 |--------|------|--------------|---------|
@@ -19,25 +75,10 @@ Deterministic core (music21 + clean-room part-writing). Optional LLM explainer o
 | `POST` | [`/progression`](#post-progression) | `application/json` | Propose an idiomatic RN progression |
 | `POST` | [`/generate`](#post-generate) | `application/json` | RN list → SATB MusicXML + playback JSON |
 | `POST` | [`/generate/soprano-options`](#post-generatesoprano-options) | `application/json` | Distinct soprano lines for a progression |
-| `GET`  | `/health` | — | Liveness `{ "status": "ok" }` |
-| `GET`  | `/docs` | — | Swagger UI (OpenAPI) |
-| `GET`  | `/` | — | Demo frontend (optional) |
-
----
-
-## Quick start
-
-```bash
-python -m venv .venv && source .venv/bin/activate   # Python ≥ 3.11
-pip install -r requirements.txt
-uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
-# OpenAPI: http://127.0.0.1:8000/docs
-```
-
-```bash
-curl -s http://127.0.0.1:8000/health
-# {"status":"ok"}
-```
+| `GET` | `/health` | — | Liveness `{ "status": "ok" }` |
+| `GET` | `/docs` | — | Swagger UI (OpenAPI) |
+| `GET` | `/` | — | Harmony Studio browser workspace |
+| `GET` | `/demo`, `/portfolio` | — | Harmony Studio API developer showcase |
 
 ---
 
@@ -244,7 +285,8 @@ python -m eval.run_generation_eval --min-roundtrip 1.0 --max-violations 0
 ## Deploy
 
 ```bash
-docker build -t harmonyx . && docker run -p 8000:8000 harmonyx
+docker build -t harmony-studio .
+docker run -p 8000:8000 harmony-studio
 # Health: GET /health   (Fly/Railway inject $PORT; fly.toml + railway.json included)
 ```
 
@@ -259,7 +301,8 @@ app/
   analyzer.py          score → analysis
   explainer.py         optional LLM walkthrough (ANTHROPIC_API_KEY)
   generation/          grammar, voicing, rules, DP realizer
-  static/index.html    optional demo UI
+  static/index.html    Harmony Studio Create / Analyze workspaces
+  static/portfolio.html  secondary developer showcase (/demo, /portfolio)
 eval/                  regression harnesses
 tests/                 unit + endpoint + locked part-writing fixtures
 ```
