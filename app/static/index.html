@@ -163,6 +163,11 @@
       border: 1px dashed var(--border); border-radius: 12px; text-align: center;
     }
 
+    .workflow-help { color: var(--muted); font-size: .88rem; margin: .85rem 0 0; }
+    .advanced-settings { margin-top: 1rem; color: var(--muted); font-size: .88rem; }
+    .advanced-settings summary { cursor: pointer; }
+    .advanced-settings .field { max-width: 18rem; margin-top: .65rem; }
+    .advanced-settings p { margin: .4rem 0 0; }
     .field-wide { grid-column: 1 / -1; }
     .spice-row {
       display: flex; flex-wrap: wrap; align-items: center; gap: .75rem 1.1rem;
@@ -358,8 +363,8 @@
     <!-- ========== GENERATE ========== -->
     <section id="generatePanel">
       <h1>Create a four-part score</h1>
-      <p class="lede">Propose an idiomatic Roman-numeral progression, edit or lock chords,
-        then realize a four-part SATB hymn as MusicXML.</p>
+      <p class="lede">Shape a chord progression into a score for soprano, alto, tenor,
+        and bass (SATB). Edit the harmony, hear melodic options, and download your score.</p>
 
       <div class="panel">
         <div class="form-row">
@@ -381,22 +386,18 @@
             </select>
           </div>
           <div class="field">
-            <label for="genLength">Length</label>
+            <label for="genLength">Number of chords</label>
             <input id="genLength" type="number" min="2" max="32" value="8" />
           </div>
           <div class="field">
             <label for="genCadence">Cadence</label>
             <select id="genCadence">
-              <option value="PAC">PAC (V→I)</option>
-              <option value="HC">Half (…→V)</option>
+              <option value="PAC">Full close (V→I)</option>
+              <option value="HC">Half close (…→V)</option>
             </select>
           </div>
-          <div class="field">
-            <label for="genSeed">Seed <span style="font-weight:400;text-transform:none;letter-spacing:0">(optional)</span></label>
-            <input id="genSeed" type="number" placeholder="random" />
-          </div>
           <div class="field field-wide">
-            <label for="genSpice">Color / spice <span id="genSpiceLabel" style="font-weight:400;text-transform:none;letter-spacing:0">— 0 · student</span></label>
+            <label for="genSpice">Harmonic color <span id="genSpiceLabel" style="font-weight:400;text-transform:none;letter-spacing:0">— 0 · Student</span></label>
             <div class="spice-row">
               <input id="genSpice" type="range" min="0" max="3" step="1" value="0" aria-valuemin="0" aria-valuemax="3" aria-valuenow="0" aria-describedby="genSpiceHelp" />
               <div class="spice-pills" id="genStylePills" role="group" aria-label="Style presets">
@@ -407,21 +408,36 @@
               </div>
             </div>
             <p class="spice-meta" id="genSpiceHelp">
-              <strong>0</strong> homework-safe ·
-              <strong>1</strong> hymnal (inversions / Cad64) ·
-              <strong>2</strong> spicy (occasional V/V…) ·
-              <strong>3</strong> max (also V/vi, V/ii). Sent as <code>spice</code> on Propose.
+              <strong>Student</strong> keeps harmony simple ·
+              <strong>Hymnal</strong> adds inversions ·
+              <strong>Spicy</strong> adds chords that lead toward other chords ·
+              <strong>Max</strong> uses a wider range of those chords.
             </p>
           </div>
         </div>
 
+        <details class="advanced-settings">
+          <summary>Advanced settings</summary>
+          <div class="field">
+            <label for="genSeed">Seed (optional)</label>
+            <input id="genSeed" type="number" placeholder="random" aria-describedby="genSeedHelp" />
+          </div>
+          <p id="genSeedHelp">Use the same seed and settings to repeat a progression suggestion. Leave blank for variety.</p>
+        </details>
+
+        <p class="workflow-help">Choose your settings, then suggest a progression. Roman numerals
+          describe chords in the selected key: I (or i in a minor key) is the home chord,
+          and V leads back to it.</p>
         <div class="actions">
-          <button type="button" class="btn btn-primary" id="btnPropose">Propose progression</button>
-          <button type="button" class="btn" id="btnRegen" disabled>Regenerate unlocked</button>
-          <button type="button" class="btn btn-primary" id="btnRealize" disabled>Realize MusicXML</button>
+          <button type="button" class="btn btn-primary" id="btnPropose">Suggest progression</button>
+          <button type="button" class="btn" id="btnRegen" disabled>Suggest unlocked chords</button>
+          <button type="button" class="btn btn-primary" id="btnRealize" disabled>Generate score</button>
         </div>
 
-        <div id="rnEmpty" class="empty-hint">Hit <strong>Propose progression</strong> to get started — or type figures after proposing and lock the ones you want to keep. Raise spice above if you want secondary dominants.</div>
+        <div id="rnEmpty" class="empty-hint">Choose <strong>Suggest progression</strong> to get started.</div>
+        <p id="rnHelp" class="workflow-help" hidden>Edit any chord below, then lock the ones you want to keep
+          when choosing <strong>Suggest unlocked chords</strong>. <strong>Suggest progression</strong>
+          starts a fresh progression. Choose <strong>Generate score</strong> when the harmony is ready.</p>
         <div id="rnGrid" class="rn-grid" hidden></div>
       </div>
 
@@ -587,7 +603,7 @@
     btnRegen.addEventListener('click', () => proposeProgression(true));
     btnRealize.addEventListener('click', realizeProgression);
 
-    const SPICE_NAMES = { 0: 'student', 1: 'hymnal', 2: 'spicy', 3: 'max' };
+    const SPICE_NAMES = { 0: 'Student', 1: 'Hymnal', 2: 'Spicy', 3: 'Max' };
 
     function genKey() { return $('genKey').value; }
     function genLength() { return Math.max(2, Math.min(32, parseInt($('genLength').value, 10) || 8)); }
@@ -645,17 +661,19 @@
       if (!slots.length) {
         rnGrid.hidden = true;
         rnEmpty.hidden = false;
+        $('rnHelp').hidden = true;
         btnRegen.disabled = true;
         btnRealize.disabled = true;
         return;
       }
       rnEmpty.hidden = true;
+      $('rnHelp').hidden = false;
       rnGrid.hidden = false;
       rnGrid.innerHTML = slots.map((s, i) => `
         <div class="rn-slot ${s.locked ? 'locked' : ''}" data-i="${i}">
           <div class="idx">#${i + 1}</div>
           <input type="text" value="${escapeAttr(s.figure)}" aria-label="Chord ${i + 1}" spellcheck="false" />
-          <button type="button" class="lock" data-i="${i}" title="Lock this chord when regenerating">
+          <button type="button" class="lock" data-i="${i}" title="Keep this chord when suggesting unlocked chords">
             ${s.locked ? '🔒 locked' : '🔓 lock'}
           </button>
         </div>`).join('');
@@ -700,7 +718,7 @@
       lastPlayback = null;
       osmdInstance = null;
       stopPlayback();
-      setGenStatus(`<span class="spinner"></span> Proposing progression (spice ${spice})…`);
+      setGenStatus(`<span class="spinner"></span> Suggesting ${SPICE_NAMES[spice].toLowerCase()} harmony…`);
 
       try {
         const res = await fetch('/progression', {
@@ -721,11 +739,10 @@
         // If we had more locks than new length, ignore extras (length is authoritative).
         renderSlots();
         const echoSpice = data.spice != null ? data.spice : spice;
-        const echoStyle = data.style ? ` · style ${data.style}` : '';
         const hasSecondary = data.progression.some((f) => String(f).includes('/'));
         setGenStatus(
-          `Proposed · spice ${echoSpice}${echoStyle}` +
-            (hasSecondary ? ' · includes secondary dominant(s)' : ' · no secondary dominants')
+          `Progression ready · ${SPICE_NAMES[echoSpice] || 'custom'} harmony. Edit or lock chords, then generate your score.` +
+            (hasSecondary ? ' Includes secondary dominants: chords that lead toward another chord.' : '')
         );
       } catch (err) {
         setGenStatus(`Error: ${err.message}`, true);
@@ -810,11 +827,11 @@
       readSlotsFromDom();
       const progression = slots.map((s) => s.figure.trim()).filter(Boolean);
       if (!progression.length) {
-        setGenStatus('Add at least one Roman numeral first.', true);
+        setGenStatus('Add at least one chord first, such as I in a major key.', true);
         return;
       }
 
-      setGenStatus(`<span class="spinner"></span> Realizing four-part hymn…`);
+      setGenStatus(`<span class="spinner"></span> Generating your four-part score…`);
       genResults.className = '';
       sopranoOptions = [];
       selectedSopranoIndex = 0;
@@ -840,7 +857,7 @@
 
     async function finalizeRealization(soprano, progressionOverride) {
       const progression = progressionOverride || slots.map((s) => s.figure.trim()).filter(Boolean);
-      setGenStatus(`<span class="spinner"></span> Realizing four-part hymn…`);
+      setGenStatus(`<span class="spinner"></span> Generating your four-part score…`);
 
       try {
         const body = { key: genKey(), progression, time_signature: '4/4' };
@@ -866,11 +883,13 @@
               <div class="keyname">${escapeHtml(data.key)}</div>
               <div class="fname">Four-part SATB · ${progression.length} chords · ${escapeHtml(data.time_signature)} · ${tempo} BPM</div>
             </div>
-            <div class="conf"><div class="num">✓</div><div class="lbl">realized</div></div>
+            <div class="conf"><div class="num">✓</div><div class="lbl">score ready</div></div>
           </div>
           <div class="section-title"><h2>Progression</h2><span class="count">${progression.length}</span></div>
           <div class="chip-row">${chips}</div>
           <div class="section-title"><h2>Soprano options</h2><span class="count" id="sopranoOptionsCount">${sopranoOptions.length}</span></div>
+          <p class="workflow-help">The soprano is the top melody. Use ▶ to hear a line on its own;
+            select its card to generate the full score with that melody.</p>
           <div class="soprano-options" id="sopranoOptions"></div>
           <div class="soprano-more">
             <button type="button" class="btn" id="btnMoreSoprano">More options</button>
@@ -884,7 +903,7 @@
             <button type="button" class="btn btn-primary" id="btnPlay" ${lastPlayback ? '' : 'disabled'}>Play</button>
             <button type="button" class="btn" id="btnStop" disabled>Stop</button>
             <button type="button" class="btn" id="btnDownload">Download MusicXML</button>
-            <span class="ok-msg">Block chords @ ${tempo} BPM · rough Web Audio synth · download for MuseScore.</span>
+            <span class="ok-msg">Listen at ${tempo} BPM, or download MusicXML to open in a notation app such as MuseScore.</span>
           </div>`;
         genResults.className = 'show';
         renderSopranoOptions();

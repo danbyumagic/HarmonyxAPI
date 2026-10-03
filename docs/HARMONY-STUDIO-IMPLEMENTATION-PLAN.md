@@ -1,7 +1,7 @@
 # Harmony Studio implementation plan
 
 Prepared 2026-10-02 from `HARMONY-STUDIO-REBRAND.md` and the current frontend.
-Status: chunk 1 complete (2026-10-02); chunks 2–5 pending.
+Status: chunks 1–2 complete (2026-10-02); chunks 3–5 pending.
 
 Chunk 1 verification: browser confirmed Create selected on fresh load,
 Analyze/Create switching, progression proposal and score generation with
@@ -11,7 +11,18 @@ Export naming was checked by intercepting the browser download anchor; an
 actual file download/import was not checked in this chunk. Focused TestClient
 checks confirmed OpenAPI branding and identical `/demo` and `/portfolio`
 responses. Existing generate/progression endpoint tests: **22 passed**.
-`git diff --check` passed. Next chunk: Create workflow copy and guidance.
+`git diff --check` passed.
+
+Chunk 2 verification: browser confirmed the revised labels and guidance,
+seed `0` retained with Advanced settings collapsed, locked chord preservation
+when suggesting unlocked chords, and a fresh suggestion clearing locks.
+Actual requests retained numeric spice values and the existing style aliases
+(checked Student and Spicy, plus Max with no alias). Generation rendered
+notation; previewing and selecting another soprano worked; Play/Stop controls
+and export naming passed. No automatic generation was added. Export was
+checked through its anchor, not a downloaded-file import. No backend changes
+or new test framework; `git diff --check` passed. Next chunk: Analyze and
+shared workspace behavior.
 
 ## Outcome and scope
 
